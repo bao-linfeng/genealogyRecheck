@@ -149,7 +149,9 @@ export default {
     }
   },
   mounted:function(){
-    
+    window.addEventListener('resize', () => {
+      this.$store.dispatch("setPropertyValue", {'property': 'isResize', 'value': Date.now()});
+    });
   },
   methods:{
     async getWaitReviewNumber(){//获取等待审核卷数（机构或微站）

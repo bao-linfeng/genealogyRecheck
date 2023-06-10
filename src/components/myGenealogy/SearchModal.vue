@@ -51,7 +51,7 @@
                 value-format="yyyy"
                 placeholder="版本结束年">
             </el-date-picker>
-            <el-select v-if="role >= 1 && role <= 3" v-model="parameters.orgKey" multiple placeholder="请选择机构" class="w15 marginB10">
+            <el-select v-if="role >= 1 && role <= 3" v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
                     :key="item.value"
@@ -103,11 +103,14 @@
             <div class="w15 marginB10 noPublishAD">
                 <el-checkbox v-model="parameters.isPlace">无谱籍地</el-checkbox>
             </div>
+            <div class="w15 marginB10 noPublishAD">
+                <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
+            </div>
             <div class="search-input-modal">
                 <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
             </div>
-            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 16 : 13))%6 || 6))" :key="'kon'+item"></div>
+            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 17 : 14))%6 || 6))" :key="'kon'+item"></div>
             <div class="search-input-modal"></div>
         </div>
         <div class="search-modal-box" v-if="!isShow">
@@ -139,7 +142,7 @@
                     :value="item.value">
                 </el-option>
             </el-select>
-            <el-select v-if="role >= 1 && role <= 3" v-model="parameters.orgKey" multiple placeholder="上传机构" class="w15 marginB10">
+            <el-select v-if="role >= 1 && role <= 3" v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
                     :key="item.value"
@@ -151,7 +154,10 @@
                 <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
             </div>
-            <div class="search-input-modal" v-for="(item, index) in 4" :key="index"></div>
+            <div class="w15 marginB10 noPublishAD">
+                <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
+            </div>
+            <div class="search-input-modal" v-for="(item, index) in 3" :key="index"></div>
         </div>
         <div class="search-modal-box">
             <div class="search-input-modal"></div>

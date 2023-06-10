@@ -2,7 +2,7 @@
     <div class="catalog-wrap">
         <div class="catalog-box">
             <div class="head-box">
-                <h3 class="title">谱目详情</h3>
+                <h3 class="title">谱目编辑</h3>
                 <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
             </div>
             <div class="content-box style1" :style="{height: (h - 160)+'px'}">
@@ -52,6 +52,7 @@ export default {
                 {'fieldMeans': '一世祖', 'fieldName': 'firstAncestor'},
                 {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
                 {'fieldMeans': '备注', 'fieldName': 'memo'},
+                {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid'},
                 {'fieldMeans': '状态', 'fieldName': 'condition', 'disabled': true},
                 {'fieldMeans': '省市区', 'fieldName': 'address', 'disabled': true},
                 {'fieldMeans': '审核状态', 'fieldName': 'gcStatus', 'disabled': true},

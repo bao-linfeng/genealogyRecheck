@@ -34,7 +34,7 @@
                     <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" :width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
                     <vxe-table-column field="memo" title="备注" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
-                    <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
+                    <vxe-table-column field="claimOrgName" title="供应商" width="100"></vxe-table-column>
                     <vxe-table-column field="condition" title="谱状态" width="100"></vxe-table-column>
                     <vxe-table-column field="Filetimes" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
                     <vxe-table-column field="Filenames" title="档名" width="100"></vxe-table-column>
@@ -128,6 +128,7 @@ export default {
             {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
             {'fieldMeans': '可拍册数', 'fieldName': 'hasVolume'},
             {'fieldMeans': '实拍册数', 'fieldName': 'volumeNumber'},
+            {'fieldMeans': '通过册数', 'fieldName': 'passVolumeNumber'},
             {'fieldMeans': '作者', 'fieldName': 'authors'},
             {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
             {'fieldMeans': '版本类型', 'fieldName': 'version'},
@@ -168,15 +169,6 @@ export default {
         }
         
         this.initData();
-
-        window.addEventListener('resize', () => {
-            console.log(Date.now());
-            if(this.isFull){
-                this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40 + 240;
-            }else{
-                this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40;
-            }
-        });
     },
     methods:{
         toggleFull(){
@@ -318,11 +310,19 @@ export default {
             pathname: state => state.nav.pathname,
             orgAdmin: state => state.nav.orgAdmin,
             catalogStatusO: state => state.nav.catalogStatusO,
+            isResize: state => state.nav.isResize,
         })
     },
     watch: {
         'fieldFilters': function(nv, ov){
             this.initData();
+        },
+        'isResize': function(nv, ov){
+            if(this.isFull){
+                this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40 + 240;
+            }else{
+                this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40;
+            }
         },
     },
 };

@@ -105,7 +105,7 @@ export default {
             {'label': '验证设备验证码', 'value': '验证设备验证码'},
             {'label': '任务认领', 'value': '任务认领'},
             {'label': '谱目状态改变', 'value': '谱目状态改变'},
-            // {'label': '', 'value': ''},
+            {'label': '家谱审核通过', 'value': '家谱审核通过'},
             ],
             logType: '',
             startTime: '',

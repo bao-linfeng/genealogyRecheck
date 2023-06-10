@@ -1,9 +1,10 @@
 <template>
   <div class="genealogySearch">
     <NavLink class="searchNav" />
-    <i :class="(searchIsShow ? 'el-icon-search' : 'el-icon-close') +' searchIcon'" @click="searchIsShow=!searchIsShow"></i>
+    <!-- <i :class="(searchIsShow ? 'el-icon-search' : 'el-icon-close') +' searchIcon'" @click="searchIsShow=!searchIsShow"></i> -->
     <div class="center">
-        <div class="searchWrap" :class="{hide:searchIsShow}">
+        <!-- :class="{hide:searchIsShow}" -->
+        <div class="searchWrap">
             <div class="searchBox">
                 <div class="group">
                     <input class="search" type="text" placeholder="请输入姓氏" v-model.trim="surname" @keyup="handleKeyUp" />
@@ -173,6 +174,8 @@ export default {
                 this.isInOrg(this.userKey);
                 this.clickBtn();
                 this.getUserAndStarInfoAndRole();
+
+                !this.roleName ? this.userMenuList(this.userKey) : null;
             }else{
                 let pathname=window.localStorage.getItem('pathname') || '';
                 this.$router.push({path: '/'+pathname});
@@ -183,6 +186,26 @@ export default {
         }
     },
     methods:{
+        async userMenuList(userKey){
+            let result = await api.getAxios('userMenuList?userKey='+userKey);
+            if(result.status == 200){
+                let roleName = result.data.roleName || '', menuList = result.data.menuList || [], roleKey = result.data.roleKey || '', roleType = result.data.roleType || '';
+                window.localStorage.setItem('roleName', roleName);
+                this.$store.dispatch("setPropertyValue", {'property': 'roleName', 'value': roleName});
+
+                window.localStorage.setItem('menuList', JSON.stringify(menuList));
+                this.$store.dispatch("setPropertyValue", {'property': 'menuList', 'value': menuList});
+
+                window.localStorage.setItem('roleKey', roleKey);
+                this.$store.dispatch("setPropertyValue", {'property': 'roleKey', 'value': roleKey});
+
+                window.localStorage.setItem('roleType', roleType);
+                this.$store.dispatch("setPropertyValue", {'property': 'roleType', 'value': roleType});
+
+            }else{
+                this.$message({message: result.msg, type: 'warning'});
+            }
+        },
         async isInOrg(userKey){
             let data = await api.getAxios('org/user/isInOrg?siteKey=1528234980&userKey='+userKey);
             if(data.status == 200){
@@ -260,6 +283,8 @@ export default {
                 this.$store.dispatch('setPropertyValue',{'property':'stationlogo','value':result.starInfo.logo});
                 this.$store.dispatch("changeUserRole",{'stationName':result.starInfo.name,'userRole':this.userRole});
                 this.$store.dispatch("saveDomain",domain);
+
+                this.userMenuList(this.userKey);
 
                 this.isInOrg(this.userKey);
                 
@@ -365,7 +390,9 @@ export default {
         ...mapState({
             activeSurname: state => state.surname.activeSurname,
             activeSurnameIndex:state => state.surname.activeSurnameIndex,
-            role: state => state.nav.role
+            role: state => state.nav.role,
+            roleName: state => state.nav.roleName,
+            menuList: state => state.nav.menuList,
         })
     },
 };
@@ -475,7 +502,7 @@ export default {
     height: 16px;
     line-height: 16px;
     border-left: 4px solid #666;
-    color: #fff;
+    color: #333;
     font-size: 18px;
     display: flex;
     justify-content: space-between;

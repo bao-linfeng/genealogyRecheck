@@ -56,7 +56,8 @@
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">申诉{{(role == 1 || role == 2 || role == 3) ? '回复' : ''}}</span>
                 </div> -->
-                <div v-if="((orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14))) && !isRead" class="task-verify" @click="handleImagesCheck">
+                <!-- ((orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14))) && !isRead -->
+                <div v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14) || (['9071165268', '9071165200'].indexOf(roleKey) > -1 && (takeStatus == 6 || takeStatus == 7 || takeStatus == 16))" class="task-verify" @click="handleImagesCheck">
                     <img src="../../assets/shoot/pass.svg" alt="">
                     <span class="span">影像审核</span>
                 </div>
@@ -77,9 +78,10 @@
                             <p :class="{active: imageIndex == item2.index}" v-for="(item2,index2) in item.returePageArray" :key="index2" @click="changeImage(item2.index)">{{item.type == 2 ? '第'+(item2.index+1)+'拍' : ''}} {{item2.returnReason}} {{item.action || ''}}</p>
                         </div>
                     </div>
-                    <div class="pass-box" v-if="resionList.length">
+                    <div class="pass-box" v-if="singlePageReturnList.length || resionList.length">
                         <h3>单页标记:</h3>
-                        <p :class="{active: imageIndex == item.i}" v-for="(item, i) in resionList" :key="i" :id="item.i" @click="changeImage(item.i)">第{{item.i+1}}拍 {{item.returnReason}} {{item.returnUserName}}{{item.returnPageTimeO}}</p>
+                        <p :class="{active: imageIndex == item.index}" v-for="(item, i) in singlePageReturnList" :key="i" @click="changeImage(item.index)">第{{item.index+1}}拍 {{item.returnReason ? item.returnReason.join() : ''}} {{item.userName}} {{item.updateTimeO}}</p>
+                        <p :class="{active: imageIndex == item.i}" v-for="(item, i) in resionList" :key="i" @click="changeImage(item.i)">第{{item.i+1}}拍 {{item.returnReason}} {{item.returnUserName}} {{item.returnPageTimeO}}</p>
                     </div>
                     <div v-if="leaveMsgList.length" class="leave-msg-list">
                         <h3 class="title">拍机备注</h3>
@@ -112,7 +114,7 @@
                     <img class="icon" @click="handleReset" title="重置" src="../../assets/shoot/reset.svg" alt="">
                     <img v-if="((orgAdmin == 'admin' && takeStatus == 12) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14))) && !isRead" class="icon" @click="isPassModule = !isPassModule" title="标记原因" src="../../assets/shoot/mark.svg" alt="">
                     <!-- 标记打回 -->
-                    <PassModule v-if="isPassModule" :passReasonA="passReason" v-on:set-reason="patchPageReturn" />
+                    <PassModule v-if="isPassModule" :volumeKey="vid" :imageKey="pageKey" :submitCount="this.detail.submitCount" :imageDetail="imageDetail" :passReasonA="passReason" v-on:set-reason="patchPageReturn" v-on:save="getSinglePageReturnList" />
                 </div>
             </div>
             <i class="el-icon-arrow-left prev" @click="changeImage(imageIndex - 1)"></i>
@@ -264,6 +266,8 @@ export default {
             ],
             imageHref: 'https://genealogyimagestest.qingtime.cn/photo',
             device: '',
+            imageDetail: {},
+            singlePageReturnList: [],
         };
     },
     created:function(){
@@ -452,7 +456,23 @@ export default {
 				return;
 			}
 			this.isMouseMove = false;
+
+            // 定位异常优化
+            this.precentImages = this.imageList.map((ele) => {
+                return ele;
+            });
+
+            this.handleScrollIntoView(this.imageIndex);
 		},
+        handleScrollIntoView(i){
+            this.$nextTick(() => {
+                document.getElementById(i).scrollIntoView({
+                    behavior: "smooth",  // 平滑过渡
+                    block: "start",    // 上边框与视窗顶部平齐
+                    inline: "end"
+                });
+            });
+        },
         handleImagesCheck(){
             this.isShow = 5;
         },
@@ -536,9 +556,10 @@ export default {
 
             this.pageKey = this.precentImages[this.imageIndex]._key;
             this.imageURL = this.imageHref + this.precentImages[this.imageIndex].name;
-            
-            document.getElementById(this.pageLimit + this.imageIndex <= this.precentImages.length ? this.pageLimit + this.imageIndex : this.imageIndex).scrollIntoView();
-            
+
+            this.imageDetail = this.precentImages[this.imageIndex];
+
+            this.handleScrollIntoView(this.pageLimit + this.imageIndex <= this.precentImages.length ? this.pageLimit + this.imageIndex : this.imageIndex);
         },
         async getComplainVolume(){// 申诉列表
             let result = await api.getAxios('v3/review/volume/complainVolume?volumeKey='+this.vid+'&logType='+(this.orgAdmin == 'admin' ? '申诉回复' : '申诉'));
@@ -664,7 +685,9 @@ export default {
                 this.passReason = this.precentImages[this.imageIndex].returnReason.split(',');
             }
 
-            document.getElementById(this.imageIndex).scrollIntoView();
+            this.imageDetail = this.precentImages[this.imageIndex];
+
+            this.handleScrollIntoView(this.imageIndex);
         },
         Observer(){// 图片懒加载
             let timer = setTimeout(() => {
@@ -749,6 +772,7 @@ export default {
                     ele.i = i;
                     return ele.returnReason && ele.returnReason.length > 0;
                 });
+                console.log(this.resionList);
                 // 留言列表
                 this.leaveMsgList = this.imageList.filter((ele, i) => {
                     ele.i = i;
@@ -791,6 +815,7 @@ export default {
                     this.isFirst = false;
                     this.getRepulseRecord();
                     this.getVolumeList(this.dataKey);
+                    this.getSinglePageReturnList();
                 }
             }else{
                 this.$XModal.message({message: result.msg, status: 'warning'})
@@ -798,6 +823,19 @@ export default {
         },
         goRouter(){
             history.back(-1);
+        },
+        async getSinglePageReturnList(){// 单页打回列表
+            // +this.detail.submitCount
+            let result = await api.getAxios('v3/review/singlePageReturnList?volumeKey='+this.vid+'&submitCount=');
+            if(result.status == 200){
+                this.singlePageReturnList = result.data.map((ele, i) => {
+                    ele.i = i;
+                    ele.updateTimeO = ele.updateTime ? ADS.getLocalTime(ele.updateTime, '/', 1) : '';
+                    return ele;
+                });
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
         },
     },
     computed: {
@@ -810,6 +848,8 @@ export default {
             pathname: state => state.nav.pathname,
             orgAdmin: state => state.nav.orgAdmin,
             orgId: state => state.nav.orgId,
+            roleName: state => state.nav.roleName,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{
@@ -867,7 +907,7 @@ export default {
             }
         },
         'pageKey': function(nv, ov){
-            console.log(nv);
+            // console.log(nv);
         },
         'isShow': function(nv, ov){
             if(nv == 6){

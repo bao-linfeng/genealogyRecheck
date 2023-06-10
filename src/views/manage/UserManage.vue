@@ -17,6 +17,9 @@
                     <vxe-select v-if="this.role <=2  && this.role >= 1" v-model="userRole" placeholder="请选择微站权限">
                         <vxe-option v-for="(item,index) in userRoleList" :key="index" :value="item.value" :label="item.label"></vxe-option>
                     </vxe-select>
+                    <vxe-select v-model="roleKey">
+                        <vxe-option v-for="(item,index) in roleList" :key="index" :value="item.value" :label="item.label"></vxe-option>
+                    </vxe-select>
                     <vxe-select v-if="this.role <=2  && this.role >= 1" v-model="orgKey" placeholder="请选择机构">
                         <vxe-option v-for="(item,index) in orgList" :key="'org'+index" :value="item.value" :label="item.label"></vxe-option>
                     </vxe-select>
@@ -38,6 +41,7 @@
                     <vxe-table-column field="userName" title="姓名"></vxe-table-column>
                     <vxe-table-column field="accountNumber" title="账号"></vxe-table-column>
                     <vxe-table-column field="roles" title="微站权限"></vxe-table-column>
+                    <vxe-table-column field="roleName" title="角色"></vxe-table-column>
                     <vxe-table-column field="orgName" title="所属机构"></vxe-table-column>
                     <vxe-table-column field="rootStrO" title="功能权限"></vxe-table-column>
                     <vxe-table-column field="batchNum" title="上传批次"></vxe-table-column>
@@ -45,14 +49,14 @@
                     <vxe-table-column field="passNum" title="录用的谱目"></vxe-table-column>
                     <vxe-table-column v-if="((role >= 1) && role <= 2)" title="操作" width="100" :cell-render="{name: 'AdaiActionButton', attr: {data: dataAction}, events: {'editData': editData}}"></vxe-table-column>
                 </vxe-table>
-                <vxe-pager
+                <!-- <vxe-pager
                     align="center"
                     @page-change = "changePage"
                     :current-page.sync="page"
                     :page-size.sync="limit"
                     :total="total"
                     :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'FullJump', 'Total']">
-                </vxe-pager>
+                </vxe-pager> -->
             </div>
         </div>
         <!-- 编辑权限 -->
@@ -96,7 +100,7 @@ export default {
             total: 0,
             isShow: 0,
             detail: {},
-            dataAction: [],
+            dataAction: [{'label': '编辑','value':'editData'}],
             keyWord: '',
             userRole: '',
             userRoleList: [
@@ -108,13 +112,15 @@ export default {
                 {'label': '普通用户', 'value': '5'},
             ],
             loading: false,
+            roleKey: '',
+            roleList: [],
         };
     },
     created:function(){
         this.h = window.innerHeight - 160;
-        if(this.role >= 1 && this.role <= 2){
-            this.dataAction = [{'label': '编辑','value':'editData'}];
-        }
+        // if(this.role >= 1 && this.role <= 2){
+        //     this.dataAction = [{'label': '编辑','value':'editData'}];
+        // }
     },
     mounted:function(){
         if(this.stationKey == '1379194999' && this.role >= 1 && this.role <= 2){
@@ -132,8 +138,23 @@ export default {
             }
         }
         this.getSiteUser();
+        this.getRoleList();
     },
     methods:{
+        async getRoleList(){
+            let result = await api.getAxios('role?roleName=');
+            if(result.status == 200){
+                this.roleList = result.data.map((ele) => {
+                    ele.label = ele.roleName;
+                    ele.value = ele.roleKey;
+
+                    return ele;
+                });
+                this.roleList.unshift({'label': '全部角色', 'value': ''});
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
         changePage({currentPage}){// 页码切换回调
             this.page = currentPage;
             this.getSiteUser();
@@ -151,17 +172,19 @@ export default {
         },
         editData({row}){
             // console.log(row);
-            if(row.role >= 1 && row.role <= 3){
-                this.isShow = 1;
-                this.detail = row;
-            }else{
-                this.$XModal.message({message: '只能设置微站管理员和审核员', status: 'warning'})
-            }
+            this.isShow = 1;
+            this.detail = row;
+            // if(row.role >= 1 && row.role <= 3){
+            //     this.isShow = 1;
+            //     this.detail = row;
+            // }else{
+            //     this.$XModal.message({message: '只能设置微站管理员和审核员', status: 'warning'})
+            // }
         },
         getOrgList:async function(){
             let data = await api.getAxios('org?siteKey='+this.stationKey+'&name=');
             if(data.status == 200){
-                let orgList = [{'label':'全部','value':''}];
+                let orgList = [{'label':'全部机构','value':''}];
                 data.data.map((item)=>{
                     orgList.push({'label': item.name,'value': item._key});
                 });
@@ -188,7 +211,7 @@ export default {
         },
         getSiteUser:async function(){// 用户管理
             this.loading = true;
-            let result = await api.getAxios('site/user?siteKey='+this.stationKey+'&orgKey='+this.orgKey+'&keyWord='+this.keyWord+'&userKey='+this.userId+'&userRole='+this.userRole+'&page='+this.page+'&limit='+this.limit);
+            let result = await api.getAxios('site/user?siteKey='+this.stationKey+'&roleKey='+this.roleKey+'&orgKey='+this.orgKey+'&keyWord='+this.keyWord+'&userKey='+this.userId+'&userRole='+this.userRole+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(result.status == 200){
                 result.data.list.map((item)=>{

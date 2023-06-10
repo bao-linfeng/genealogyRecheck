@@ -79,6 +79,8 @@ import CatalogSearch from './views/manage/CatalogSearch.vue';
 import VolumeSearch from './views/manage/VolumeSearch.vue';
 import SingleQuickSearch from './views/manage/SingleQuickSearch.vue';
 import AutoCompleteSearch from './components/takeCamera/AutoCompleteSearch.vue';
+import MenuDefinition from './views/manage/MenuDefinition.vue';
+import RoleDefinition from './views/manage/RoleDefinition.vue';
 
 Vue.use(Router);
 
@@ -87,6 +89,22 @@ const routes = [
     path: "/404",
     name: "notfound",
     component: NotFound
+  },
+  {
+    path: "/:id/roleDefinition",
+    name: "RoleDefinition",
+    meta: {
+      requireAuth: true,
+    },
+    component: RoleDefinition
+  },
+  {
+    path: "/:id/menuDefinition",
+    name: "MenuDefinition",
+    meta: {
+      requireAuth: true,
+    },
+    component: MenuDefinition
   },
   {
     path: "/:id/autoCompleteSearch",

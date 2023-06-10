@@ -2,9 +2,9 @@
   <div class="sidebar">
     <router-link :to="'/'+pathname" class="logo"><img :src="require('../../assets/nav/logo_side_a.svg')"></router-link>
     <p class="userName">{{userName}}</p>
-    <p class="userName role">{{roleO}}</p>
+    <p class="userName role">{{roleName}}</p>
     <p class="stationName">{{stationKey == '1528234980' ? (role >= 1 && role <= 3 ? 'FS' : organizationNo+'('+orgName+')') : stationName}}</p>
-    <ul class="menu style1">
+    <!-- <ul class="menu style1">
         <li v-show="item['show']" :class="{active:activePath.indexOf(item.path) > -1}" v-for="(item,index) in menu" :key="'menu'+index">
             <router-link :to="item.path">
                 <img v-if="item.icon" class="icon" :src="item.icon" alt="" />
@@ -15,6 +15,21 @@
                     <span class="count-dot" v-if="item.path.indexOf('DORlist') > -1 && noBindNum">{{noBindNum}}</span>
                     <span class="count-dot" v-if="item.path.indexOf('batchmanage') > -1 && returnNum">{{returnNum}}</span>
                     <span class="count-dot" v-if="item.path.indexOf('message') > -1 && messageNotReadNumber">{{messageNotReadNumber}}</span>
+                </span>
+            </router-link>
+        </li>
+    </ul> -->
+    <ul class="menu style1">
+        <li :class="{active:activePath.indexOf(item.route) > -1}" v-for="(item,index) in menuList" :key="index">
+            <router-link :to="'/'+pathname+item.route">
+                <img v-if="item.icon" class="icon" :src="item.icon" alt="" />
+                <span :class="'icon'+index+(item.level == 1 ? ' child' : '')">
+                    {{item.menuTitle}}
+                    <span class="count-dot" v-if="item.route.indexOf('takeCamera') > -1 && waitReviewNumber">{{waitReviewNumber}}</span>
+                    <span class="count-dot" v-if="item.route.indexOf('bookaudit') > -1 && sumbmitNum">{{sumbmitNum}}</span>
+                    <span class="count-dot" v-if="item.route.indexOf('DORlist') > -1 && noBindNum">{{noBindNum}}</span>
+                    <span class="count-dot" v-if="item.route.indexOf('batchmanage') > -1 && returnNum">{{returnNum}}</span>
+                    <span class="count-dot" v-if="item.route.indexOf('message') > -1 && messageNotReadNumber">{{messageNotReadNumber}}</span>
                 </span>
             </router-link>
         </li>
@@ -91,6 +106,8 @@ export default {
                 {name: '组织机构',path:'/institution',show:true,isChild:false, icon: require('../../assets/sidebar/组织机构.svg')},
                 {name: '成员申请审核',path:'/auditOrg',show:true,isChild:false, icon: require('../../assets/sidebar/成员管理.svg')},
                 {name: '用户管理',path:'/usermanage',show:true,isChild:false, icon: require('../../assets/sidebar/用户管理.svg')},
+                {name: '菜单定义', path: '/menuDefinition', show:true, isChild: true},
+                {name: '角色定义', path: '/roleDefinition', show:true, isChild: true},
                 // {name: '一键注册', path: '/quickRegistration', show: true, isChild: false},
                 // {name:'月报',path:'/monthreport',show:true,isChild:false},
                 {name: '数据字典',path:'/dataTypeDictionary',show:true,isChild:false, icon: require('../../assets/sidebar/数据字典.svg')},
@@ -185,6 +202,8 @@ export default {
             waitReviewNumber: state => state.nav.waitReviewNumber,
             orgName: state => state.nav.orgName,
             organizationNo: state => state.nav.organizationNo,
+            roleName: state => state.nav.roleName,
+            menuList: state => state.nav.menuList,
         })
     },
 };

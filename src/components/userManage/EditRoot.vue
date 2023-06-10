@@ -6,6 +6,17 @@
             </div>
             <div class="content-box">
                 <div class="edit-list">
+                    <label class="label" for="">用户关联角色:</label>
+                    <el-select v-model="roleKeyN" placeholder="请选择角色" size="small">
+                        <el-option
+                            v-for="item in roleList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div> 
+                <div class="edit-list">
                     <label class="label" for="">功能权限设置:</label>
                     <el-select v-model="root" multiple placeholder="请选择权限" size="small">
                         <el-option
@@ -44,6 +55,8 @@ export default {
                 // {'label': '开放谱书', 'value': '开放谱书'},
                 // {'label': '影像复核', 'value': '影像复核'},
             ],
+            roleKeyN: '',
+            roleList: [],
         };
     },
     mounted: function(){
@@ -55,23 +68,51 @@ export default {
             this.root = [];
         }
         console.log(this.root);
+        this.roleKeyN = this.detail.roleKey;
+        this.getRoleList();
     },
     methods:{
+        async userRelaRole(){
+            let result = await api.postAxios('userRelaRole', {
+                "roleKey": this.roleKeyN,
+                "userKey": this.detail._key
+            });
+            if(result.status == 200){
+                
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
+        async getRoleList(){
+            let result = await api.getAxios('role?roleName=');
+            if(result.status == 200){
+                this.roleList = result.data.map((ele) => {
+                    ele.label = ele.roleName;
+                    ele.value = ele.roleKey;
+
+                    return ele;
+                });
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
         close(){
             this.$emit('close', false);
         },
         save(){
-            if(this.detail.role >= 1 && this.detail.role <= 3){
-                this.$confirm('请确认是否编辑权限?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.editData();
-                }).catch(() => {});
-            }else{
-                this.$XModal.message({message: '只能设置微站管理员和审核员', status: 'warning'})
-            }
+            this.$confirm('请确认是否编辑权限?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.editData();
+                this.userRelaRole();
+            }).catch(() => {});
+            // if(this.detail.role >= 1 && this.detail.role <= 3){
+                
+            // }else{
+            //     this.$XModal.message({message: '只能设置微站管理员和审核员', status: 'warning'})
+            // }
         },
         async editData(){
             console.log(this.root);
@@ -98,6 +139,8 @@ export default {
             role: state => state.nav.role,
             pathname: state => state.nav.pathname,
             orgAdmin: state => state.nav.orgAdmin,
+            roleName: state => state.nav.roleName,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{
@@ -149,6 +192,7 @@ export default {
     position: relative;
     display: flex;
     align-items: center;
+    margin-bottom: 10px;
     .label{
         width: 100px;
         margin-right: 10px;

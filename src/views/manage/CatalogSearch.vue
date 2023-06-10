@@ -303,7 +303,7 @@ export default {
             }
         },
         cellClassName({ row, rowIndex, $rowIndex, column, columnIndex, $columnIndex }){
-            if(row.changeFieldArr && row.changeFieldArr.indexOf(column.property) > -1){
+            if(row.changeFieldArrAll && row.changeFieldArrAll.indexOf(column.property) > -1){
                 return 'row-red'
             }
             if(row.GCOver == '1' && column.property == '_key') {
@@ -412,9 +412,17 @@ export default {
             orgAdmin: state => state.nav.orgAdmin,
             pathname: state => state.nav.pathname,
             orgId: state => state.nav.orgId,
+            isResize: state => state.nav.isResize,
         })
     },
     watch:{
+        'isResize': function(nv, ov){
+            if(this.isShowSearch){
+                this.h = window.innerHeight - 30 - 30 - 10 - 48 - 30;
+            }else{
+                this.h = window.innerHeight - 30 - 30 - 10 - 48;
+            }
+        },
         'updateTime': function(nv, ov){
             console.log(nv);
             if(nv){

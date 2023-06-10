@@ -29,7 +29,7 @@
                     <vxe-table-column field="name" title="机构名称" :edit-render="{name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     <vxe-table-column field="englishName" title="机构英文名" :edit-render="{name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     <vxe-table-column field="memberCount" title="机构人数"></vxe-table-column>
-                    <vxe-table-column title="操作" :cell-render="{name:'AdaiActionButton',attr:{data:actionData},events:{'look':navTo,'addUser':addUser,'deleteOrg':deleteOrg}}"></vxe-table-column>
+                    <vxe-table-column title="操作" :cell-render="{name:'AdaiActionButton',attr:{data: actionData},events:{'edit': handleEdit, 'delete': handleDelete}}"></vxe-table-column>
                 </vxe-table>
             </div>
         </div>
@@ -61,6 +61,7 @@
                 </ul>
             </div>
         </div>
+        <AddUserToInstitution v-if="isEdit == 1" :detail="detail" v-on:close="handleClose" />
     </div>
 </template>
 
@@ -69,16 +70,17 @@ import api from "../../api.js";
 import ADS from "../../ADS.js";
 import Sidebar from "../../components/sidebar/Sidebar.vue";
 import NavModal from "../../components/dictionary/NavModal.vue";
+import AddUserToInstitution from '../../components/institution/AddUserToInstitution.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "institution",
     components: {
-        Sidebar,NavModal,
+        Sidebar,NavModal, AddUserToInstitution, 
     },
     data: () => {
         return {
             tableData: [],
-            actionData: [{'label':'查看', 'value':'look'}],
+            actionData: [{'label':'编辑', 'value':'edit'}, {'label': '删除', 'value': 'delete'}],
             page: 1,
             pages: 1,
             limit: 20,
@@ -90,22 +92,32 @@ export default {
             orgKey: '',
             keyWord: '',
             memberList: [],
+            isEdit: 0,
+            detail: {},
         };
     },
     created:function(){
         this.h = window.innerHeight - (this.role <= 2 && this.role >= 1 ? 132 : 80);
-        if(this.role <= 2 && this.role >= 1){
-            this.actionData = [{'label':'查看', 'value':'look'},{'label':'添加组员', 'value':'addUser'},{'label':'删除', 'value':'deleteOrg'}];
-        }else{
-            if(this.orgAdmin == 'admin'){
-                this.actionData = [{'label':'查看', 'value':'look'},{'label':'添加组员', 'value':'addUser'}];
-            }
-        }
+        // if(this.role <= 2 && this.role >= 1){
+        //     this.actionData = [{'label':'查看', 'value':'look'},{'label':'添加组员', 'value':'addUser'},{'label':'删除', 'value':'deleteOrg'}];
+        // }else{
+        //     if(this.orgAdmin == 'admin'){
+        //         this.actionData = [{'label':'查看', 'value':'look'},{'label':'添加组员', 'value':'addUser'}];
+        //     }
+        // }
     },
     mounted:function(){
         this.getOrgList();
     },
     methods:{
+        handleEdit({row}){
+            this.detail = row;
+            this.isEdit = 1;
+        },
+        handleClose(f){
+            this.detail = {};
+            this.isEdit = 0;
+        },
         getOrgInfo:async function(){
             let data = await api.getAxios('org/member/info?siteKey='+this.stationKey+'&userKey='+this.userId);
             if(data.status == 200){
@@ -224,13 +236,13 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        deleteOrg:async function({row}){
-            this.$confirm('此操作将永久删除该谱目数据, 是否继续?', '提示', {
+        async handleDelete({row}){
+            this.$confirm('此操作将永久删除该机构数据, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(async () => {
-                let data=await api.deleteAxios('org',{orgKey: row._key});
+                let data = await api.deleteAxios('org',{orgKey: row._key});
                 if(data.status == 200){
                     this.getOrgList();
                 }else{

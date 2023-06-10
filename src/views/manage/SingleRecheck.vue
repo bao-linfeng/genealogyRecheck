@@ -230,9 +230,13 @@ export default {
             orgAdmin: state => state.nav.orgAdmin,
             pathname: state => state.nav.pathname,
             orgId: state => state.nav.orgId,
+            isResize: state => state.nav.isResize,
         })
     },
     watch:{
+        'isResize': function(nv, ov){
+            this.h = window.innerHeight - 50 - 50 - 48;
+        },
         'time': function(nv, ov){
             console.log(nv);
             if(nv){

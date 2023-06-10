@@ -5,7 +5,6 @@
             <div class="nav-wrap">
                 <span class="title">影像审核-任务列表</span>
                 <div class="head-right">
-                    <!-- <el-button type="primary" size="medium" @click="openStatistics">工作量统计</el-button> -->
                     <el-button v-if="stage == 13 && orgAdmin == 'admin' && hasRoot" type="primary" size="medium" @click="handleUpdateVolumeProperty">批量修改卷册信息</el-button>
                     <el-button v-if="stage == 13 && orgAdmin == 'admin' && hasRoot" type="primary" size="medium" @click="patchTaskVerify">批量审核通过</el-button>
                 </div>
@@ -52,6 +51,7 @@
                     </el-option>
                 </el-select>
                 <el-date-picker
+                    class="w180"
                     v-model="time"
                     type="daterange"
                     unlink-panels
@@ -59,11 +59,12 @@
                     end-placeholder="审核结束时间"
                 />
                 <el-date-picker
-                    v-model="createTime"
+                    class="w180"
+                    v-model="uploadTime"
                     type="daterange"
                     unlink-panels
-                    start-placeholder="卷册创建开始时间"
-                    end-placeholder="卷册创建结束时间"
+                    start-placeholder="上传开始时间"
+                    end-placeholder="上传结束时间"
                 />
             </div>
             <div class="step-wrap">
@@ -120,6 +121,7 @@
                     <vxe-table-column v-if="stage == 3 || stage == 5 || stage == 14 || stage == 15" field="passUserName" title="审核人"></vxe-table-column>
                     <vxe-table-column v-if="stage == 4" field="returnReason" title="打回原因"></vxe-table-column>
                     <vxe-table-column v-if="stage == 14" field="returnReason" title="原因说明"></vxe-table-column>
+                    <vxe-table-column v-if="stage == 15 || stage == 17" field="repulseRecordO" title="原因说明"></vxe-table-column>
                     <vxe-table-column v-if="stage == 4" field="passUserName" title="打回人"></vxe-table-column>
                     <vxe-table-column v-if="stage == 17" field="toVoidUserName" title="作废人"></vxe-table-column>
 
@@ -128,7 +130,7 @@
                     <vxe-table-column v-if="stage == 5 || stage == 14 || stage == 15" field="passTimeL" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
                     <vxe-table-column v-if="stage == 4" field="returnTimeO" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
                     <vxe-table-column v-if="stage == 17" field="toVoidTimeO" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
-                    <vxe-table-column v-if="stage >= 3" field="createTimeO" title="创建时间" sort-by="createTime" sortable></vxe-table-column>
+                    <vxe-table-column v-if="stage >= 3" field="firstSubmitTimeO" title="上传时间" sort-by="firstSubmitTime" sortable></vxe-table-column>
                     <vxe-table-column v-if="stage >= 3" title="操作" width="200" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label': stage == 4 || stage == 5 || stage == 17 ? '影像' : '影像', 'value': 'look'}, {'label': '家谱', 'value': 'jiapu'}, {'label': '记录', 'value': 'log'}]},events:{'look': lookEvent, 'jiapu': getCatalogStatisticsData, 'log': handleLog}}"></vxe-table-column>
                 </vxe-table>
                 <div class="page-foot">
@@ -247,6 +249,9 @@ export default {
             createTime: '',
             createStartTime: '', 
             createEndTime: '',
+            uploadTime: '',
+            uploadStartTime: '',
+            uploadEndTime: '',
             isShowSearch: false,
             sortField: '', 
             sortType: 'auto',
@@ -279,11 +284,18 @@ export default {
             
         }else{
             if(this.role >= 1 && this.role <= 3){
-                if(this.role == 3){
-                    this.stage = 3;
-                }else{
+                // ['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1
+                if(['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(this.roleKey) > -1){
                     this.stage = 14;
                 }
+                if(['9071165339'].indexOf(this.roleKey) > -1){
+                    this.stage = 3;
+                }
+                // if(this.role == 3){
+                //     this.stage = 3;
+                // }else{
+                //     this.stage = 14;
+                // }
             }else{
                 if(this.orgAdmin == 'admin'){
                     this.stage = 13;
@@ -426,7 +438,7 @@ export default {
             }
         },
         async imagePagesTotal(){
-            let result = await api.getAxios('v3/review/task/imagePagesTotal?siteKey='+this.stationKey+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&createStartTime='+this.createStartTime+'&createEndTime='+(this.createEndTime ? this.createEndTime+24*60*60*1000 : this.createEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
+            let result = await api.getAxios('v3/review/task/imagePagesTotal?siteKey='+this.stationKey+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&uploadStartTime='+this.uploadStartTime+'&uploadStartTime='+(this.uploadStartTime ? this.uploadStartTime+24*60*60*1000 : this.uploadStartTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
             if(result.status == 200){
                 this.allTotal = result.data;
             }else{
@@ -444,7 +456,7 @@ export default {
                 }
             });
 
-            let data = await api.getAxios('v3/review/task/listNew?siteKey='+this.stationKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&createStartTime='+this.createStartTime+'&createEndTime='+(this.createEndTime ? this.createEndTime+24*60*60*1000 : this.createEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+(this.genealogyName).trim()+'&gcKey='+(this.gcKey).trim()+'&place='+(this.place).trim()+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('v3/review/task/listNew?siteKey='+this.stationKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&uploadStartTime='+this.uploadStartTime+'&uploadEndTime='+(this.uploadEndTime ? this.uploadEndTime+24*60*60*1000 : this.uploadEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+(this.genealogyName).trim()+'&gcKey='+(this.gcKey).trim()+'&place='+(this.place).trim()+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 let pageTotal = 0;
@@ -453,6 +465,7 @@ export default {
                     ele.toVoidTimeO = ele.toVoidTime ? ADS.getLocalTime(ele.toVoidTime) : '';
                     ele.beginTimeO = ele.beginTime ? ADS.getLocalTime(ele.beginTime) : '';
                     ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
+                    ele.firstSubmitTimeO = ele.firstSubmitTime ? ADS.getLocalTime(ele.firstSubmitTime) : '';
                     ele.checkDoneTimeL = ele.checkDoneTime ? ADS.getLocalTime(ele.checkDoneTime) : '';
                     ele.checkDoneTimeO = ele.checkDoneTime ? (this.taskdays - ADS.getSurplusDays(ele.checkDoneTime)) : '';
                     ele.taskTime = ele.passTime ? ((ele.passTime - ele.claimTime)/1000/60/60/24).toFixed(2) : '';
@@ -471,6 +484,7 @@ export default {
                     ele.isLeadImagesO = ele.isLeadImages == 1 ? '是' : ele.isLeadImages == 0 ? '否' : '';
                     ele.singleOrTwoO = ele.singleOrTwo == 1 ? '单页' : ele.singleOrTwo == 2 ? '双页' : '';
                     ele.organizationNo = ele.organizationNo+'('+ele.orgName+')';
+                    ele.repulseRecordO = ele.repulseRecord ? ele.repulseRecord[0].returnReason : '';
                     return ele;
                 });
         
@@ -542,6 +556,8 @@ export default {
             orgAdmin: state => state.nav.orgAdmin,
             pathname: state => state.nav.pathname,
             orgId: state => state.nav.orgId,
+            roleName: state => state.nav.roleName,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{
@@ -566,6 +582,16 @@ export default {
             }else{
                 this.createStartTime = '';
                 this.createEndTime = '';
+            }
+        },
+        'uploadTime': function(nv, ov){
+            console.log(nv);
+            if(nv){
+                this.uploadStartTime = new Date(nv[0]).getTime();
+                this.uploadEndTime = new Date(nv[1]).getTime();
+            }else{
+                this.uploadStartTime = '';
+                this.uploadEndTime = '';
             }
         },
         'isShowSearch': function(nv, ov){
@@ -686,6 +712,9 @@ export default {
 }
 .marginL10{
     margin-left: 10px;
+}
+.w180{
+  width: 230px !important;
 }
 </style>
 

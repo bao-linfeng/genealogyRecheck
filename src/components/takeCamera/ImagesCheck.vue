@@ -14,7 +14,7 @@
                     <span class="name">{{detail.volumeNumber}}</span>
                 </div>
             </div>
-            <div class="check-wrap" v-if="takeStatus == 5">
+            <div class="check-wrap" v-if="takeStatus == 5 && ['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1">
                 <h3 class="title">请选择您的角色(*):</h3>
                 <el-radio-group v-model="user">
                     <el-radio v-for="(item, index) in userList" :label="item.value" :key="index">{{item.label}}</el-radio>
@@ -82,6 +82,15 @@ export default {
     },
     mounted: function(){
         this.takeStatus = this.detail.takeStatus;
+        if(this.roleKey == '9071165339'){
+            if(this.takeStatus == 5){
+                this.operateStatusList = [
+                    {'label': '初审通过', 'value': 'pass'}, 
+                    {'label': '初审不通过(打回)', 'value': 'return'}
+                ];
+            }
+            return;
+        }
         if(this.orgAdmin == 'admin' || (this.role >= 1 && this.role <= 3 && (this.takeStatus == 5 || this.takeStatus == 14))){
             this.operateStatusList = [
                 {'label': '审核通过', 'value': 'pass'}, 
@@ -193,6 +202,8 @@ export default {
             role: state => state.nav.role,
             pathname: state => state.nav.pathname,
             orgAdmin: state => state.nav.orgAdmin,
+            roleName: state => state.nav.roleName,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{

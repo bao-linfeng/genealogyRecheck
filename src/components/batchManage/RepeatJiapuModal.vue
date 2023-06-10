@@ -24,13 +24,8 @@
                     <vxe-table-column field="publish" title="出版年" width="100"></vxe-table-column>
                     <vxe-table-column field="_key" title="谱目ID" width="100"></vxe-table-column>
                 </vxe-table-colgroup>
-                <!-- :edit-render="{name: 'input', attrs: {type: 'text'}}" -->
                 <vxe-table-column v-for="(item,index) in repeatDetailField" :visible="collapsable" width="100" :key="'dubious'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
-                <vxe-table-column title="阅读影像" :width="80" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'阅读','value':'readBook'}]},events:{'readBook':readBook}}"></vxe-table-column>
-                <vxe-table-colgroup title="操作" fixed="right" width="80">
-                    <vxe-table-column field="repeatMark" title="标记家谱" width="90" :cell-render="{name:'repeatMarkModal',attr:{label:'标记'},events:{'click':repeatMark}}"></vxe-table-column>
-                    <!-- <vxe-table-column title="删除" width="80" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'删除','value':'deleteJia'}]},events:{'deleteJia':deleteGenealogy}}"></vxe-table-column> -->
-                </vxe-table-colgroup>
+                <vxe-table-column title="操作" :width="140" fixed="right" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label': '影像', 'value': 'readBook'}, {'label': '标记', 'value': 'repeatMark'}]},events:{'readBook':readBook, 'repeatMark': repeatMark}}"></vxe-table-column>
             </vxe-table> 
         </div>
         <div :class="'table-wrap'+ (isF ? '' : ' place-wrap')" v-if="tabIndex === 1">
@@ -267,18 +262,10 @@ export default {
             this.checkList = data;
         },
         readBook({row}){// 阅读影像
-            // if(row.hasImage){
-            //     if(row.readType === 'jump'){
-            //         window.open(row.imageLink);
-            //     }else{
-            //         this.$router.push('/'+window.localStorage.getItem('pathname')+'/view?gid='+row._key+'&volume=1&page=1');
-            //     }
-            //     // this.$router.push('/'+window.localStorage.getItem('pathname')+'/view?gid='+row._key+'&volume=1&page=1');
-            // }else{
-            //     this.$XModal.message({ message: '暂无影像', status: 'warning' });
-            // }
             if(row.imageLink){
                 window.open(row.imageLink);
+            }else if(row.imageOriginal == 'pipeline'){
+                window.open('/'+this.pathname+'/cameraImage?device='+row.device+'&vid='+row.volumeKey+'&gid='+row._key+'&genealogyName='+row.genealogyName);
             }else{
                 this.$XModal.message({ message: '暂无无法查看影像', status: 'warning' });
             }
@@ -312,7 +299,7 @@ export default {
         changeLoading(flag = true){
             this.$store.dispatch('setPropertyValue',{'property':'loading','value': flag});
         },
-        repeatMark:async function({row}){// 标记重复家谱
+        repeatMark({row}){// 标记重复家谱
             this.$confirm('此操作将标记家谱来源, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -322,7 +309,7 @@ export default {
             }).catch(() => {});
             
         },
-        repeatMarkApi:async function(row){// 标记重复家谱
+        async repeatMarkApi(row){// 标记重复家谱
             let dubiousData = [];
             this.changeLoading();
             let data = await api.patchAxios('data/repeatMark',{'originKey':this.row._key,'repeatKey':row._key});
@@ -393,6 +380,7 @@ export default {
             userId: state => state.nav.userId,
             stationKey: state => state.nav.stationKey,
             role: state => state.nav.role,
+            pathname: state => state.nav.pathname,
         })
     },
     watch:{

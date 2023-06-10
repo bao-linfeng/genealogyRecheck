@@ -9,13 +9,17 @@
             <SearchModal v-show="!isFull" :fieldFilters="fieldFilters" v-on:get-genealogy="getGenealogy" v-on:change-parameters="changeParameters" />
             <div v-show="!isFull" class="btn_wrap_left">
                 <input v-if="this.role >=1 && this.role <= 2" class="root" type="button" value="前台公开" @click="openRootModal" />
-                <input v-if="stationKey == '1379194999'" class="swap" type="button" value="家谱分发" @click="openSiteModal(false)" />
+                <!-- <input v-if="stationKey == '1379194999'" class="swap" type="button" value="家谱分发" @click="openSiteModal(false)" />
                 <input v-if="stationKey == '1379194999'" class="swap" type="button" value="全部分发" @click="openSiteModal(true)" />
-                <input v-else v-show="stationKey != '1528234980'" class="swap" type="button" value="交换家谱" @click="openSwapModal" />
+                <input v-else v-show="stationKey != '1528234980'" class="swap" type="button" value="交换家谱" @click="openSwapModal" /> -->
                 <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="downloadExcel">下载检索结果</el-button>
-                <LinkView v-if="stationKey != '1379194999'" class="marginLeft20" />
+                <!-- <LinkView v-if="stationKey != '1379194999'" class="marginLeft20" /> -->
                 <!-- v-show="stationKey != '1528234980'" -->
-                <el-button v-if="this.role >=1 && this.role <= 2"  class="marginLeft20" size="small" type="primary" @click="isEdit = true">编辑的家谱</el-button>
+                <!-- <el-button v-if="this.role >=1 && this.role <= 2"  class="marginLeft20" size="small" type="primary" @click="isEdit = true">编辑的家谱</el-button> -->
+                <!-- 全部完结 -->
+                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('all')">全部完结</el-button>
+                <!-- 批量完结 -->
+                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('some')">批量完结</el-button>
             </div>
             <!-- 家谱table -->
             <GenealogyTableModal v-if="fieldFilters.length" :fieldFilters="fieldFilters" :total="total" :list="list" v-on:toggle-full="toggleFull" v-on:checkbox-change="checkboxChange" v-on:get-genealogy="getJiapuList" />
@@ -42,6 +46,8 @@
             <el-button class="reconnect" type="primary" @click="reconnect">重新连接</el-button>
             <el-progress type="circle" :percentage="Number((100*bindPage/bindTotal).toFixed(2))"></el-progress>
         </div>
+        <!-- 完结谱目错误列表 -->
+        <CatalogPassWarn v-if="isWarn" :list="warnList" v-on:close="isWarn = false" />
     </div>
 </template>
 
@@ -57,11 +63,13 @@ import SwapModal from "../../components/myGenealogy/SwapModal.vue";
 import SitePerspectiveModal from "../../components/myGenealogy/SitePerspectiveModal.vue";
 import LinkView from "../../components/myGenealogy/LinkView.vue";
 import EditGenealogyListModal from "../../components/myGenealogy/EditGenealogyListModal.vue";
+import CatalogPassWarn from '../../components/myGenealogy/CatalogPassWarn.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "baseGenealogy",
     components: {
-        Sidebar,NavModal,SearchModal,GenealogyTableModal,RootModal,SwapModal,SitePerspectiveModal,LinkView,EditGenealogyListModal
+        Sidebar,NavModal,SearchModal,GenealogyTableModal,RootModal,SwapModal,SitePerspectiveModal,LinkView,EditGenealogyListModal,
+        CatalogPassWarn, 
     },
     data: () => {
         return {
@@ -97,6 +105,9 @@ export default {
             isFull: false,
             gcStatus: '',
             NoIndex: '',
+            waitComplete: '',
+            warnList: [],
+            isWarn: false,
         };
     },
     created:function(){
@@ -155,9 +166,10 @@ export default {
                 'begYear': this.begYear,
                 'endYear': this.endYear,
                 'libKey': this.libKey,
-                'orgKey': (this.orgKey).join(','),
+                'claimOrgKey': (this.orgKey).join(','),
                 'equal': this.equal,
                 'gcStatus': this.gcStatus,
+                'waitComplete': this.waitComplete,
                 'keyWordObj': this.keyWordObj,
                 'prop': this.prop,
                 'order': this.order,
@@ -192,9 +204,11 @@ export default {
             '&begYear='+this.begYear+
             '&endYear='+this.endYear+
             '&libKey='+this.libKey+
-            '&orgKey='+this.orgKey+
+            // '&orgKey='+this.orgKey+
+            '&claimOrgKey='+ this.orgKey+
             '&equal='+this.equal+
             '&gcStatus='+this.gcStatus+
+            '&waitComplete='+this.waitComplete +
             '&keyWordObj='+JSON.stringify(this.keyWordObj)+
             '&prop='+this.prop+
             '&order='+this.order+'&page='+this.page+'&limit='+this.limit);
@@ -247,15 +261,18 @@ export default {
             this.FileStartTimes = data['FileStartTimes'] || '';
             this.FileEndTimes = data['FileEndTimes'] || '';
             this.gcStatus = data['gcStatus'] || '';
+            this.waitComplete = data['waitComplete'] ? '1' : '';
 
             for(let key in data){
-                if(key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
                 }
             }
             this.keyWordObj = keyWordObj;
+
+            this.page = 1;
             
             this.getJiapuList();
         },
@@ -271,9 +288,10 @@ export default {
             this.FileStartTimes = data['FileStartTimes'] || '';
             this.FileEndTimes = data['FileEndTimes'] || '';
             this.gcStatus = data['gcStatus'] || '';
+            this.waitComplete = data['waitComplete'] ? '1' : '';
 
             for(let key in data){
-                if(key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -335,6 +353,68 @@ export default {
                 this.isSwapModal = true 
             }else{
                 this.$message({message: '请勾选家谱',type: 'warning'});
+            }
+        },
+        handleCompleteCatalog(t){// 完结家谱
+            if(t == 'all'){
+                this.$confirm('确认完结全部待完结的谱目吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.completeCatalogAll();
+                }).catch(() => {});
+            }
+            if(t == 'some'){
+                let gcKeyArray = [];
+                this.checkList.forEach((ele) => {
+                    gcKeyArray.push(ele._key);
+                });
+                if(this.checkList.length){
+                    this.$confirm('确认完结该批次的待完结的谱目吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.completeCatalogsome(gcKeyArray)
+                    }).catch(() => {});
+                }else{
+                    ADS.message('请勾选谱目！');
+                }
+            }
+        },
+        async completeCatalogAll(){
+            this.loading = true;
+            let result = await api.patchAxios('catalog/allPass',{
+                'siteKey': this.stationKey,
+                'userKey': this.userId,
+            });
+            this.loading = false;
+            if(result.status == 200){
+                ADS.message('全部完结谱目成功！', true);
+                this.getJiapuList();
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
+            }
+        },
+        async completeCatalogsome(gcKeyArray){
+            this.loading = true;
+            let result = await api.patchAxios('catalog/batchPass',{
+                'siteKey': this.stationKey,
+                'userKey': this.userId,
+                'gcKeyArray': gcKeyArray,
+            });
+            this.loading = false;
+            if(result.status == 200){
+                if(result.data){
+                    this.warnList = result.data;
+                    this.isWarn = true;
+                }else{
+                    ADS.message('批量完结谱目成功！', true);
+                }
+                this.getJiapuList();
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
             }
         },
     },

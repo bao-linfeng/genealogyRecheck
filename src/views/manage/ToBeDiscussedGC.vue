@@ -151,7 +151,7 @@ export default {
             loading: false,
             actionData: [
                 {'label': '补充', 'value': 'attachment'},
-                {'label': '详情', 'value': 'detail'}, 
+                {'label': '编辑', 'value': 'detail'}, 
                 {'label': '记录', 'value': 'log'}, 
                 {'label': '快捷查询', 'value': 'singleQuick'},
             ],
@@ -191,7 +191,7 @@ export default {
             this.isOverTime = '2';
             this.actionData = [
                 {'label': '审核','value': 'attachment'},
-                {'label': '详情','value': 'detail'}, 
+                {'label': '编辑','value': 'detail'}, 
                 {'label': '记录','value': 'log'}, 
                 {'label': '快捷查询', 'value': 'singleQuick'},
             ];
@@ -273,6 +273,7 @@ export default {
                     item.updateTimeO = item.updateTime ? ADS.getLocalTime(item.updateTime) : '';
                     item.createTimeO = item.createTime ? ADS.getLocalTime(item.createTime) : '';
                     item.overTime = item.updateTime ? 30 - (new Date(new Date().setHours(0,0,0,0)) - new Date(new Date(item.updateTime).setHours(0,0,0,0)))/24/3600/1000 : '';
+                    item.Filetimes = ADS.getLocalTime(item.createTime, '/', 1) || item.Filetimes;
                 });
                 this.tableData = result.result.list;
                 this.pages = result.result.pageNum;
@@ -375,7 +376,7 @@ export default {
             if(nv == '0' || nv == '1'){
                 this.actionData = [
                     {'label': '查看','value': 'attachment'},
-                    {'label': '详情','value': 'detail'}, 
+                    {'label': '编辑','value': 'detail'}, 
                     {'label': '记录','value': 'log'}, 
                     {'label': '快捷查询', 'value': 'singleQuick'},
                 ];

@@ -53,6 +53,11 @@ const state = {
         '50': '拍摄完结',
     },
     baseURL: window.location.origin.indexOf('genealogy.1jiapu.com') > -1 ? 'https://genealogydata.1jiapu.com/' : 'https://genealogydatatest.qingtime.cn/',
+    roleName: window.localStorage.getItem('roleName') || '',
+    roleKey: window.localStorage.getItem('roleKey') || '',
+    roleType: window.localStorage.getItem('roleType') || '',
+    menuList: window.localStorage.getItem('menuList') ? JSON.parse(window.localStorage.getItem('menuList')) : [],
+    isResize: 0,
 }
 
 const actions = {

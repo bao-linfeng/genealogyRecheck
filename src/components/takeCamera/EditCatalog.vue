@@ -170,7 +170,7 @@ export default {
                 {'label': '写本', 'value': '写本'}
             ],
             lostVolumeList: [
-                {'label': '不缺卷册', 'value': '不缺卷册'}, 
+                {'label': '不缺卷册', 'value': '0'}, 
                 {'label': '总卷数不详', 'value': '存卷'}, 
                 {'label': '不分卷且确定不全', 'value': '存  册'}, 
                 {'label': '知道总卷数且确定不全', 'value': '缺卷'}, 
