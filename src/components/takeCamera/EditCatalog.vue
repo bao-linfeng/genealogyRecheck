@@ -77,7 +77,7 @@
                 </li>
                 <li>
                     <label class="label" for="">谱目编辑</label>
-                    <el-radio-group class="w90" v-model="GCOver" :disabled="read">
+                    <el-radio-group class="w90" v-model="GCOver" :disabled="(read || isGCOver || GCOver == 1) && role >= 1 && role <= 3">
                         <el-radio :label="'1'">已完结</el-radio>
                         <el-radio :label="''">未完结</el-radio>
                     </el-radio-group>
@@ -120,7 +120,11 @@ export default {
         conditionEdit: {
             type: Boolean,
             default: false
-        }
+        },
+        isGCOver: {
+            type: Boolean,
+            default: true
+        },
     },
     data: () => {
         return {
@@ -252,7 +256,7 @@ export default {
 
                 this.isEdit = true;
             }else{
-                this.$XModal.message({ message: data.msg, status: 'warning' });
+                this.$XModal.message({ message: result.msg, status: 'warning' });
             }
         },
         async editCatalog(){// 编辑谱目

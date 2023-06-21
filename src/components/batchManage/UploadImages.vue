@@ -22,10 +22,12 @@
         </div>
         <div class="preview-images-wrap" v-if="simplePath">
             <i class="left el-icon-arrow-left" :class="{active: currentIndex === 0}" @click="previewImages(currentIndex - 1)"></i>
-            <img class="large-image" :style="{transform: 'rotate('+rotate+'deg)'}" :src="baseURL+simplePath" alt="" />
+            <img class="large-image" :style="{transform: 'rotate('+rotate+'deg) scale('+scale+')'}" :src="baseURL+simplePath" alt="" />
             <div class="refresh-box">
                 <img class="icon" @click="handleRotate(false)" title="左旋90°" src="../../assets/shoot/spinL.svg" alt="">
                 <img class="icon" @click="handleRotate()" title="右旋90°" src="../../assets/shoot/spinR.svg" alt="">
+                <img class="icon" @click="handleZoom(-1)" title="缩小" src="../../assets/shoot/zoomIn.svg" alt="">
+                <img class="icon" @click="handleZoom(1)" title="放大" src="../../assets/shoot/zoomOut.svg" alt="">
             </div>
             <i class="close el-icon-close" @click="closePreview"></i>
             <i class="left right el-icon-arrow-right" :class="{active: currentIndex === imageList.length - 1}" @click="previewImages(currentIndex + 1)"></i>
@@ -56,6 +58,7 @@ export default {
            distanceX: 0,
            distanceY: 0,
            rotate: 0,
+           scale: 1,
         };
     },
     mounted:function(){
@@ -70,6 +73,17 @@ export default {
                 this.rotate = this.rotate + rotate;
             }else{
                 this.rotate = this.rotate - rotate;
+            }
+        },
+        handleZoom(s){
+            if(s == 1){
+                this.scale = this.scale + 0.25;
+            }else{
+                if(this.scale >= 1.25){
+                    this.scale = this.scale - 0.25;
+                }else{
+                    this.$XModal.message({message: '已经最小尺寸啦', status: 'warning'})
+                }
             }
         },
         onMouseDown(e) {
@@ -116,7 +130,7 @@ export default {
             if(i >= 0 && i <= this.imageList.length - 1){
                 this.currentIndex = i;
                 this.simplePath = this.imageList[i].simplePath;
-                this.scale = 0;
+                this.scale = 1;
             }
         },
         upload(e){

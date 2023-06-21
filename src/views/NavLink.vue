@@ -8,18 +8,18 @@
         </div>
         <div class="navRight">
             <ul class="navLink">
-                <li title="谱目审核" v-if="['9071165255', '9071165200'].indexOf(roleKey) > -1">
-                    <router-link :to="'/'+pathname+'/bookaudit?type=&fileName=&libListCheck=&startTime=&endTime=&stage=&page=1'">谱目审核</router-link>
+                <li title="新谱查重" v-if="['9071165255', '9071165200'].indexOf(roleKey) > -1">
+                    <router-link :to="'/'+pathname+'/bookaudit?type=&fileName=&libListCheck=&startTime=&endTime=&stage=&page=1'">新谱查重</router-link>
                 </li>
                 <!-- <li title="谱目审核" v-if="['9071165255', '9071165200'].indexOf(roleKey) > -1">
                     <router-link :to="'/'+pathname+(role >= 1 && role <= 3 ? '/bookaudit?type=&fileName=&libListCheck=&startTime=&endTime=&stage=&page=1' : '/batchmanage?type=&fileName=&startTime=&endTime=&stage=&page=1')">谱目审核</router-link>
                 </li> -->
-                <li title="待议谱" v-if="['9071544233', '9071165279', '9071165255', '9071165200'].indexOf(roleKey) > -1">
-                    <router-link :to="'/'+pathname+'/toBeDiscussedGC'">待议谱</router-link>
+                <li title="查重待议谱" v-if="['9071544233', '9071165279', '9071165255', '9071165200'].indexOf(roleKey) > -1">
+                    <router-link :to="'/'+pathname+'/toBeDiscussedGC'">查重待议谱</router-link>
                 </li>
                 <li title="影像审核" v-if="['9071693612', '9071544233', '9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1"><router-link :to="'/'+pathname+'/takeCamera'">影像审核</router-link></li>
                 <li @click="gotoLink('/'+pathname+'/genealogySearch')"><span class="search">家谱检索</span></li>
-                <li title="管理" v-if="['9071693612', '9071544233', '9071165279', '9071165255', '9071165200'].indexOf(roleKey) > -1"><router-link :to="'/'+pathname+'/myGenealogy'"><span class="menu">管理</span></router-link></li>
+                <li title="家谱总目录" v-if="['9071693612', '9071544233', '9071165279', '9071165255', '9071165200'].indexOf(roleKey) > -1"><router-link :to="'/'+pathname+'/myGenealogy'"><span class="menu">家谱总目录</span></router-link></li>
                 <li @click="logout()" title="退出"><span>退出</span></li>
             </ul>
             <i class="el-icon-menu navmenu" v-if="flag" @click="toggleNav(false)"></i>

@@ -4,7 +4,7 @@
         <Sidebar />
         <div class="content">
             <!-- 导航 -->
-            <NavModal title="本站家谱" />
+            <NavModal title="家谱总目录" />
             <!-- 检索模块 -->
             <SearchModal v-show="!isFull" :fieldFilters="fieldFilters" v-on:get-genealogy="getGenealogy" v-on:change-parameters="changeParameters" />
             <div v-show="!isFull" class="btn_wrap_left">
@@ -17,9 +17,9 @@
                 <!-- v-show="stationKey != '1528234980'" -->
                 <!-- <el-button v-if="this.role >=1 && this.role <= 2"  class="marginLeft20" size="small" type="primary" @click="isEdit = true">编辑的家谱</el-button> -->
                 <!-- 全部完结 -->
-                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('all')">全部完结</el-button>
+                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2 || (orgAdmin == 'admin')" @click="handleCompleteCatalog('all')">全部完结</el-button>
                 <!-- 批量完结 -->
-                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('some')">批量完结</el-button>
+                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2 || (orgAdmin == 'admin')" @click="handleCompleteCatalog('some')">批量完结</el-button>
             </div>
             <!-- 家谱table -->
             <GenealogyTableModal v-if="fieldFilters.length" :fieldFilters="fieldFilters" :total="total" :list="list" v-on:toggle-full="toggleFull" v-on:checkbox-change="checkboxChange" v-on:get-genealogy="getJiapuList" />
@@ -102,6 +102,8 @@ export default {
             condition: '',
             FileStartTimes: '',
             FileEndTimes: '',
+            claimStartTime: '',
+            claimEndTime: '',
             isFull: false,
             gcStatus: '',
             NoIndex: '',
@@ -152,6 +154,8 @@ export default {
             let data = await api.postAxios('data/download',{
                 'siteKey': this.stationKey,
                 'userKey': this.userId,
+                'claimStartTime': (this.claimStartTime ? new Date(this.claimStartTime).getTime() : ''),
+                'claimEndTime': (this.claimEndTime ? new Date(this.claimEndTime).getTime() : ''),
                 'startFileTimes': (this.FileStartTimes ? new Date(this.FileStartTimes).getTime() : ''),
                 'endFileTimes': (this.FileEndTimes ? new Date(this.FileEndTimes).getTime() : ''),
                 'condition': this.condition.join(','),
@@ -190,6 +194,8 @@ export default {
             }
             this.loading = true;
             let data = await api.getAxios('catalog/back?siteKey='+this.stationKey+
+            '&claimStartTime='+(this.claimStartTime ? new Date(this.claimStartTime).getTime() : '')+
+            '&claimEndTime='+(this.claimEndTime ? new Date(this.claimEndTime).getTime() : '')+
             '&startFileTimes='+(this.FileStartTimes ? new Date(this.FileStartTimes).getTime() : '')+
             '&endFileTimes='+(this.FileEndTimes ? new Date(this.FileEndTimes).getTime() : '')+
             '&condition='+this.condition+
@@ -262,9 +268,11 @@ export default {
             this.FileEndTimes = data['FileEndTimes'] || '';
             this.gcStatus = data['gcStatus'] || '';
             this.waitComplete = data['waitComplete'] ? '1' : '';
+            this.claimStartTime = data['claimStartTime'] || '';
+            this.claimEndTime = data['claimEndTime'] || '';
 
             for(let key in data){
-                if(key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'claimStartTime' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -289,9 +297,11 @@ export default {
             this.FileEndTimes = data['FileEndTimes'] || '';
             this.gcStatus = data['gcStatus'] || '';
             this.waitComplete = data['waitComplete'] ? '1' : '';
+            this.claimStartTime = data['claimStartTime'] || '';
+            this.claimEndTime = data['claimEndTime'] || '';
 
             for(let key in data){
-                if(key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'claimStartTime' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -406,7 +416,7 @@ export default {
             });
             this.loading = false;
             if(result.status == 200){
-                if(result.data){
+                if(result.data && result.data.length){
                     this.warnList = result.data;
                     this.isWarn = true;
                 }else{
@@ -427,6 +437,7 @@ export default {
             bindTotal: state => state.nav.bindTotal,
             bindPage: state => state.nav.bindPage,
             catalogStatusO: state => state.nav.catalogStatusO,
+            orgAdmin: state => state.nav.orgAdmin,
         })
     },
     watch:{

@@ -3,7 +3,7 @@
         <div class="content">
             <ul class="nav-wrap">
                 <li>
-                    <h3>谱目审核列表-{{fileName}}(总共{{tableData.length}}条数据)</h3>
+                    <h3>新谱查重列表-{{fileName}}(总共{{tableData.length}}条数据)</h3>
                 </li>
                 <li>
                     <!-- <el-checkbox v-if="active == 4" v-model="showAll">显示全部</el-checkbox> -->
@@ -22,7 +22,6 @@
                     class="adai-table"
                     resizable
                     keep-source
-                    show-overflow
                     highlight-current-row
                     ref="xTable"
                     :height="h*0.6"
@@ -32,15 +31,13 @@
                     @edit-closed="editClosedEvent"
                     :edit-config="{trigger: 'click', mode: 'row',showStatus: true, activeMethod:activeCellMethod}"
                     @cell-click="cellClickEvent">
-                    <vxe-table-colgroup title="可拍信息" fixed="left" width="620">
-                        <vxe-table-column fixed="left" v-if="active == 4" field="canTake" title="操作" width="160" :cell-render="{name:'AdaiTabButton', events:{'click':changeCanTake}}"></vxe-table-column>
-                        <vxe-table-column v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="{name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
-                        <vxe-table-column field="_key" title="谱目ID" width="100"></vxe-table-column>
-                        <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充字段" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
-                        <vxe-table-column fixed="left" v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
-                    </vxe-table-colgroup>
-                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="{name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
-                    <vxe-table-column fixed="right" field="annex" title="影像页查看" width="160" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'附件','value':'annex'}, {'label':'快捷查询','value':'singleQuick'}]},events:{'annex':annex, 'singleQuick': singleQuick}}"></vxe-table-column>
+                    <vxe-table-column fixed="left" v-if="active == 4" field="canTake" title="审核" width="160" :cell-render="{name:'AdaiTabButton', events:{'click':changeCanTake}}"></vxe-table-column>
+                    <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
+                    <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充字段" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
+                    <vxe-table-column fixed="left" v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
+                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
+                    
+                    <vxe-table-column fixed="right" field="annex" title="操作" width="160" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'editBook': editBook, 'annex': annex, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
             </div>
             <RepeatJiapuModal v-if="active >= 2" :row="row" :h="h" :pumuThead="pumuThead" :isF="false" />
@@ -57,6 +54,8 @@
         </div>
         <!-- 批次关联影像、审核时查看 -->
         <UploadImages v-if="isShow" :batchData="{'_key': this.batchId, 'look': 1}" v-on:close="isShow = 0" />
+        <!-- 谱目编辑 -->
+        <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeEdit" />
     </div>
 </template>
 
@@ -65,12 +64,14 @@ import api from "../../api.js";
 import ADS from "../../ADS.js";
 import AnnexModal from "../../components/QingTimeGenealogy/AnnexModal.vue";
 import RepeatJiapuModal from "../../components/batchManage/RepeatJiapuModal.vue";
+import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 import UploadImages from '../../components/batchManage/UploadImages.vue';
 export default {
     name: "bookAuditList",
     components: {
         AnnexModal,RepeatJiapuModal, UploadImages, 
+        EditCatalog,
     },
     data: () => {
         return {
@@ -111,6 +112,11 @@ export default {
             field_branch: [],
             isTable: false,
             showAll: true,
+            attrData: [
+                {'label':'附件','value':'annex'}, 
+                {'label':'快捷查询','value':'singleQuick'}
+            ],
+            isEdit: false,
         };
     },
     created:function(){
@@ -120,53 +126,42 @@ export default {
         this.active = param['state'] ? Number(param['state']) : 0;
         this.h = window.innerHeight - 110;
         console.log(this.fileName);
+        if(this.active == 4){
+            this.attrData = [
+                {'label': '编辑', 'value': 'editBook'},
+                {'label':'附件','value':'annex'}, 
+                {'label':'快捷查询','value':'singleQuick'}
+            ];
+        }
 
         this.field_main = [
-            {'fieldMeans': '家谱姓氏', 'fieldName': 'surname'},
-            {'fieldMeans': '家谱谱名', 'fieldName': 'genealogyName'},
+            {'fieldMeans': '谱ID', 'fieldName': '_key'},
+            {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
+            {'fieldMeans': '姓氏', 'fieldName': 'surname'},
+            {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
+            {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
             {'fieldMeans': '出版年', 'fieldName': 'publish'},
-            {'fieldMeans': '谱籍_现代地名', 'fieldName': 'place'},
-            {'fieldMeans': '卷(册)说明', 'fieldName': 'volume'},
             {'fieldMeans': '堂号', 'fieldName': 'hall'},
         ];
 
         this.field_branch = [
-            {'fieldMeans': '省市区', 'fieldName': 'address'},
-            {'fieldMeans': '作者姓名', 'fieldName': 'authors'},
-            {'fieldMeans': '应拍卷(册)数', 'fieldName': 'hasVolume'},
-            {'fieldMeans': '缺卷(册)说明', 'fieldName': 'lostVolume'},
-            {'fieldMeans': '版本类型', 'fieldName': 'version'},
-            {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
-
             {'fieldMeans': '一世祖', 'fieldName': 'firstAncestor'},
             {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
+            {'fieldMeans': '谱籍地(现代)', 'fieldName': 'place'},
+            {'fieldMeans': '谱籍地(原籍)', 'fieldName': 'LocalityModern'},
+            {'fieldMeans': '总卷数', 'fieldName': 'volume'},
+            {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
+            {'fieldMeans': '可拍卷数', 'fieldName': 'hasVolume'},
+            {'fieldMeans': '作者', 'fieldName': 'authors'},
+            {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
+            {'fieldMeans': '版本类型', 'fieldName': 'version'},
+            {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid'},
             {'fieldMeans': '备注', 'fieldName': 'memo'},
-            {'fieldMeans': '重复谱书编号', 'fieldName': 'Dupbookid'},
-            {'fieldMeans': '状态', 'fieldName': 'condition'},
             {'fieldMeans': '说明', 'fieldName': 'explain'},
+            {'fieldMeans': '谱状态', 'fieldName': 'condition'},
+            {'fieldMeans': '供应商代号', 'fieldName': 'organizationNo'},
             {'fieldMeans': '档案时间', 'fieldName': 'Filetimes'},
-            {'fieldMeans': '档名', 'fieldName': 'Filenames'},
-            {'fieldMeans': '代号', 'fieldName': 'code'},
-            {'fieldMeans': '谱籍_依谱书所载', 'fieldName': 'LocalityModern'},
-            {'fieldMeans': '谱书编号', 'fieldName': 'bookId'},
-            {'fieldMeans': 'DGS 号码', 'fieldName': 'DGS'},
-            {'fieldMeans': '微卷编号', 'fieldName': 'film'},
-            {'fieldMeans': '家谱群组ID', 'fieldName': 'genealogyGroupID'},
-            {'fieldMeans': '项目ID', 'fieldName': 'Projectid'},
-            {'fieldMeans': '拍摄日期', 'fieldName': 'capturedate'},
-            {'fieldMeans': 'Media', 'fieldName': 'Media'},
-            {'fieldMeans': '重复专案ID', 'fieldName': 'DupProjectID'},
-            {'fieldMeans': '认领单位', 'fieldName': 'claim'},
-            {'fieldMeans': '认领日期', 'fieldName': 'claimDate'},
-            {'fieldMeans': '拍摄期限', 'fieldName': 'shootingPeriod'},
-            {'fieldMeans': '前次认领单位1', 'fieldName': 'pervious1'},
-            {'fieldMeans': '前次认领日期1', 'fieldName': 'perviousDate1'},
-            {'fieldMeans': '前次认领单位2', 'fieldName': 'pervious2'},
-            {'fieldMeans': '前次认领日期2', 'fieldName': 'perviousDate2'},
-            {'fieldMeans': '前次认领单位3', 'fieldName': 'pervious3'},
-            {'fieldMeans': '前次认领日期3', 'fieldName': 'perviousDate3'},
-            {'fieldMeans': '序号', 'fieldName': 'VolumeFst'},
-            {'fieldMeans': '起年', 'fieldName': 'startYear'},
+            {'fieldMeans': '档案名称', 'fieldName': 'Filenames'}
         ];
     },
     mounted:function(){
@@ -174,6 +169,18 @@ export default {
         this.getDataCheckLog();
     },
     methods:{
+        editBook({row}){// 编辑谱目
+            if(this.active == 4){
+                this.gid = row._key;
+                this.isEdit = true;
+            }else{
+                ADS.message('该状态不允许编辑！');
+            }
+        },
+        closeEdit(f){
+            this.isEdit = false;
+            f ? this.getDataCheckLog() : null; 
+        },
         singleQuick({ row }){
             console.log(row);
             window.open('/'+this.pathname+'/singleQuickSearch?id='+row._key, '_blank');

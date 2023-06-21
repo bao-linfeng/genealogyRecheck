@@ -60,6 +60,9 @@
             </vxe-pager>
         </div>
         <Loading v-show="loading" />
+        <div class="loading2" v-show="loading2">
+            <span>附近数据在家中</span>
+        </div>
     </div>
 </template>
 
@@ -120,6 +123,7 @@ export default {
             total:0,
             fieldFilters:[],
             loading: false,
+            loading2: false,
             checkList: [],
             startTime: '',
             endTime: '',
@@ -353,8 +357,10 @@ export default {
             this.nearData = this.nearAllData;
         },
         getDataNear:async function(dataKey){// 附近谱目
+            this.loading2 = true;
             this.isMore = false;
-            let data=await api.getAxios('data/near?dataKey='+dataKey+'&siteKey='+this.stationKey);
+            let data = await api.getAxios('data/near?dataKey='+dataKey+'&siteKey='+this.stationKey);
+            this.loading2 = false;
             if(data.status == 200){
                 let nearData = [];
                 if(data.data.length < 10){
@@ -485,6 +491,19 @@ export default {
     position: relative;
     width: 100%;
     overflow-y: auto;
+}
+.loading2{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0, 0.3);
+    color: #fff;
 }
 </style>
 

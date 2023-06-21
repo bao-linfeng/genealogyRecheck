@@ -34,7 +34,8 @@
                     <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" :width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
                     <vxe-table-column field="memo" title="备注" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
-                    <vxe-table-column field="claimOrgName" title="供应商" width="100"></vxe-table-column>
+                    <vxe-table-column field="claimOrgName" title="认领机构" width="100"></vxe-table-column>
+                    <vxe-table-column field="claimTimeO" title="认领时间" width="100"></vxe-table-column>
                     <vxe-table-column field="condition" title="谱状态" width="100"></vxe-table-column>
                     <vxe-table-column field="Filetimes" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
                     <vxe-table-column field="Filenames" title="档名" width="100"></vxe-table-column>

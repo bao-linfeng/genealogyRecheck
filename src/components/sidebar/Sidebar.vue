@@ -332,7 +332,7 @@ export default {
             &.active{
                 a{
                     color: #fff;
-                    border-left: 2px solid #4C95FF;
+                    border-left: 5px solid #4C95FF;
                     background: #414455;
                 }
             }

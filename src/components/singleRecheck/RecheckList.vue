@@ -5,7 +5,7 @@
                 <h3 class="title">命中规则谱目列表</h3>
                 <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
             </div>
-            <div class="content-box">
+            <div class="content-box" @mousedown.stop="">
                 <!-- show-overflow -->
                 <vxe-table
                     border

@@ -140,6 +140,19 @@ VXETable.renderer.add('AdaiActionButton', {
         }else if(item.value == 'singleQuick'){
           arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
         }
+        else if(item.value == 'toExamine'){
+          if(row.verifyUserKey){
+            arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
+          }else{
+            arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
+          }
+        }
+        else if(item.value == 'editBook'){
+          arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
+        }
+        else if(item.value == 'lookLog'){
+          arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
+        }
         else{
           arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
         }
@@ -156,7 +169,15 @@ VXETable.renderer.add('AdaiActionButton', {
       }else if(['nf', 'f'].indexOf(row.condition) === -1 && item.value == 'catalogPass'){
         arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else{
-        arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
+        if(item.value == 'toExamine'){
+          if(row.verifyUserKey){
+            arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
+          }else{
+            arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
+          }
+        }else{
+          arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
+        }
       }
     })
     return arr

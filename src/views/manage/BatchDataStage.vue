@@ -28,7 +28,7 @@
                     @cell-click="cellClickEvent">
                     <vxe-table-colgroup title="家谱信息" fixed="left">
                         <vxe-table-column type="checkbox" width="60"></vxe-table-column>
-                        <vxe-table-column v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="{name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
+                        <vxe-table-column v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
                         <vxe-table-column v-if="active == 3" field="addInformation" title="审核意见" width="140"></vxe-table-column>
                     </vxe-table-colgroup>
                     <vxe-table-column v-if="active >= 3 && active <= 4" field="hasIn" title="可拍摄" width="70"></vxe-table-column>
@@ -36,8 +36,8 @@
                     <vxe-table-column v-if="active == 3" width="100" field="suggIn" title="系统建议入库"></vxe-table-column>
                     <vxe-table-column v-if="active == 3" title="待提交" width="100" :cell-render="{name:'RuKuModal',attr:{value:'是'},events:{'click':dataWillInEvent}}"></vxe-table-column>
                     
-                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="{name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
-
+                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName"></vxe-table-column>
+                    <!-- :edit-render="{name: 'input', attrs: {type: 'text'}}" -->
                     <vxe-table-column v-if="active <= 3" width="100" field="bIdExist" title="编码重复"></vxe-table-column>
                     <vxe-table-column v-if="active <= 3" width="100" field="seemISGN" title="疑似ISGN"></vxe-table-column>
                     <vxe-table-column v-if="active <= 3" width="100" field="repeatRisk" title="规则认定综合风险"></vxe-table-column>

@@ -32,24 +32,6 @@
                             :value="item.value">
                         </el-option>
                     </el-select>
-                    <el-button type="primary" size="mini" @click="getDataList">检索</el-button>
-                    <el-checkbox class="marginL10" size="mini" v-model="isShowSearch">展开</el-checkbox>
-                </div>
-                <div class="search-right">
-                    <!-- <el-button class="marginL10" type="primary" size="mini" @click="toggleColumn(2)">{{visible2 ? '隐藏' : '显示'}} 折叠列</el-button> -->
-                    <el-button class="marginL10" type="primary" size="mini" @click="toggleColumn(1)">{{visible ? '隐藏' : '显示'}} 操作列</el-button>
-                </div>
-            </div>
-            <div class="search-wrap" v-show="isShowSearch">
-                <div class="search-left">
-                    <el-select class="width100" size="mini" v-model="condition" multiple placeholder="谱状态">
-                        <el-option
-                            v-for="item in conditionList"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                        </el-option>
-                    </el-select>
                     <el-select class="width100" size="mini" v-model="GCOver" placeholder="编目状态">
                         <el-option
                             v-for="item in GCOverList"
@@ -69,6 +51,24 @@
                     <el-select class="width100" size="mini" v-model="claimOrgKey" multiple placeholder="机构列表">
                         <el-option
                             v-for="item in orgList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                    <el-button type="primary" size="mini" @click="getDataList">检索</el-button>
+                    <el-checkbox class="marginL10" size="mini" v-model="isShowSearch">展开</el-checkbox>
+                </div>
+                <div class="search-right">
+                    <!-- <el-button class="marginL10" type="primary" size="mini" @click="toggleColumn(2)">{{visible2 ? '隐藏' : '显示'}} 折叠列</el-button> -->
+                    <el-button class="marginL10" type="primary" size="mini" @click="toggleColumn(1)">{{visible ? '隐藏' : '显示'}} 操作列</el-button>
+                </div>
+            </div>
+            <div class="search-wrap" v-show="isShowSearch">
+                <div class="search-left">
+                    <el-select class="width100" size="mini" v-model="condition" multiple placeholder="谱状态">
+                        <el-option
+                            v-for="item in conditionList"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value">
@@ -252,7 +252,7 @@ export default {
             isRead: false,
             searchType: 'catalogSearch',
             searchTypeList: [
-                {'label': '家谱列表', 'value': 'catalogSearch'},
+                {'label': '编目审核', 'value': 'catalogSearch'},
                 {'label': '卷册列表', 'value': 'volumeSearch'},
             ],
             visible: false,

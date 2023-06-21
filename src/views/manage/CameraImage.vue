@@ -73,7 +73,8 @@
                 <div class="content-top style1">
                     <div class="pass-box" v-if="lastReason.length">
                         <h3>审核结果:</h3>
-                        <div class="repulseRecord-box" v-for="(item,index) in lastReason" v-show="item.type !=2" :key="index">
+                        <!-- v-show="item.type !=2" -->
+                        <div class="repulseRecord-box" v-for="(item,index) in lastReason" :key="index">
                             <span>{{item.userName || item.mobile}} {{item.createTimeO}}</span>
                             <p :class="{active: imageIndex == item2.index}" v-for="(item2,index2) in item.returePageArray" :key="index2" @click="changeImage(item2.index)">{{item.type == 2 ? '第'+(item2.index+1)+'拍' : ''}} {{item2.returnReason}} {{item.action || ''}}</p>
                         </div>
@@ -114,7 +115,7 @@
                     <img class="icon" @click="handleReset" title="重置" src="../../assets/shoot/reset.svg" alt="">
                     <img v-if="((orgAdmin == 'admin' && takeStatus == 12) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14))) && !isRead" class="icon" @click="isPassModule = !isPassModule" title="标记原因" src="../../assets/shoot/mark.svg" alt="">
                     <!-- 标记打回 -->
-                    <PassModule v-if="isPassModule" :volumeKey="vid" :imageKey="pageKey" :submitCount="this.detail.submitCount" :imageDetail="imageDetail" :passReasonA="passReason" v-on:set-reason="patchPageReturn" v-on:save="getSinglePageReturnList" />
+                    <PassModule v-if="isPassModule" :volumeKey="vid" :imageKey="pageKey" :submitCount="this.detail.submitCount" :imageDetail="imageDetail" :passReasonA="passReason" v-on:set-reason="patchPageReturn" v-on:save="handleSinglePageReturnList" />
                 </div>
             </div>
             <i class="el-icon-arrow-left prev" @click="changeImage(imageIndex - 1)"></i>
@@ -148,7 +149,7 @@
         <!-- 查看谱目 -->
         <CatalogView v-if="isShow == 4" :read="true" :dataKey="dataKey" :vid="vid" v-on:close="isShow = 0" v-on:save="handleSave" />
         <!-- 谱目编辑 -->
-        <EditCatalog v-if="(isShow == 6)" :read="false" :dataKey="dataKey" :vid="vid" v-on:close="isShow = 0" />
+        <EditCatalog v-if="(isShow == 6)" :read="false" :dataKey="dataKey" :vid="vid" :isGCOver="false" v-on:close="isShow = 0" />
         <!-- 影像审核 -->
         <ImagesCheck v-if="isShow == 5" :detail="detail" :returnReasonL="resionList.length" v-on:close="closeCheck" />
         <!-- loading -->
@@ -283,7 +284,7 @@ export default {
                 {'label': '线路1', 'value': 'https://photo.1jiapu.com/photo'},
                 {'label': '线路2', 'value': 'http://223.111.180.111:8085/photo'},
             ]
-        }
+        } 
     },
     mounted:function(){
         // 初始化enter事件
@@ -391,6 +392,7 @@ export default {
 
                 volumeList = volumeList.sort((a, b) => {return a.internalSerialNumber - b.internalSerialNumber});
                 this.volumeList = volumeList;
+                this.imageDetail = this.precentImages[this.imageIndex];
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' });
             }
@@ -823,6 +825,11 @@ export default {
         },
         goRouter(){
             history.back(-1);
+        },
+        handleSinglePageReturnList(){
+            this.isPassModule = false;
+            ADS.message('设置成功', true);
+            this.getSinglePageReturnList();
         },
         async getSinglePageReturnList(){// 单页打回列表
             // +this.detail.submitCount

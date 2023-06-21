@@ -4,12 +4,12 @@
         <div class="wrap-box">
             <div class="head-wrap">
                 <div class="head-left">
-                    <h3 class="title">待议谱列表</h3>
+                    <h3 class="title">查重待议谱列表</h3>
                 </div>
                 <div class="head-right">
-                    <el-button type="primary" size="small" @click="openBaseGenealogy">本站家谱</el-button>
+                    <el-button type="primary" size="small" @click="openBaseGenealogy">家谱总目录</el-button>
                     <el-button v-if="role >= 1 && role <= 3" type="primary" size="small" @click="openOverTimeBatch(4)">批量设置逾期谱</el-button>
-                    <el-button type="primary" size="small" @click="openOverTimeBatch(5)">批量更改状态</el-button>
+                    <el-button v-if="role >= 1 && role <= 3" type="primary" size="small" @click="openOverTimeBatch(5)">批量更改状态</el-button>
                 </div>
                 <p class="condition">谱状态说明:f,审核通过且已拍摄;nf,审核通过未拍摄;r,无效谱;d,谱书重复;m,待议谱。</p>
             </div>
@@ -63,20 +63,15 @@
                     <vxe-table-column field="memo" title="备注" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
-                    <vxe-table-column field="condition" title="谱状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="Filetimes" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
-                    <vxe-table-column field="Filenames" title="档名" width="100"></vxe-table-column>
-                    <vxe-table-column field="bookId" title="谱书编号" width="100"></vxe-table-column>
-                    <vxe-table-column field="DGS" title="DGS号码" width="100"></vxe-table-column>
-                    <vxe-table-column field="genealogyGroupID" title="家谱群组ID" width="100"></vxe-table-column>
-                    <vxe-table-column field="updateUserName" title="更新人员" width="100"></vxe-table-column>
-                    <vxe-table-column field="GCOverO" title="编目状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="NoIndexO" title="索引状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
-                    
-                    <vxe-table-column field="updateTimeO" width="100" title="打回日期"></vxe-table-column>
                     <vxe-table-column field="overTime" width="100" title="剩余天数"></vxe-table-column>
-                    <vxe-table-column field="createTimeO" min-width="100" title="上传日期"></vxe-table-column>
+                    <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
+
+                    <vxe-table-column field="updateTimeO" width="100" title="打回时间"></vxe-table-column>
+                    <vxe-table-column field="updateUserName" title="打回人" width="100"></vxe-table-column>
+                    <vxe-table-column field="orgUpdateTimeO" title="复审提交时间" width="100"></vxe-table-column>
+                    <vxe-table-column field="orgUpdateUserName" title="复审提交人" width="100"></vxe-table-column>
+                    <vxe-table-column field="updateUserName1" title="处理人员" width="100"></vxe-table-column>
+                    <vxe-table-column field="updateTime1" title="处理时间" width="100"></vxe-table-column>
                     <vxe-table-column fixed="right" title="操作" width="180" :cell-render="{name: 'AdaiActionButton', attr: {data: actionData}, events:{'detail': openDetail, 'attachment': openAttachment, 'log': openLog, 'check': openCheck, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
                 <div class="page-wrap">
@@ -175,14 +170,15 @@ export default {
         this.field_branch = [
             {'fieldMeans': '一世祖', 'fieldName': 'firstAncestor'},
             {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
-            {'fieldMeans': '谱籍地(原谱)', 'fieldName': 'place'},
-            {'fieldMeans': '谱籍地(现代)', 'fieldName': 'LocalityModern'},
+            {'fieldMeans': '谱籍地(现代)', 'fieldName': 'place'},
+            {'fieldMeans': '谱籍地(原谱)', 'fieldName': 'LocalityModern'},
             {'fieldMeans': '总卷数', 'fieldName': 'volume'},
             {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
             {'fieldMeans': '可拍册数', 'fieldName': 'hasVolume'},
-            // {'fieldMeans': '实拍册数', 'fieldName': 'volumeNumber'},
+            {'fieldMeans': '实拍册数', 'fieldName': 'volumeNumber'},
             {'fieldMeans': '作者', 'fieldName': 'authors'},
             {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
+            {'fieldMeans': '版本类型', 'fieldName': 'version'},
             {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid'},
         ];
     },
@@ -271,6 +267,7 @@ export default {
                     item.NoIndexO = item.NoIndex == 1 ? '不可索引' : '可索引';
                     item.gcStatusO = item.gcStatus ? this.catalogStatusO[item.gcStatus] : '';
                     item.updateTimeO = item.updateTime ? ADS.getLocalTime(item.updateTime) : '';
+                    item.orgUpdateTimeO = item.orgUpdateTime ? ADS.getLocalTime(item.orgUpdateTime) : '';
                     item.createTimeO = item.createTime ? ADS.getLocalTime(item.createTime) : '';
                     item.overTime = item.updateTime ? 30 - (new Date(new Date().setHours(0,0,0,0)) - new Date(new Date(item.updateTime).setHours(0,0,0,0)))/24/3600/1000 : '';
                     item.Filetimes = ADS.getLocalTime(item.createTime, '/', 1) || item.Filetimes;

@@ -2,7 +2,7 @@
     <div class="wrap">
         <Sidebar />
         <div class="content">
-            <NavModal :title="'谱目审核'+(total ? '('+total+')' : '')">
+            <NavModal :title="'新谱查重'+(total ? '('+total+')' : '')">
                 <div class="toolbar">
                     <!-- <vxe-button v-if="role >= 1 && role <= 3" content="删除脏数据" @click="removeSigleEvent({'row':{'hasMarkISGN':1,'batchID':''}})"></vxe-button> -->
                 </div>
@@ -67,9 +67,12 @@
                     <vxe-table-column field="needReviewO" title="打回" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
                     <vxe-table-column field="hasPast" title="通过审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column> -->
                     <vxe-table-column field="status" title="状态"></vxe-table-column>
-                    <vxe-table-column field="excelDataNum" title="表格总数"></vxe-table-column>
+                    <!-- <vxe-table-column field="excelDataNum" title="表格总数"></vxe-table-column> -->
                     <vxe-table-column field="dataNum" title="已导入数"></vxe-table-column>
                     <vxe-table-column field="hasMarkISGNNum" title="已入库数"></vxe-table-column>
+                    <vxe-table-column field="toBeDiscussedNumber" title="待议数"></vxe-table-column>
+                    <vxe-table-column field="duplicateNumber" title="重复数"></vxe-table-column>
+                    <vxe-table-column field="invalidNumber" title="无效数"></vxe-table-column>
                     <vxe-table-column field="libO" title="来源" sort-by="libCode" sortable></vxe-table-column>
                     <vxe-table-column field="checkUserName" title="审核人"></vxe-table-column>
                     <vxe-table-column field="createTime" title="导入时间" :formatter="['formatDate', '']" sort-by="createTime" sortable></vxe-table-column>
@@ -148,7 +151,7 @@ export default {
         this.page = ADS.getQueryVariable('page') ? Number(ADS.getQueryVariable('page')) : 1;
     },
     mounted:function(){
-        this.role <=3  && this.role >=1 ? this.getUserList() : null;
+        this.role <= 3 && this.role >= 1 ? this.getUserList() : null;
         this.getDataType();
         this.getBatchList(); 
         this.getLibList();

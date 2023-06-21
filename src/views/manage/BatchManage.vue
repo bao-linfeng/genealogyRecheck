@@ -53,9 +53,12 @@
                     <vxe-table-column field="hasSubmitO" title="提交审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
                     <vxe-table-column field="needReviewO" title="打回" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
                     <vxe-table-column field="hasPast" title="通过审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
-                    <vxe-table-column field="excelDataNum" title="表格总数"></vxe-table-column>
+                    <!-- <vxe-table-column field="excelDataNum" title="表格总数"></vxe-table-column> -->
                     <vxe-table-column field="dataNum" title="已导入数"></vxe-table-column>
                     <vxe-table-column field="hasMarkISGNNum" title="已入库数"></vxe-table-column>
+                    <vxe-table-column field="toBeDiscussedNumber" title="待议数"></vxe-table-column>
+                    <vxe-table-column field="duplicateNumber" title="重复数"></vxe-table-column>
+                    <vxe-table-column field="invalidNumber" title="无效数"></vxe-table-column>
                     <vxe-table-column field="libO" title="机构"></vxe-table-column>
                     <vxe-table-column field="createTime" title="导入时间" :formatter="['formatDate', '']" sort-by="createTime" sortable></vxe-table-column>
                     <vxe-table-column title="操作" width="300" :cell-render="{name:'AdaiActionButton',attr:{data:actionData},events:{'look':navTo,'download':downloadExcel, 'downloadNaturalExcel':downloadNaturalExcel, 'upload': uploadImage,'linkImage':linkImage}}"></vxe-table-column>

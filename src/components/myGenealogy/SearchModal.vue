@@ -94,6 +94,18 @@
                 type="date"
                 placeholder="档案结束时间">
             </el-date-picker>
+            <el-date-picker
+                class="w15 marginB10"
+                v-model="parameters.claimStartTime"
+                type="date"
+                placeholder="认领开始时间">
+            </el-date-picker>
+            <el-date-picker
+                class="w15 marginB10"
+                v-model="parameters.claimEndTime"
+                type="date"
+                placeholder="认领结束时间">
+            </el-date-picker>
             <div class="w15 marginB10 noPublishAD">
                 <el-checkbox v-model="parameters.noPublishAD">无公元年</el-checkbox>
             </div>
@@ -107,10 +119,10 @@
                 <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
             </div>
             <div class="search-input-modal">
-                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
             </div>
-            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 17 : 14))%6 || 6))" :key="'kon'+item"></div>
+            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 19 : 16))%6 || 6))" :key="'kon'+item"></div>
             <div class="search-input-modal"></div>
         </div>
         <div class="search-modal-box" v-if="!isShow">
@@ -151,7 +163,7 @@
                 </el-option>
             </el-select>
             <div class="search-input-modal">
-                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
             </div>
             <div class="w15 marginB10 noPublishAD">
@@ -206,6 +218,8 @@ export default {
                 FileStartTimes: '',
                 FileEndTimes: '',
                 gcStatus: '',
+                claimStartTime: '',
+                claimEndTime: '',
             },
             gcStatusList: [
                 {'label': '全部谱书状态', 'value': ''},
