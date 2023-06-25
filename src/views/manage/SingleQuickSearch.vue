@@ -41,7 +41,7 @@
                     <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
                     <vxe-table-column field="condition" title="谱状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="Filetimes" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
+                    <vxe-table-column field="FiletimesO" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
                     <vxe-table-column field="Filenames" title="档名" width="100"></vxe-table-column>
                     <vxe-table-column field="bookId" title="谱书编号" width="100"></vxe-table-column>
                     <vxe-table-column field="DGS" title="DGS号码" width="100"></vxe-table-column>
@@ -233,6 +233,7 @@ export default {
                 this.tableData = data.result.list.map((ele) => {
                     ele.claimOrgNameO = ele.claimOrgName + '|' + ele.claimOrganizationNo;
                     ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
+                    ele.FiletimesO = ele.Filetimes ? ADS.getLocalTime(ele.Filetimes) : '';
 
                     return ele;
                 });

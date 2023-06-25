@@ -158,13 +158,14 @@ var ModalHelper = (function(bodyCls){
 //退出登录
 function logout(){
     let pathname = window.localStorage.getItem('pathname') || '';
-    window.localStorage.setItem('token','');
-    window.localStorage.setItem('profile','');
-    window.localStorage.setItem('userId','');
-    window.localStorage.setItem('stationKey','');
-    window.localStorage.setItem('stationName','');
-    window.localStorage.setItem('stationLogo','');
-    window.localStorage.setItem('role','');
+    // window.localStorage.setItem('token','');
+    // window.localStorage.setItem('profile','');
+    // window.localStorage.setItem('userId','');
+    // window.localStorage.setItem('stationKey','');
+    // window.localStorage.setItem('stationName','');
+    // window.localStorage.setItem('stationLogo','');
+    // window.localStorage.setItem('role','');
+    window.localStorage.clear();
     this.$router.push('/'+pathname); 
 }
 

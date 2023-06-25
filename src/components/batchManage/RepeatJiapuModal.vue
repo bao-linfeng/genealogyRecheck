@@ -1,7 +1,6 @@
 <template>  
     <div class="section-box">
         <div class="section-box-tab">
-            <!-- ,'单条检索' -->
             <span :class="tabIndex == index ? 'active' : ''" v-for="(item,index) in ['重复可疑数据','附近相关数据']" :key="'tab'+index" @click="tabIndex = index">{{item}}{{index == 2 ? '' : ('('+(index == 1 ? nearAllData.length : dubiousData.length)+')')}}</span>
             <span>{{row && row.genealogyName}}  {{row.prov}}{{row.city}}{{row.district}}</span>
         </div>
@@ -17,14 +16,10 @@
                 :edit-config="{trigger: 'click', mode: 'row',showStatus: true,activeMethod:activeCellMethod}"
                 @cell-click="cellClickEvent"
                 :data="dubiousData">
-                <vxe-table-colgroup title="家谱信息" fixed="left">
-                    <vxe-table-column field="rules" title="命中规则与风险" width="140"></vxe-table-column>
-                    <vxe-table-column field="genealogyName" title="谱名" width="100"></vxe-table-column>
-                    <vxe-table-column field="place" title="谱籍地" width="100"></vxe-table-column>
-                    <vxe-table-column field="publish" title="出版年" width="100"></vxe-table-column>
-                    <vxe-table-column field="_key" title="谱目ID" width="100"></vxe-table-column>
-                </vxe-table-colgroup>
-                <vxe-table-column v-for="(item,index) in repeatDetailField" :visible="collapsable" width="100" :key="'dubious'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
+                <vxe-table-column field="rules" title="命中规则与风险" width="140" fixed="left"></vxe-table-column>
+                <vxe-table-column v-for="(item,index) in field_main" :field="item.fieldName" :title="item.fieldMeans" width="100" fixed="left" :key="'main'+index"></vxe-table-column>
+                
+                <vxe-table-column v-for="(item,index) in field_branch" :visible="collapsable" width="100" :key="'branch'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
                 <vxe-table-column title="操作" :width="140" fixed="right" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label': '影像', 'value': 'readBook'}, {'label': '标记', 'value': 'repeatMark'}]},events:{'readBook':readBook, 'repeatMark': repeatMark}}"></vxe-table-column>
             </vxe-table> 
         </div>
@@ -37,13 +32,10 @@
                 :height="isF ? h*0.4 : h2"
                 :align="'center'"
                 :data="nearData">
-                <vxe-table-colgroup title="谱名" fixed="left" width="160">
-                    <vxe-table-column field="distance" title="距离(km)" width="60"></vxe-table-column>
-                    <vxe-table-column field="genealogyName" title="谱名" width="100"></vxe-table-column>
-                    <vxe-table-column field="_key" title="谱目ID" width="100"></vxe-table-column>
-                </vxe-table-colgroup>
-                <vxe-table-column v-for="(item,index) in nearDataField"  width="100" :key="'near'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
-                <vxe-table-column title="阅读影像" :width="80" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'阅读','value':'readBook'}]},events:{'readBook':readBook}}"></vxe-table-column>
+                <vxe-table-column field="distance" title="距离(km)" width="100" fixed="left"></vxe-table-column>
+                <vxe-table-column v-for="(item,index) in field_main" :field="item.fieldName" :title="item.fieldMeans" width="100" :key="'main'+index" fixed="left"></vxe-table-column>
+                <vxe-table-column v-for="(item,index) in field_branch"  width="100" :key="'near'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
+                <vxe-table-column title="阅读影像" fixed="right" :width="80" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'阅读','value':'readBook'}]},events:{'readBook':readBook}}"></vxe-table-column>
             </vxe-table>
             <button class="more" @click="getMore" v-if="!isMore">更多</button>
         </div>
@@ -132,7 +124,47 @@ export default {
             isPlace: '',
             condition: '',
             isDataRepeat: true,
+            field_main: [],
+            field_branch: [],
         };
+    },
+    created:function(){
+        this.field_main = [
+            {'fieldMeans': '谱ID', 'fieldName': '_key'},
+            {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
+        ];
+
+        this.field_branch = [
+            {'fieldMeans': '姓氏', 'fieldName': 'surname'},
+            {'fieldMeans': '出版年', 'fieldName': 'publish'},
+            {'fieldMeans': '堂号', 'fieldName': 'hall'},
+            {'fieldMeans': '一世祖', 'fieldName': 'firstAncestor'},
+            {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor'},
+            {'fieldMeans': '谱籍地(现代)', 'fieldName': 'place'},
+            {'fieldMeans': '谱籍地(原谱)', 'fieldName': 'LocalityModern'},
+            {'fieldMeans': '总卷数', 'fieldName': 'volume'},
+            {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume'},
+            {'fieldMeans': '可拍册数', 'fieldName': 'hasVolume'},
+            {'fieldMeans': '作者', 'fieldName': 'authors'},
+            {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
+            {'fieldMeans': '版本类型', 'fieldName': 'version'},
+            {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
+            {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
+            {'fieldMeans': '起始年', 'fieldName': 'startYear'},
+            {'fieldMeans': '备注', 'fieldName': 'memo'},
+            {'fieldMeans': '说明', 'fieldName': 'explain'},
+            {'fieldMeans': '谱状态', 'fieldName': 'condition'},
+            {'fieldMeans': '供应商代号', 'fieldName': ''},
+            {'fieldMeans': '档案时间', 'fieldName': 'Filetimes'},
+            {'fieldMeans': '档案名称', 'fieldName': 'Filenames'},
+            {'fieldMeans': '谱书编号', 'fieldName': 'bookId'},
+            {'fieldMeans': 'DGS号码', 'fieldName': 'DGS'},
+            {'fieldMeans': '微卷编号', 'fieldName': 'film'},
+            {'fieldMeans': '家谱群组ID', 'fieldName': 'genealogyGroupID'},
+            {'fieldMeans': '项目ID', 'fieldName': 'Projectid'},
+            {'fieldMeans': '拍摄日期', 'fieldName': 'capturedate'},
+            {'fieldMeans': 'Media号', 'fieldName': 'Media'},
+        ];
     },
     mounted:function(){
         this.h2 =  window.innerHeight - 40;

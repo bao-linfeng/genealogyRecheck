@@ -65,7 +65,7 @@
                     <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
                     <vxe-table-column field="overTime" width="100" title="剩余天数"></vxe-table-column>
                     <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
-
+                    <vxe-table-column field="createTimeO" width="100" title="上传时间"></vxe-table-column>
                     <vxe-table-column field="updateTimeO" width="100" title="打回时间"></vxe-table-column>
                     <vxe-table-column field="updateUserName" title="打回人" width="100"></vxe-table-column>
                     <vxe-table-column field="orgUpdateTimeO" title="复审提交时间" width="100"></vxe-table-column>
@@ -450,7 +450,7 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    z-index: 1;
+    z-index: 100;
     &.active{
         z-index: 100;
         justify-content: space-between;

@@ -367,7 +367,7 @@ export default {
         },
         handleCompleteCatalog(t){// 完结家谱
             if(t == 'all'){
-                this.$confirm('确认完结全部待完结的谱目吗?', '提示', {
+                this.$confirm('共'+this.total+'条记录，确认完结全部待完结的谱目吗?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -381,7 +381,7 @@ export default {
                     gcKeyArray.push(ele._key);
                 });
                 if(this.checkList.length){
-                    this.$confirm('确认完结该批次的待完结的谱目吗?', '提示', {
+                    this.$confirm('共选中'+this.checkList.length+'条记录，确认完结该批次的待完结的谱目吗?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
