@@ -125,16 +125,12 @@ export default {
 
 <style scoped lang="scss">
 .examine-wrap{
-    // position: absolute;
-    // top: 0;
-    // right: 0;
-    // bottom: 0;
-    // left: 0;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 0 20px;
+    padding: 20px 50px;
+    min-width: 300px;
     background: #fff;
     box-shadow: 0 1px 4px #ddd;
     z-index: 100;

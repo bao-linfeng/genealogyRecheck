@@ -218,6 +218,8 @@ export default {
                 {'label': '查重结果', 'value': 'look'}, 
                 {'label': '快捷查询', 'value': 'singleQuick'},
             ];
+        }else{
+            this.orgKey = this.orgId;
         }
         this.getOrgList();
         this.getDataList();

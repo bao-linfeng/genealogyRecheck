@@ -147,7 +147,7 @@ export default {
                 {'fieldMeans': '档案名称', 'fieldName': 'Filenames'},
                 {'fieldMeans': '谱书类型', 'fieldName': 'type'},
                 {'fieldMeans': '谱书状态', 'fieldName': 'gcStatus', 'disabled': true},
-                {'fieldMeans': '编辑完结', 'fieldName': 'GCOver', 'disabled': true},
+                {'fieldMeans': '编目完结', 'fieldName': 'GCOver', 'disabled': true},
                 {'fieldMeans': '所在省市区', 'fieldName': 'address', 'disabled': true},
             ],
             argumentsMoreList: [
