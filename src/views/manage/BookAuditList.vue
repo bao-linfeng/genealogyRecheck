@@ -29,18 +29,19 @@
                     :data="tableData"
                     :row-class-name="rowClassName"
                     @edit-closed="editClosedEvent"
-                    :edit-config="{trigger: 'click', mode: 'row',showStatus: true, activeMethod:activeCellMethod}"
+                    :edit-config="{trigger: 'dblclick', mode: 'row',showStatus: true, activeMethod:activeCellMethod}"
                     @cell-click="cellClickEvent">
                     <vxe-table-column fixed="left" v-if="active == 4" field="canTake" title="审核" width="160" :cell-render="{name:'AdaiTabButton', events:{'click':changeCanTake}}"></vxe-table-column>
-                    <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
+                    <!-- <vxe-table-column fixed="left" width="100" field="_key" title="谱ID"></vxe-table-column> -->
+                    <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充字段" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
                     <vxe-table-column fixed="left" v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
-                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
+                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     
-                    <vxe-table-column fixed="right" field="annex" title="操作" width="160" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'editBook': editBook, 'annex': annex, 'singleQuick': singleQuick}}"></vxe-table-column>
+                    <vxe-table-column fixed="right" field="action" title="操作" width="160" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'catalogCheck': catalogCheck,'editBook': editBook, 'annex': annex, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
             </div>
-            <RepeatJiapuModal v-if="active >= 2" :row="row" :h="h" :pumuThead="pumuThead" :isF="false" />
+            <RepeatJiapuModal v-if="active >= 2" :row="row" :h="h" :pumuThead="pumuThead" :isF="true" />
         </div>
         <AnnexModal v-if="isShowAnnex" :gid="gid" :createUser="createUser" :row="annexRow" v-on:close-annex="isShowAnnex = false" :active="active" />
         <div class="needFill-box" v-if="isNeedFill">
@@ -56,6 +57,8 @@
         <UploadImages v-if="isShow" :batchData="{'_key': this.batchId, 'look': 1}" v-on:close="isShow = 0" />
         <!-- 谱目编辑 -->
         <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeEdit" />
+        <!-- 谱目审核 -->
+        <ExamineCatalog v-if="isCheck" :detail="detail" v-on:close="closeExamine" />
     </div>
 </template>
 
@@ -67,10 +70,11 @@ import RepeatJiapuModal from "../../components/batchManage/RepeatJiapuModal.vue"
 import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 import UploadImages from '../../components/batchManage/UploadImages.vue';
+import ExamineCatalog from '../../components/batchManage/ExamineCatalog.vue';
 export default {
     name: "bookAuditList",
     components: {
-        AnnexModal,RepeatJiapuModal, UploadImages, 
+        AnnexModal,RepeatJiapuModal, UploadImages, ExamineCatalog, 
         EditCatalog,
     },
     data: () => {
@@ -117,6 +121,8 @@ export default {
                 {'label':'快捷查询','value':'singleQuick'}
             ],
             isEdit: false,
+            isCheck: false,
+            detail: {},
         };
     },
     created:function(){
@@ -128,18 +134,17 @@ export default {
         console.log(this.fileName);
         if(this.active == 4){
             this.attrData = [
-                {'label': '编辑', 'value': 'editBook'},
+                // {'label': '审核', 'value': 'catalogCheck'},
+                // {'label': '编辑', 'value': 'editBook'},
                 {'label':'附件','value':'annex'}, 
                 {'label':'快捷查询','value':'singleQuick'}
             ];
         }
 
         this.field_main = [
-            {'fieldMeans': '谱ID', 'fieldName': '_key'},
+            {'fieldMeans': '谱ID', 'fieldName': '_key', 'disabled': true},
             {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
             {'fieldMeans': '姓氏', 'fieldName': 'surname'},
-            {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
-            {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
             {'fieldMeans': '出版年', 'fieldName': 'publish'},
             {'fieldMeans': '堂号', 'fieldName': 'hall'},
         ];
@@ -158,10 +163,12 @@ export default {
             {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid'},
             {'fieldMeans': '备注', 'fieldName': 'memo'},
             {'fieldMeans': '说明', 'fieldName': 'explain'},
-            {'fieldMeans': '谱状态', 'fieldName': 'condition'},
-            {'fieldMeans': '供应商代号', 'fieldName': 'organizationNo'},
-            {'fieldMeans': '档案时间', 'fieldName': 'Filetimes'},
-            {'fieldMeans': '档案名称', 'fieldName': 'Filenames'}
+            {'fieldMeans': '谱状态', 'fieldName': 'condition', 'disabled': true},
+            {'fieldMeans': '供应商代号', 'fieldName': 'organizationNo', 'disabled': true},
+            {'fieldMeans': '档案时间', 'fieldName': 'Filetimes', 'disabled': true},
+            {'fieldMeans': '档案名称', 'fieldName': 'Filenames', 'disabled': true},
+            {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
+            {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
         ];
     },
     mounted:function(){
@@ -169,6 +176,24 @@ export default {
         this.getDataCheckLog();
     },
     methods:{
+        closeExamine(f){
+            this.isCheck = false;
+            f ? this.getDataCheckLog() : null;
+        },
+        catalogCheck({row}){
+            console.log(row);
+            if(this.active == 4){
+                if(row.willIn == 1){
+                    this.gid = row._key;
+                    this.detail = row;
+                    this.isCheck = true;
+                }else{
+                    ADS.message('已入库，不允许修改');
+                }
+            }else{
+                ADS.message('该状态不允许审核谱目！');
+            }
+        },
         editBook({row}){// 编辑谱目
             if(this.active == 4){
                 this.gid = row._key;
@@ -382,6 +407,9 @@ export default {
             if(this.active != 4){
                 return false;
             }
+            if(['_key', 'condition', 'organizationNo', 'Filetimes', 'Filenames'].indexOf(column.property) > -1){
+                return false;
+            }
             if(['willIn', 'suggIn', 'hasIn', 'annex', 'delete', 'needFill', 'needImage'].indexOf(column.property) > -1){
                 return false;
             }
@@ -393,15 +421,24 @@ export default {
         async editCatalog(row){// 编辑谱目
             let dataObj = {};
             this.field_main.map((item)=>{
-                dataObj[item.fieldName] = row[item.fieldName];
+                if(item.disabled){
+
+                }else{
+                    dataObj[item.fieldName] = row[item.fieldName];
+                }
             });
             this.field_branch.map((item)=>{
-                if(item.fieldName == 'condition'){
-                    if(this.role >= 1 && this.role <= 3){
-                        dataObj[item.fieldName] = row[item.fieldName];
-                    }else{
+                // if(item.fieldName == 'condition'){
+                //     if(this.role >= 1 && this.role <= 3){
+                //         dataObj[item.fieldName] = row[item.fieldName];
+                //     }else{
                         
-                    }
+                //     }
+                // }else{
+                //     dataObj[item.fieldName] = row[item.fieldName];
+                // }
+                if(item.disabled){
+
                 }else{
                     dataObj[item.fieldName] = row[item.fieldName];
                 }
@@ -416,7 +453,7 @@ export default {
             }
         },
         cellClickEvent({row,column}){
-            if(column.property == 'toggle'){
+            if(column.property == 'toggle' || column.property == 'action'){
                 this.collapsableEvent();
                 return false;
             }

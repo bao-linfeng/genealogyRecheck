@@ -167,7 +167,7 @@ VXETable.renderer.add('AdaiActionButton', {
       }else if(row.imageLink && item.value == 'catalogPass'){
         arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else if(['nf', 'f'].indexOf(row.condition) === -1 && item.value == 'catalogPass'){
-        arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
+        arr.push(<button class="AdaiActionButton disabled hide" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else{
         if(item.value == 'toExamine'){
           if(row.verifyUserKey){
@@ -175,6 +175,8 @@ VXETable.renderer.add('AdaiActionButton', {
           }else{
             arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
           }
+        }else if(item.value == 'catalogPass'){
+          arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{row.condition == 'f' ? '反' : ''}{item.label}</button>)
         }else{
           arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>{item.label}</button>)
         }

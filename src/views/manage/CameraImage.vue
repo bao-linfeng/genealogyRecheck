@@ -32,6 +32,10 @@
             </div>
             <h3 class="title" @click="isShow = 8">{{takeStatusO[takeStatus]}} ({{scale*100}}%)</h3>
             <div class="head-right">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14))" class="task-verify" @click="isShow = 10">
+                    <img src="../../assets/shoot/leaveMsg.svg" alt="">
+                    <span class="span">影像移动</span>
+                </div>
                 <div v-if="takeStatus == 6 && orgAdmin == 'admin'" class="task-verify" @click="isShow = 9">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">补拍快捷处理</span>
@@ -158,6 +162,8 @@
         <ImageView v-if="isShow == 8" :gid="gid" :genealogyName="genealogyName" v-on:close="isShow = 0" />
         <!-- 补拍影像 -->
         <ReshootImages v-if="isShow == 9" :gid="gid" :vid="vid" :device="device" :imageKey="pageKey" :imageURL="imageURL" :page="page" v-on:close="closeReshoot" />
+        <!-- 影像快捷移动 -->
+        <ImageMoveModule v-if="isShow == 10" :gcKey="gid" :volumeKey="vid" :page="page" v-on:close="isShow = 0" v-on:save="handleImageMoveSave" />
     </div>
 </template>
 
@@ -175,11 +181,12 @@ import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
 import ImagesCheck from '../../components/takeCamera/ImagesCheck.vue';
 import ImageView from '../../components/takeCamera/ImageView.vue';
 import ReshootImages from '../../components/takeCamera/ReshootImages.vue';
+import ImageMoveModule from '../../components/takeCamera/ImageMoveModule.vue';
 
 export default {
     name: "cameraImage",
     components: {
-        PassModule, VolumeReturnReason, ComplainVolumeModule, DORModule, EditVolume, CatalogView, ImagesCheck, EditCatalog, ImageView, ReshootImages,
+        PassModule, VolumeReturnReason, ComplainVolumeModule, DORModule, EditVolume, CatalogView, ImagesCheck, EditCatalog, ImageView, ReshootImages, ImageMoveModule,
     },
     data: () => {
         return {
@@ -301,6 +308,11 @@ export default {
         enterKeyUpDestoryed();
     },
     methods:{
+        handleImageMoveSave(data){
+            this.isShow = 0;
+            this.getImageList();
+            this.changeImage(data.fromPage <= data.toPage ? data.toPage - 1 : data.toPage);
+        },
         closeReshoot(f){
             this.isShow = 0;
             if(f){
@@ -857,6 +869,7 @@ export default {
             orgId: state => state.nav.orgId,
             roleName: state => state.nav.roleName,
             roleKey: state => state.nav.roleKey,
+            roleType: state => state.nav.roleType,
         })
     },
     watch:{

@@ -30,6 +30,7 @@ export default {
             passReason: [],
             reason: '',
             singlePageReturnO: '',
+            isFirst: true,
         };
     },
     mounted: function(){
@@ -77,6 +78,12 @@ export default {
             }
         },
         async singlePageReturn(){
+            if(this.isFirst){
+                this.isFirst = false;
+            }else{
+                return;
+            }
+            
             let returnReason = [], returnReasonKey = this.singlePageReturnO ? this.singlePageReturnO._key : '';
             if(this.reason){
                 returnReason = [this.reason];

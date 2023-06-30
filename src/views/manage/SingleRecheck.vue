@@ -169,7 +169,7 @@ export default {
             place: '',
             orgList: [],
             orgKey: '',
-            hitTarget: '',
+            hitTarget: '1',
             hitTargetList: [
                 {'label': '命中状态', 'value': ''},
                 {'label': '命中', 'value': '1'},

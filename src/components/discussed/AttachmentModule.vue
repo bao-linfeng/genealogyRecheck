@@ -37,7 +37,7 @@
                 <div class="condition-wrap" v-if="role >= 1 && role <= 3 && detail.gcStatus == '23'">
                     <div class="condition-left">
                         <h3 class="title">谱状态更新<i class="red">*</i></h3>
-                        <el-select class="width150 marginR10" v-model="condition" placeholder="谱目状态" size="small">
+                        <el-select class="width200" v-model="condition" placeholder="谱目状态" size="small">
                             <el-option
                                 v-for="item in conditionList"
                                 :key="item.value"
@@ -45,6 +45,7 @@
                                 :value="item.value">
                             </el-option>
                         </el-select>
+                        <el-input class="width200 marginT10" placeholder="重复谱ID" v-model="Dupbookid" size="small"></el-input>
                     </div>
                     <textarea class="memo" v-model="gcStatusRemark" placeholder="此处填写谱状态更改说明信息"></textarea>
                 </div>
@@ -92,6 +93,7 @@ export default {
             gcStatusRemark: '',
             conditionList: [{'label': 'nf|可拍', 'value': 'nf'}, {'label': 'm|待议', 'value': 'm'}, {'label': 'd|重复', 'value': 'd'}, {'label': 'r|无效', 'value': 'r'}],
             condition: '',
+            Dupbookid: '',
             detail: {},
             gcStatusO: {
                 '0': '', //无状态 初始提交时，此字段为0（非null）
@@ -154,7 +156,7 @@ export default {
             }).catch(() => {});
         },
         async patchStatus(gcStatus){//待议谱修改
-            let result = await api.patchAxios('v3/review/catalog/status',{'catalogKey': this.gid, 'gcStatus': gcStatus, 'condition': this.condition, 'gcStatusRemark': this.gcStatusRemark,'orgKey': this.orgId, 'userKey': this.userId, 'siteKey': this.stationKey});
+            let result = await api.patchAxios('v3/review/catalog/status',{'catalogKey': this.gid, 'gcStatus': gcStatus, 'condition': this.condition, 'Dupbookid': this.Dupbookid, 'gcStatusRemark': this.gcStatusRemark,'orgKey': this.orgId, 'userKey': this.userId, 'siteKey': this.stationKey});
             if(result.status == 200){
                 this.$XModal.message({ message: this.role >= 1 && this.role <= 3 ? '审核成功' : '提交成功', status: 'success' });
                 this.close(true);
@@ -480,6 +482,12 @@ export default {
 }
 .marginR20{
     margin-right: 20px;
+}
+.marginT10{
+    margin-top: 10px;
+}
+.width150{
+    width: 150px;
 }
 .red{
     color: #f00;

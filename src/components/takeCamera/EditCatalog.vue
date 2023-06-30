@@ -293,6 +293,7 @@ export default {
         },
         saveData(){
             // 必填项判断
+            console.log(this.parameter);
             let required = false, fieldMeans = '';
             this.argumentsList.forEach((currentValue, index) => {
                 if(currentValue.required && !this.parameter[currentValue.fieldName]){
@@ -325,20 +326,20 @@ export default {
             }
 
             // 姓氏 第1欄不可為空白，第2-3欄可以空白；提供三個欄位，每個欄位只能放一個姓氏，不可加“氏”，最多三個姓氏
-            if(this.parameter['surname'].indexOf('氏') > -1){
+            if(this.parameter['surname'] && this.parameter['surname'].indexOf('氏') > -1){
                 return this.$XModal.message({ message: '姓氏不可添加 氏', status: 'warning' });
             }
-            if(this.parameter['surname2'].indexOf('氏') > -1){
+            if(this.parameter['surname2'] && this.parameter['surname2'].indexOf('氏') > -1){
                 return this.$XModal.message({ message: '姓氏2不可添加 氏', status: 'warning' });
             }
-            if(this.parameter['surname3'].indexOf('氏') > -1){
+            if(this.parameter['surname3'] && this.parameter['surname3'].indexOf('氏') > -1){
                 return this.$XModal.message({ message: '姓氏3不可添加 氏', status: 'warning' });
             }
 
             // 出版年 只能填入阿拉伯數字，不可加“年”
-            if(this.parameter['publish'].indexOf('年') > -1){
-                return this.$XModal.message({ message: '出版年不可添加 年', status: 'warning' });
-            }
+            // if(this.parameter['publish'] && this.parameter['publish'].indexOf('年') > -1){
+            //     return this.$XModal.message({ message: '出版年不可添加 年', status: 'warning' });
+            // }
             if(new RegExp(/[\D]/g).test(this.parameter['publish'])){
                 return this.$XModal.message({ message: '出版年必须是数字', status: 'warning' });
             }
@@ -352,9 +353,6 @@ export default {
             if(new RegExp(/[,\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['firstAncestor']) && this.parameter['firstAncestor']){
                 return this.$XModal.message({ message: '一世祖不可有其他標點符號，除了拆字（）', status: 'warning' });
             }
-            // if(this.parameter['migrationAncestor'].indexOf('(') > -1 && this.parameter['migrationAncestor'].indexOf(')') > -1){
-            //     return this.$XModal.message({ message: '始迁祖最后一个字不能是 公', status: 'warning' });
-            // }
             if(new RegExp(/[,\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['migrationAncestor']) && this.parameter['migrationAncestor']){
                 return this.$XModal.message({ message: '始迁祖不可有其他標點符號，除了拆字（）', status: 'warning' });
             }
@@ -363,9 +361,9 @@ export default {
             if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
                 return this.$XModal.message({ message: '谱籍地(原谱)不可有其他標點符號，除了拆字（）或者用 , 分割行政区', status: 'warning' });
             }
-            if(new RegExp(/[\s]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
-                return this.$XModal.message({ message: '谱籍地(原谱)不可有空格', status: 'warning' });
-            }
+            // if(new RegExp(/[\s]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
+            //     return this.$XModal.message({ message: '谱籍地(原谱)不可有空格', status: 'warning' });
+            // }
             // if(new RegExp(/[\d]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
             //     return this.$XModal.message({ message: '谱籍地(原谱) 国字数字小写', status: 'warning' });
             // }
@@ -401,11 +399,11 @@ export default {
             if(new RegExp(/[\.\/;'\\\[\]!@#\$%\^&\*\(\)_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
                 return this.$XModal.message({ message: '缺卷说明 不可有其他標點符號，除了 , ~', status: 'warning' });
             }
-            if(new RegExp(/[\s]/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
-                return this.$XModal.message({ message: '缺卷说明不可有空格', status: 'warning' });
-            }
+            // if(new RegExp(/[\s]/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
+            //     return this.$XModal.message({ message: '缺卷说明不可有空格', status: 'warning' });
+            // }
             // \u4e00-\u9fa5\u767e\u5343\u96f6
-            if(new RegExp(/['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '百', '千', '万', '万', '亿']/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
+            if(new RegExp(/零|一|二|三|四|五|六|七|八|九|十|百|千|万|亿/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
                 return this.$XModal.message({ message: '缺卷说明 数字必须是阿拉伯数字', status: 'warning' });
             }
 
@@ -425,13 +423,13 @@ export default {
             }
 
             // 备注    必須要半型的標點符號
-            if(new RegExp(/[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['memo']) && this.parameter['memo']){
-                return this.$XModal.message({ message: '备注 只能半型標點符號', status: 'warning' });
+            if(new RegExp(/[\/;'\\\[\]!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['memo']) && this.parameter['memo']){
+                return this.$XModal.message({ message: '备注 只能半型標點符號 , . () ~', status: 'warning' });
             }
 
             // 说明    必須要半型的標點符號
-            if(new RegExp(/[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['explain']) && this.parameter['explain']){
-                return this.$XModal.message({ message: '说明 只能半型標點符號', status: 'warning' });
+            if(new RegExp(/[\/;'\\\[\]!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'`]|[，。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['explain']) && this.parameter['explain']){
+                return this.$XModal.message({ message: '说明 只能半型標點符號 , . () ~', status: 'warning' });
             }
 
             this.editCatalog();

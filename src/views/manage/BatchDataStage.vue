@@ -144,8 +144,6 @@ export default {
             {'fieldMeans': '谱ID', 'fieldName': '_key'},
             {'fieldMeans': '谱名', 'fieldName': 'genealogyName'},
             {'fieldMeans': '姓氏', 'fieldName': 'surname'},
-            {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
-            {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
             {'fieldMeans': '出版年', 'fieldName': 'publish'},
             {'fieldMeans': '堂号', 'fieldName': 'hall'},
         ];
@@ -167,7 +165,9 @@ export default {
             {'fieldMeans': '谱状态', 'fieldName': 'condition'},
             {'fieldMeans': '供应商代号', 'fieldName': 'organizationNo'},
             {'fieldMeans': '档案时间', 'fieldName': 'Filetimes'},
-            {'fieldMeans': '档案名称', 'fieldName': 'Filenames'}
+            {'fieldMeans': '档案名称', 'fieldName': 'Filenames'},
+            {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
+            {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
         ];
     },
     mounted:function(){
