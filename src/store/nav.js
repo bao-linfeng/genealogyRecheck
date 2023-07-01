@@ -58,6 +58,8 @@ const state = {
     roleType: window.localStorage.getItem('roleType') || '',
     menuList: window.localStorage.getItem('menuList') ? JSON.parse(window.localStorage.getItem('menuList')) : [],
     isResize: 0,
+    checkTaskNumber: 0,
+    toBeDiscussedGCNumber: 0,
 }
 
 const actions = {

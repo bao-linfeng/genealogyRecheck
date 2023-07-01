@@ -137,7 +137,15 @@ export default {
             this.$message({message: '谱目关联影像成功',type: 'success'});
         }
         
-      }
+      },
+      checkTaskNumber:function(data){// 编目待议 数量
+        console.log('编目待议',data);
+        this.$store.dispatch('setPropertyValue',{'property': 'checkTaskNumber', 'value': data});
+      },
+      toBeDiscussedGCNumber:function(data){// 查重待议谱 数量
+        console.log('查重待议谱',data);
+        this.$store.dispatch('setPropertyValue',{'property': 'toBeDiscussedGCNumber', 'value': data});
+      },
   },
   components: {
     

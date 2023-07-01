@@ -117,7 +117,7 @@ export default {
             });
 
             if(result.status == 200){
-                // this.getDataList();
+                this.getDataList();
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
@@ -156,6 +156,7 @@ export default {
             }
         },
         async getDataList(){
+            this.tableData = [];
             this.loading = true;
             let result = await api.getAxios('menu?menuName='+this.menuName+'&formTitle='+this.formTitle);
             this.loading = false;

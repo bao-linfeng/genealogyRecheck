@@ -81,6 +81,9 @@ import SingleQuickSearch from './views/manage/SingleQuickSearch.vue';
 import AutoCompleteSearch from './components/takeCamera/AutoCompleteSearch.vue';
 import MenuDefinition from './views/manage/MenuDefinition.vue';
 import RoleDefinition from './views/manage/RoleDefinition.vue';
+import CatalogWorkload from './views/manage/CatalogWorkload.vue';
+
+
 
 Vue.use(Router);
 
@@ -89,6 +92,14 @@ const routes = [
     path: "/404",
     name: "notfound",
     component: NotFound
+  },
+  {
+    path: "/:id/catalogWorkload",
+    name: "CatalogWorkload",
+    meta: {
+      requireAuth: true,
+    },
+    component: CatalogWorkload
   },
   {
     path: "/:id/roleDefinition",

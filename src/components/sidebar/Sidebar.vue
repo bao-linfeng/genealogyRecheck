@@ -25,10 +25,19 @@
                 <img v-if="item.icon" class="icon" :src="item.icon" alt="" />
                 <span :class="'icon'+index+(item.level == 1 ? ' child' : '')">
                     {{item.menuTitle}}
+                    <!-- 影像审核 -->
                     <span class="count-dot" v-if="item.route.indexOf('takeCamera') > -1 && waitReviewNumber">{{waitReviewNumber}}</span>
+                    <!--  -->
                     <span class="count-dot" v-if="item.route.indexOf('bookaudit') > -1 && sumbmitNum">{{sumbmitNum}}</span>
+                    <!--  -->
                     <span class="count-dot" v-if="item.route.indexOf('DORlist') > -1 && noBindNum">{{noBindNum}}</span>
+                    <!--  -->
                     <span class="count-dot" v-if="item.route.indexOf('batchmanage') > -1 && returnNum">{{returnNum}}</span>
+                    <!-- 编目待议 -->
+                    <span class="count-dot" v-if="item.route.indexOf('singleRecheck') > -1 && roleType == 'host' && checkTaskNumber">{{checkTaskNumber}}</span>
+                    <!-- 查重待议谱 -->
+                    <span class="count-dot" v-if="item.route.indexOf('toBeDiscussedGC') > -1 && toBeDiscussedGCNumber">{{toBeDiscussedGCNumber}}</span>
+                    <!-- 消息 -->
                     <span class="count-dot" v-if="item.route.indexOf('message') > -1 && messageNotReadNumber">{{messageNotReadNumber}}</span>
                 </span>
             </router-link>
@@ -204,6 +213,9 @@ export default {
             organizationNo: state => state.nav.organizationNo,
             roleName: state => state.nav.roleName,
             menuList: state => state.nav.menuList,
+            checkTaskNumber: state => state.nav.checkTaskNumber,
+            toBeDiscussedGCNumber: state => state.nav.toBeDiscussedGCNumber,
+            roleType: state => state.nav.roleType,
         })
     },
 };
