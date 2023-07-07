@@ -315,7 +315,7 @@ export default {
         
     },
     mounted:function(){
-        this.$router.push('/'+this.pathname+'/takeCamera?i='+this.stage+'&hasRoot='+this.hasRoot+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&startTime='+this.startTime+'&endTime='+this.endTime+'&orgListCheck='+this.orgListCheck.join(',')+'&page='+this.page);
+        // this.$router.push('/'+this.pathname+'/takeCamera?i='+this.stage+'&hasRoot='+this.hasRoot+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&startTime='+this.startTime+'&endTime='+this.endTime+'&orgListCheck='+this.orgListCheck.join(',')+'&page='+this.page);
         this.getOrgList();
         this.getTaskList();
         this.getStatisticsData();

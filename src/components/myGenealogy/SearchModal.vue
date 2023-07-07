@@ -51,7 +51,7 @@
                 value-format="yyyy"
                 placeholder="版本结束年">
             </el-date-picker>
-            <el-select v-if="role >= 1 && role <= 3" v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
+            <el-select v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
                     :key="item.value"
@@ -70,6 +70,14 @@
             <el-select v-model="parameters.NoIndex" placeholder="索引(NoIndex)" class="w15 marginB10">
                 <el-option
                     v-for="item in NoIndexList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-select v-model="parameters.waitComplete" placeholder="完结状态" class="w15 marginB10">
+                <el-option
+                    v-for="item in waitCompleteList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
@@ -115,9 +123,9 @@
             <div class="w15 marginB10 noPublishAD">
                 <el-checkbox v-model="parameters.isPlace">无谱籍地</el-checkbox>
             </div>
-            <div class="w15 marginB10 noPublishAD">
+            <!-- <div class="w15 marginB10 noPublishAD">
                 <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
-            </div>
+            </div> -->
             <div class="search-input-modal">
                 <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
@@ -154,7 +162,7 @@
                     :value="item.value">
                 </el-option>
             </el-select>
-            <el-select v-if="role >= 1 && role <= 3" v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
+            <el-select v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
                     :key="item.value"
@@ -166,9 +174,17 @@
                 <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
             </div>
-            <div class="w15 marginB10 noPublishAD">
+            <el-select v-model="parameters.waitComplete" placeholder="完结状态" class="w15 marginB10">
+                <el-option
+                    v-for="item in waitCompleteList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <!-- <div class="w15 marginB10 noPublishAD">
                 <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
-            </div>
+            </div> -->
             <div class="search-input-modal" v-for="(item, index) in 3" :key="index"></div>
         </div>
         <div class="search-modal-box">
@@ -242,6 +258,12 @@ export default {
                 {'label': '全部索引', 'value': ''},
                 {'label': '可索引', 'value': 0},
                 {'label': '不可索引', 'value': 1},
+            ],
+            waitCompleteList: [
+                {'label': '完结状态', 'value': ''},
+                {'label': '拍摄中', 'value': '0'},
+                {'label': '待完结', 'value': '1'},
+                {'label': '已完结', 'value': '2'},
             ],
             conditionList: [{'label': '全部谱状态', 'value': ''}, {'label': 'f', 'value': 'f'}, {'label': 'nf', 'value': 'nf'}, {'label': 'd', 'value': 'd'}, {'label': 'r', 'value': 'r'}, {'label': 'm', 'value': 'm'}],
             imageList: [{'label':'影像资料','value':2},{'label':'有影像','value':1},{'label':'无影像','value':0}],

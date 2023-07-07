@@ -74,6 +74,14 @@
                             :value="item.value">
                         </el-option>
                     </el-select>
+                    <el-select class="width100" size="mini" v-model="waitComplete" placeholder="完结状态">
+                        <el-option
+                            v-for="item in waitCompleteList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
                     <el-date-picker
                         class="w250"
                         size="mini"
@@ -128,6 +136,7 @@
                     <vxe-table-column field="lostVolume" title="缺卷说明" width="100"></vxe-table-column>
                     <vxe-table-column field="hasVolume" title="可拍册数" width="100"></vxe-table-column>
                     <vxe-table-column field="volumeNumber" title="实拍册数" width="100"></vxe-table-column>
+                    <vxe-table-column field="passVolumeNumber" title="通过册数" width="100"></vxe-table-column>
                     <vxe-table-column field="authors" title="作者" width="100"></vxe-table-column>
                     <vxe-table-column field="authorJob" title="作者职务" width="100"></vxe-table-column>
                     <vxe-table-column field="version" title="版本类型" width="100"></vxe-table-column>
@@ -229,6 +238,13 @@ export default {
                 {'label': '索引状态', 'value': ''},
                 {'label': '不可索引', 'value': '1'},
                 {'label': '可索引', 'value': '2'},
+            ],
+            waitComplete: '',
+            waitCompleteList: [
+                {'label': '完结状态', 'value': ''},
+                {'label': '拍摄中', 'value': '0'},
+                {'label': '待完结', 'value': '1'},
+                {'label': '已完结', 'value': '2'},
             ],
             updateTime: '',
             updateStartTime: '',
@@ -339,7 +355,7 @@ export default {
         },
         async getDataList(f = true){
             this.loading = true;
-            let data = await api.getAxios('catalog/catalogListFS?gcKey='+this.gcKey+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('catalog/catalogListFS?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 let volumePages = 0, imagePages = 0;
@@ -365,7 +381,7 @@ export default {
             }
         },
         async getCatalogListFSStatistics(){
-            let data = await api.getAxios('catalog/catalogListFSStatistics?gcKey='+this.gcKey+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('catalog/catalogListFSStatistics?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
             if(data.status == 200){
                 this.volumeTotal = data.result.totalVolume;
                 this.imageTotal = data.result.totalImg;

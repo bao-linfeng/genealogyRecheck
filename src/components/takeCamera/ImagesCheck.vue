@@ -113,8 +113,9 @@ export default {
             }
             if(this.takeStatus == 7){
                 this.operateStatusList = [
-                    {'label': '打回', 'value': 'return'},
-                    {'label': '作废', 'value': 'toVoid'}
+                    {'label': '提交复审', 'value': 'recheck'}, // 2023.7.7 16:10 杨玉满 针对 已通过卷册 需要移动影像页，先提交到 复审 然后移动 在审核通过
+                    {'label': '打回卷册', 'value': 'return'},
+                    {'label': '作废卷册', 'value': 'toVoid'}
                 ];
             }
             if(this.takeStatus == 13){

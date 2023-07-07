@@ -155,7 +155,7 @@ export default {
         this.getDataType();
         this.getBatchList(); 
         this.getLibList();
-        this.getBatch();
+        this.getBatch(false);
     },
     methods:{
         sortChangeEvent({column, property, order, sortBy, sortList, $event}){
@@ -262,7 +262,7 @@ export default {
             this.page = currentPage;
             this.getBatch();
         },
-        async getBatch(){// 批次列表
+        async getBatch(f = true){// 批次列表
             this.loading = true
             let data=await api.getAxios('batch?type='+this.type+'&sortField='+this.sortField+'&sortType='+this.sortType+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&batchKey='+this.batchId+'&siteKey='+this.stationKey+'&stage='+this.stage+'&userKey='+this.userId+'&creator='+this.userKey+'&userRole='+this.role+'&page='+this.page+'&limit='+this.pages);
             if(data.status == 200){
@@ -283,7 +283,7 @@ export default {
                 this.tableData.push({'excelDataNum': excelDataNum, 'dataNum': dataNum, 'hasMarkISGNNum': hasMarkISGNNum, 'fileName': '本页小计'});
                 this.total = data.total;
                 this.loading = false;
-                this.$router.push('/'+window.localStorage.getItem('pathname')+'/bookaudit?type='+this.type+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&stage='+this.stage+'&page='+this.page);
+                f ? this.$router.push('/'+window.localStorage.getItem('pathname')+'/bookaudit?type='+this.type+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&stage='+this.stage+'&page='+this.page) : null;
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }

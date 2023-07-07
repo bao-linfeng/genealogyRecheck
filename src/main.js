@@ -166,6 +166,8 @@ VXETable.renderer.add('AdaiActionButton', {
         arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else if(row.imageLink && item.value == 'catalogPass'){
         arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>{item.label}</button>)
+      }else if(row.isPassHide == 1 && item.value == 'catalogPass'){
+        arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else if(['nf', 'f'].indexOf(row.condition) === -1 && item.value == 'catalogPass'){
         arr.push(<button class="AdaiActionButton disabled hide" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else{
@@ -214,7 +216,7 @@ let APIURL='https://genealogydatatest.qingtime.cn/';
 if(window.location.origin.indexOf('genealogy.1jiapu.com') > -1){
     APIURL = 'https://genealogydata.1jiapu.com/';
 }
-// APIURL = 'https://genealogydata.1jiapu.com/';
+
 Vue.use(new VueSocketio({
   debug: true,
   connection: APIURL,

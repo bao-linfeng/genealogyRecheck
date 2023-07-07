@@ -222,6 +222,16 @@ export default {
             if(data.status == 200){
                 this.list = data.result.list;
                 this.list.map((item)=>{
+                    if(this.role >= 1 && this.role <= 3){
+
+                    }else{
+                        if(this.orgId == item.claimOrgKey){
+
+                        }else{
+                            item.isPassHide = 1;
+                        }
+                    }
+                    
                     item.GCOverO = item.GCOver == 1 ? '已完结' : '未完结';
                     item.gcStatusO = this.catalogStatusO[item.gcStatus] || '';
                     item.NoIndexO = item.NoIndex == 1 ? '不可索引' : '可索引';
@@ -267,7 +277,7 @@ export default {
             this.FileStartTimes = data['FileStartTimes'] || '';
             this.FileEndTimes = data['FileEndTimes'] || '';
             this.gcStatus = data['gcStatus'] || '';
-            this.waitComplete = data['waitComplete'] ? '1' : '';
+            this.waitComplete = data['waitComplete'] ? data['waitComplete'] : '';
             this.claimStartTime = data['claimStartTime'] || '';
             this.claimEndTime = data['claimEndTime'] || '';
 
@@ -296,7 +306,7 @@ export default {
             this.FileStartTimes = data['FileStartTimes'] || '';
             this.FileEndTimes = data['FileEndTimes'] || '';
             this.gcStatus = data['gcStatus'] || '';
-            this.waitComplete = data['waitComplete'] ? '1' : '';
+            this.waitComplete = data['waitComplete'] ? data['waitComplete'] : '';
             this.claimStartTime = data['claimStartTime'] || '';
             this.claimEndTime = data['claimEndTime'] || '';
 
@@ -438,6 +448,7 @@ export default {
             bindPage: state => state.nav.bindPage,
             catalogStatusO: state => state.nav.catalogStatusO,
             orgAdmin: state => state.nav.orgAdmin,
+            orgId: state => state.nav.orgId,
         })
     },
     watch:{

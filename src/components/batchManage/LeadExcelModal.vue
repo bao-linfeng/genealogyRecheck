@@ -43,10 +43,13 @@ export default {
             libKey:'',
             templateKey:'',
             aoa: '',
+            APIURL: 'https://genealogydatatest.qingtime.cn/',
         };
     },
     mounted:function(){
-        
+        if(window.location.origin.indexOf('genealogy.1jiapu.com') > -1){
+            this.APIURL = 'https://genealogydata.1jiapu.com/';
+        }
     },
     methods:{
         getDetail(data){
@@ -150,6 +153,8 @@ export default {
                 //     type: 'success'
                 // });
                 this.close(true, data.errorArr || '');
+            }else if(data.status == 301){
+                this.$alert('<div>当前上传的新谱，存在规范化问题，请下载如下链接<a href="'+(this.APIURL+data.result)+'">'+data.result+'</a>查看详情，在excel最后一列是规范化的提示！</div>', '新谱查重规范化', {dangerouslyUseHTMLString: true});
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }

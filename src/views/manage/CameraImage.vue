@@ -32,13 +32,13 @@
             </div>
             <h3 class="title" @click="isShow = 8">{{takeStatusO[takeStatus]}} ({{scale*100}}%)</h3>
             <div class="head-right">
-                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14))" class="task-verify" @click="isShow = 10">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 10">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">影像移动</span>
                 </div>
-                <div v-if="takeStatus == 6 && orgAdmin == 'admin'" class="task-verify" @click="isShow = 9">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 9">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
-                    <span class="span">补拍快捷处理</span>
+                    <span class="span">补拍影像</span>
                 </div>
                 <div class="task-verify" @click="isShow = 4">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
@@ -61,7 +61,7 @@
                     <span class="span">申诉{{(role == 1 || role == 2 || role == 3) ? '回复' : ''}}</span>
                 </div> -->
                 <!-- ((orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14))) && !isRead -->
-                <div v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14) || (['9071165268', '9071165200'].indexOf(roleKey) > -1 && (takeStatus == 6 || takeStatus == 7 || takeStatus == 16))" class="task-verify" @click="handleImagesCheck">
+                <div v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14) || (['9071165268', '9071165200'].indexOf(roleKey) > -1 && (takeStatus == 6 || takeStatus == 7 || takeStatus == 16)) || (['24690171211'].indexOf(userId) > -1 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14 || takeStatus == 16))" class="task-verify" @click="handleImagesCheck">
                     <img src="../../assets/shoot/pass.svg" alt="">
                     <span class="span">影像审核</span>
                 </div>
@@ -133,7 +133,7 @@
                     <i>{{index+1}}{{(precent == 1 ? '' : '('+(item.index+1)+')')}}</i>
                 </div>
                 <img class="attachedSheet" v-if="item.attachedSheet == 1" title="附页" src="../../assets/shoot/attachedSheetA.svg" alt="">
-                <i class="check" v-if="orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)" :class="{active: checkImageList.indexOf(item._key) > -1}" @click.stop="checkImage(item._key)"></i>
+                <i class="check" v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || ((takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && roleType == 'host' && (['9071165200'].indexOf(roleKey) > -1 || ['24690171211'].indexOf(userId) > -1))" :class="{active: checkImageList.indexOf(item._key) > -1}" @click.stop="checkImage(item._key)"></i>
             </div>
         </div>
         <!-- 放大镜 -->

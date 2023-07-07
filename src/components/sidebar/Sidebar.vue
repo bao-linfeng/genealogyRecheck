@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <router-link :to="'/'+pathname" class="logo"><img :src="require('../../assets/nav/logo_side_a.svg')"></router-link>
+    <router-link :to="'/'+pathname+'/genealogySearch'" class="logo"><img :src="require('../../assets/nav/logo_side_a.svg')"></router-link>
     <p class="userName">{{userName}}</p>
     <p class="userName role">{{roleName}}</p>
     <p class="stationName">{{stationKey == '1528234980' ? (role >= 1 && role <= 3 ? 'FS' : organizationNo+'('+orgName+')') : stationName}}</p>

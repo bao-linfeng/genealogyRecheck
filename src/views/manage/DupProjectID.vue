@@ -7,25 +7,24 @@
                     <h3 class="title">开放谱书列表(总共{{total}}条数据)</h3>
                 </div>
                 <div class="nav-left">
-                    <el-button v-if="role <= 3  && role >= 1 && openStatus == 'opened'" type="primary" size="small" @click="handleClaimSome">批量设置认领机构</el-button>
-                    <el-button v-if="role <= 3  && role >= 1 && openStatus == 'waitOpen'" type="primary" size="small" @click="handleOpenSome">批量开放谱书</el-button>
+                    <el-button v-if="roleType == 'host' && openStatus == 'opened'" type="primary" size="small" @click="handleClaimSome">批量设置认领机构</el-button>
+                    <el-button v-if="roleType == 'host'" type="primary" size="small" @click="handleCancelSome">批量作废</el-button>
+                    <el-button v-if="roleType == 'host' && openStatus == 'waitOpen'" type="primary" size="small" @click="handleOpenSome">批量开放</el-button>
                 </div>
             </div>
             <div class="search-wrap">
-                <el-input class="width150 marginR10" placeholder="请输入谱ID" v-model="gcKey" clearable size="small"></el-input>
-                <el-input class="width150 marginR10" placeholder="请输入谱名" v-model="genealogyName" clearable size="small"></el-input>
-                <el-input class="width150 marginR10" placeholder="请输入文件名" v-model="fileName" clearable size="small"></el-input>
-                <el-input class="width150 marginR10" placeholder="请输入档名" v-model="Filenames" clearable size="small"></el-input>
+                <el-input class="width120" placeholder="请输入谱ID" v-model="gcKey" clearable size="small"></el-input>
+                <el-input class="width150" placeholder="请输入谱名" v-model="genealogyName" clearable size="small"></el-input>
                 <el-date-picker
-                    class="width250 marginR10"
-                    v-model="time"
+                    class="width250"
+                    v-model="Filetimes"
                     type="daterange"
                     unlink-panels
                     size="small"
-                    :start-placeholder="'认领开始时间'"
-                    :end-placeholder="'认领结束时间'"
+                    :start-placeholder="'档案开始时间'"
+                    :end-placeholder="'档案结束时间'"
                 />
-                <el-select class="width150 marginR10" v-model="openStatus" size="small" placeholder="开放状态">
+                <el-select class="width100" v-model="openStatus" size="small" placeholder="开放状态">
                     <el-option
                         v-for="item in openStatusList"
                         :key="item.value"
@@ -33,7 +32,39 @@
                         :value="item.value">
                     </el-option>
                 </el-select>
-                <el-select v-if="role <=3  && role >=1" class="width150 marginR10" v-model="orgKey" placeholder="上传机构" size="small">
+                <el-select class="width100" v-model="takeStatus" size="small" placeholder="拍摄状态">
+                    <el-option
+                        v-for="item in takeStatusList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-select class="width100" v-model="condition" size="small" placeholder="谱状态">
+                    <el-option
+                        v-for="item in conditionList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+                
+                <el-button type="primary" size="small" @click="getDataList">检索</el-button>
+                <el-checkbox class="marginL10" size="mini" v-model="isShowSearch">展开</el-checkbox>
+            </div>
+            <div class="search-wrap" v-show="isShowSearch">
+                <el-input class="width150" placeholder="请输入文件名" v-model="fileName" clearable size="small"></el-input>
+                <el-input class="width150" placeholder="请输入档名" v-model="Filenames" clearable size="small"></el-input>
+                <el-date-picker
+                    class="width250"
+                    v-model="time"
+                    type="daterange"
+                    unlink-panels
+                    size="small"
+                    :start-placeholder="'认领开始时间'"
+                    :end-placeholder="'认领结束时间'"
+                />
+                <el-select v-if="roleType == 'host'" class="width100" v-model="orgKey" placeholder="上传机构" size="small">
                     <el-option
                         v-for="item in orgList"
                         :key="item.value"
@@ -41,12 +72,12 @@
                         :value="item.value">
                     </el-option>
                 </el-select>
-                <el-button type="primary" size="small" @click="getDataList">检索</el-button>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap" :class="{active: isShowSearch}">
                 <vxe-table
                     border
                     class="adai-table"
+                    :loading="loading"
                     resizable
                     keep-source
                     highlight-current-row
@@ -60,22 +91,34 @@
                     <vxe-table-column type="checkbox" field="checkbox" width="60"></vxe-table-column>
                     <vxe-table-column field="fileName" width="100" title="文件标题"></vxe-table-column>
                     <vxe-table-column field="Filenames" width="100" title="档名"></vxe-table-column>
+                    <vxe-table-column field="Filetimes" width="100" title="档案时间"></vxe-table-column>
                     <vxe-table-column field="_key" width="100" title="谱ID"></vxe-table-column>
-                    <vxe-table-column field="surname" width="100" title="姓氏"></vxe-table-column>
+                    <vxe-table-column field="surname" width="60" title="姓氏"></vxe-table-column>
                     <vxe-table-column field="genealogyName" min-width="100" title="谱名"></vxe-table-column>
-                    <vxe-table-column field="publish" width="100" title="出版年"></vxe-table-column>
-                    <vxe-table-column field="place" width="100" title="谱籍_现代地名"></vxe-table-column>
-                    <vxe-table-column field="volume" width="100" title="卷(册)说明"></vxe-table-column>
-                    <vxe-table-column field="actualVolumeNumber" width="100" title="已拍卷数"></vxe-table-column>
-                    <vxe-table-column field="gcStatusO" width="100" title="开放状态"></vxe-table-column>
-                    <vxe-table-column field="surplusDays" width="100" title="剩余天数"></vxe-table-column>
+                    <vxe-table-column field="publish" width="80" title="出版年"></vxe-table-column>
+                    <vxe-table-column field="place" width="150" title="谱籍_现代地名"></vxe-table-column>
+                    <vxe-table-column field="volume" width="100" title="总卷数"></vxe-table-column>
+                    <vxe-table-column field="lostVolume" width="100" title="缺卷说明"></vxe-table-column>
+
+                    <vxe-table-column field="hasVolume" width="100" title="可拍册数"></vxe-table-column>
+                    <vxe-table-column field="volumeNumber" width="100" title="实拍册数"></vxe-table-column>
+                    <vxe-table-column field="passVolumeNumber" width="100" title="通过册数"></vxe-table-column>
+    
+                    <vxe-table-column field="publicTask" width="100" title="开放状态"></vxe-table-column>
+                    <vxe-table-column field="publicTime" width="100" title="开放时间"></vxe-table-column>
                     <vxe-table-column field="claimOrgName" width="100" title="认领机构"></vxe-table-column>
-                    <vxe-table-column field="claimTimeO" width="100" title="认领时间"></vxe-table-column>
+                    <vxe-table-column field="claimTime" width="100" title="认领时间"></vxe-table-column>
+                    <vxe-table-column field="countdownTime" width="80" title="倒计时"></vxe-table-column>
                     <vxe-table-column field="orgName" width="100" title="上传机构"></vxe-table-column>
-                    <vxe-table-column field="action" title="操作" fixed="right" width="240" :cell-render="{name: 'AdaiActionButton2', attr: {data: actionData}, events: {'detail': showDetail, 'log': showLog, 'claim': handleCkaim, 'open': handleOpen, 'singleQuick': singleQuick}}"></vxe-table-column>
+
+                    <vxe-table-column field="takeStatus" width="100" title="拍摄状态"></vxe-table-column>
+                    <vxe-table-column field="condition" width="80" title="谱状态"></vxe-table-column>
+
+                    <vxe-table-column field="action" title="操作" fixed="right" width="200" :cell-render="{name: 'AdaiActionButton2', attr: {data: actionData}, events: {'detail': showDetail, 'log': showLog, 'edit': showEdit, 'cancel': handleCancel, 'catalogPass': handleCatalogPass, 'claim': handleCkaim, 'open': handleOpen}}"></vxe-table-column>
                 </vxe-table>
             </div>
             <vxe-pager
+                :loading="loading"
                 align="center"
                 @page-change = "changePage"
                 :current-page.sync="page"
@@ -88,8 +131,12 @@
         <CatalogView v-if="isShow == 1" :read="true" :dataKey="detail._key" :vid="''" v-on:close="isShow = 0" />
         <!-- 日志记录 -->
         <LogModule v-if="isShow == 2" :gid="detail._key" v-on:close="isShow = 0" />
+        <!-- 谱目编辑 -->
+        <EditCatalog v-if="isShow == 4" :read="false" :dataKey="detail._key" :conditionEdit="true" :vid="''" v-on:close="closeEdit" />
         <!-- 领取 -->
         <ClaimBook v-if="isShow == 3" :detail="detail" :list="catalogKeyArr" v-on:close="isShow = 0" v-on:save="handleSaveClaim" />
+        <!-- 谱目完结 -->
+        <CatalogFinish v-if="isShow == 5" :dataKey="detail._key" v-on:close="isShow = 0" v-on:save="catalogFinishSave" />
     </div>
 </template>
 
@@ -101,14 +148,17 @@ import Sidebar from "../../components/sidebar/Sidebar.vue";
 import CatalogView from '../../components/takeCamera/CatalogView.vue';
 import LogModule from '../../components/discussed/LogModule.vue';
 import ClaimBook from '../../components/openBook/ClaimBook.vue';
+import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
+import CatalogFinish from '../../components/myGenealogy/CatalogFinish.vue';
 
 export default {
     name: "genealogyRecheck",
     components: {
-        CatalogView, LogModule, Sidebar, ClaimBook,
+        CatalogView, LogModule, Sidebar, ClaimBook, EditCatalog, CatalogFinish, 
     },
     data: () => {
         return {
+            loading: false,
             tableData: [],
             h: 1080,
             catalogKeyArr: [],
@@ -120,20 +170,37 @@ export default {
             time: [],
             startTime: '',
             endTime: '',
+            Filetimes: '',
+            FiletimesStartTime: '',
+            FiletimesEndTime: '',
             orgKey: '',
 
             page: 1,
             pages: 0,
             total: 0,
-            limit: 50,
+            limit: 20,
             orgList: [],
 
-            openStatus: 'waitOpen',
+            openStatus: '',
             openStatusList: [
-                // {'label': '全部状态', 'value': ''},
-                {'label': '待开放', 'value': 'waitOpen'},
-                {'label': '已开放', 'value': 'opened'},
-                {'label': '已认领', 'value': 'claimed'}
+                {'label': '开放状态', 'value': ''},
+                {'label': '未开放', 'value': '0'},
+                {'label': '已开放', 'value': '1'}
+            ],
+            takeStatus: '',
+            takeStatusList: [
+                {'label': '拍摄状态', 'value': ''},
+                {'label': '未认领', 'value': '0'},
+                {'label': '未拍摄', 'value': '1'},
+                {'label': '拍摄中', 'value': '2'},
+                {'label': '拍摄完成', 'value': '3'}
+            ],
+            condition: '',
+            conditionList: [
+                {'label': '谱状态', 'value': ''},
+                {'label': 'nf|可拍', 'value': 'nf'},
+                {'label': 'f|已完结', 'value': 'f'},
+                {'label': 'c|作废', 'value': 'c'},
             ],
             field_main: [],
             field_branch: [],
@@ -141,37 +208,37 @@ export default {
             actionData: [
                 {'label': '详情', 'value': 'detail'}, 
                 {'label': '记录', 'value': 'log'}, 
+                // {'label': '完结', 'value': 'catalogPass'},
                 {'label': '认领', 'value': 'claim'},
-                {'label': '快捷查询', 'value': 'singleQuick'},
             ],
             detail: {},
             isShow: 0,
             gcStatusO: {'30': '待开放', '35': '已开放', '40': '已认领'},
+            isShowSearch: false,
         };
     },
     created:function(){
-        this.h = window.innerHeight - 150;
+        this.h = window.innerHeight - 140;
     },
     mounted:function(){
-        if(this.role >= 1 && this.role <= 3){
+        if(this.roleType == 'host'){
             this.actionData = [
                 {'label': '详情', 'value': 'detail'}, 
                 {'label': '记录', 'value': 'log'}, 
-                {'label': '开放', 'value': 'open'},
-                {'label': '快捷查询', 'value': 'singleQuick'},
+                // {'label': '编辑', 'value': 'edit'},
+                {'label': '作废', 'value': 'cancel'},
+                // {'label': '完结', 'value': 'catalogPass'},
+                // {'label': '开放', 'value': 'open'},
             ];
             this.getOrgList();
         }else{
-            this.openStatus = 'opened';
+            this.openStatus = '';
             this.orgKey = this.orgId;
         }
 
         this.getDataList();
     },
     methods:{
-        singleQuick({ row }){
-            window.open('/'+this.pathname+'/singleQuickSearch?id='+row._key, '_blank');
-        },
         async getOrgList(){// 机构列表
             let data = await api.getAxios('org?siteKey='+this.stationKey+'&name=');
             if(data.status == 200){
@@ -195,6 +262,53 @@ export default {
             this.isShow = 2;
             this.detail = row;
         },
+        showEdit({row}){// 编辑
+            this.isShow = 4;
+            this.detail = row;
+        },
+        closeEdit(f){
+            this.isShow = 0;
+            f ? this.getDataList() : null;
+        },
+        handleCancel({row}){// 作废
+            this.isShow = 6;
+            this.detail = row;
+            this.$confirm('当前选中数据, 请确认是否作废谱书?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.singleCancelGC(row._key);
+            }).catch(() => {});
+        },
+        async singleCancelGC(gcKey){// 单谱作废
+            let result = await api.patchAxios('catalog/cancelGC', {'userKey': this.userId, 'siteKey': this.stationKey, 'gcKey': gcKey});
+            if(result.status == 200){
+                this.getDataList();
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
+            }
+        },
+        async singleCancelGCBatch(gcKeyArray){// 批量作废谱
+            let result = await api.patchAxios('catalog/cancelGCBatch', {'userKey': this.userId, 'siteKey': this.stationKey, 'gcKeyArray': gcKeyArray});
+            if(result.status == 200){
+                this.getDataList();
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
+            }
+        },
+        handleCatalogPass({row}){// 完结
+            if(row.condition == 'nf' || row.condition == 'f'){
+                this.isShow = 5;
+                this.detail = row;
+            }else{
+                this.$message({message: '该谱目目前状态不允许进行完结操作！', type: 'warning'});
+            }
+        },
+        catalogFinishSave(){
+            this.isShow = 0;
+            this.getDataList();
+        },
         handleCkaim({row}){// 领取
             this.detail = row;
             this.isShow = 3;
@@ -207,6 +321,18 @@ export default {
                 type: 'warning'
             }).then(() => {
                 this.patchOpenGC([row._key]);
+            }).catch(() => {});
+        },
+        handleCancelSome(){// 批量作废
+            if(!this.catalogKeyArr.length){
+                return ADS.message('请勾选家谱！');
+            }
+            this.$confirm('当前选中 '+this.catalogKeyArr.length+' 条数据, 请确认是否作废谱书?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.singleCancelGCBatch(this.catalogKeyArr);
             }).catch(() => {});
         },
         handleOpenSome(){// 批量开放
@@ -263,13 +389,14 @@ export default {
         async getDataList(){
             this.tableData = [];
             this.catalogKeyArr = [];
-
-            let data = await api.getAxios('catalog/openGC?openStatus='+this.openStatus+'&type='+(this.role >= 1 && this.role <= 3 ? 2 : 1)+'&gcKey='+this.gcKey+'&genealogyName='+this.genealogyName+'&Filenames='+this.Filenames+'&fileName='+this.fileName+'&startTime='+this.startTime+'&endTime='+this.endTime+'&orgKey='+this.orgKey+'&page='+this.page+'&limit='+this.limit);
+            this.loading = true;
+            let data = await api.getAxios('catalog/openGCNew?siteKey='+this.stationKey+'&orgKey='+this.orgKey+'&openStatus='+this.openStatus+'&genealogyName='+this.genealogyName+'&fileName='+this.fileName+'&Filenames='+this.Filenames+'&gcKey='+this.gcKey+'&startTime='+this.startTime+'&endTime='+this.endTime+'&FiletimesStartTime='+this.FiletimesStartTime+'&FiletimesEndTime='+this.FiletimesEndTime+'&takeStatus='+this.takeStatus+'&condition='+this.condition+'&page='+this.page+'&limit='+this.limit);
+            this.loading = false;
             if(data.status == 200){
                 this.tableData = data.result.list.map((ele) => {
-                    ele.gcStatusO = this.gcStatusO[ele.gcStatus];
-                    ele.surplusDays = Math.floor((ele.gcStatus == 30 ? ele.selfClaimTime : ele.gcStatus == 40 ? ele.otherClaimTime : 0)/24/60/60/1000);
-                    ele.claimTimeO = ele.claimTime ? ADS.getLocalTime(ele.claimTime) : '';
+                    ele.Filetimes = ele.Filetimes ? ADS.getLocalTime(ele.Filetimes) : '';
+                    ele.publicTime = ele.publicTime ? ADS.getLocalTime(ele.publicTime) : '';
+                    ele.claimTime = ele.claimTime ? ADS.getLocalTime(ele.claimTime) : '';
                     return ele;
                 });
                 this.pages = data.result.pageNum;
@@ -287,6 +414,8 @@ export default {
             role: state => state.nav.role,
             orgId: state => state.nav.orgId,
             pathname: state => state.nav.pathname,
+            isResize: state => state.nav.isResize,
+            roleType: state => state.nav.roleType,
         })
     },
     watch:{
@@ -300,26 +429,28 @@ export default {
             }
             this.getDataList();
         },
-        'openStatus': function(nv, ov){
-            this.actionData = [
-                {'label': '详情', 'value': 'detail'}, 
-                {'label': '记录', 'value': 'log'},
-                {'label': '快捷查询', 'value': 'singleQuick'},
-            ];
-            if(this.role >= 1 && this.role <= 3){
-                if(nv == 'waitOpen'){
-                    this.actionData.push({'label': '开放', 'value': 'open'});
-                }
+        'Filetimes': function(nv, ov){
+            console.log(nv);
+            if(nv){
+                this.FiletimesStartTime = new Date(nv[0]).getTime();
+                this.FiletimesEndTime = new Date(nv[1]).getTime();
             }else{
-                if(nv == 'opened'){
-                    this.actionData.push({'label': '认领', 'value': 'claim'});
-                }
+                this.FiletimesStartTime = '';
+                this.FiletimesEndTime = '';
             }
-
+        },
+        'openStatus': function(nv, ov){
             this.getDataList();
         },
         'orgKey': function(){
             this.getDataList();
+        },
+        'isShowSearch': function(nv, ov){
+            if(nv){
+                this.h = this.h - 40;
+            }else{
+                this.h = this.h + 40;
+            }
         },
     },
 };
@@ -369,13 +500,16 @@ export default {
             padding: 0 20px;
             width: calc(100% - 40px);
             display: flex;
-            height: 50px;
+            height: 40px;
             align-items: center;
         }
         .table-wrap{
             position: relative;
-            height: calc(100% - 150px);
+            height: calc(100% - 140px);
             width: 100%;
+            &.active{
+                height: calc(100% - 180px);
+            }
         }
         .place-wrap{
             position: fixed;
@@ -391,11 +525,20 @@ export default {
 .width150{
     width: 150px;
 } 
+.width100{
+    width: 100px;
+} 
+.width120{
+    width: 120px;
+}
 .width250{
-    width: 250px;
+    width: 250px !important;
 }
 .marginR10{
     margin-right: 10px;
+}
+.marginL10{
+    margin-left: 10px;
 }
 </style>
 
