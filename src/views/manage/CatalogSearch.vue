@@ -242,6 +242,9 @@ export default {
             waitComplete: '',
             waitCompleteList: [
                 {'label': '完结状态', 'value': ''},
+                {'label': '未认领', 'value': '3'},
+                {'label': '已认领未拍摄', 'value': '4'},
+                {'label': '未拍摄', 'value': '5'},
                 {'label': '拍摄中', 'value': '0'},
                 {'label': '待完结', 'value': '1'},
                 {'label': '已完结', 'value': '2'},
@@ -355,7 +358,7 @@ export default {
         },
         async getDataList(f = true){
             this.loading = true;
-            let data = await api.getAxios('catalog/catalogListFS?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('catalog/catalogListFS?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+(this.updateEndTime ? this.updateEndTime+24*60*60*1000 - 1 : this.updateEndTime)+'&createStartTime='+this.createStartTime+'&createEndTime='+(this.createEndTime ? this.createEndTime+24*60*60*1000 - 1 : this.createEndTime)+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 let volumePages = 0, imagePages = 0;
@@ -381,7 +384,7 @@ export default {
             }
         },
         async getCatalogListFSStatistics(){
-            let data = await api.getAxios('catalog/catalogListFSStatistics?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('catalog/catalogListFSStatistics?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+(this.updateEndTime ? this.updateEndTime+24*60*60*1000 - 1 : this.updateEndTime)+'&createStartTime='+this.createStartTime+'&createEndTime='+(this.createEndTime ? this.createEndTime+24*60*60*1000 - 1 : this.createEndTime)+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit='+this.limit);
             if(data.status == 200){
                 this.volumeTotal = data.result.totalVolume;
                 this.imageTotal = data.result.totalImg;

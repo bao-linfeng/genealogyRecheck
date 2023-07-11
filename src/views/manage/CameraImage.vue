@@ -36,7 +36,7 @@
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">影像移动</span>
                 </div>
-                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 9">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268'].indexOf(roleKey) > -1) || ['24690171211'].indexOf(userId) > -1)" class="task-verify" @click="isShow = 9">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">补拍影像</span>
                 </div>
@@ -944,7 +944,7 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
-    background: #000;
+    // background: #000;
     color: #fff;
     overflow: hidden;
     .head{
@@ -1004,14 +1004,16 @@ export default {
         position: relative;
         width: 100%;
         height: calc(100% - 140px);
+        // padding-bottom: 40px;
         display: flex;
         justify-content: center;
-        align-items: center;
+        // align-items: center;
         .img-box{
             position: relative;
             overflow: hidden;
-            height: 100%;
+            height: calc(100% - 40px);
             width: 100%;
+            margin-top: 5px;
             &.active{
                 overflow: auto;
             }
@@ -1093,7 +1095,7 @@ export default {
         position: relative;
         width: 100%;
         height: 100px;
-        background: #232323;
+        // background: #232323;
         width: calc(100% - 40px);
         padding: 0 20px;
         overflow-x: auto;
@@ -1126,13 +1128,13 @@ export default {
                 height: 20px;
                 bottom: 0;
                 left: 0;
-                background: rgba(0,0,0,0.6);
+                // background: rgba(0,0,0,0.6);
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                backdrop-filter: blur(8px);
+                // backdrop-filter: blur(8px);
                 i{
-                    color: #fff;
+                    color: #85b83e;
                     font-weight: bold;
                     font-style: normal;
                 }
@@ -1186,7 +1188,7 @@ export default {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background: #333;
+    // background: #333;
     .icon{
         height: 20px;
         margin: 0 10px;

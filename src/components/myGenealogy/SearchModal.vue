@@ -261,6 +261,9 @@ export default {
             ],
             waitCompleteList: [
                 {'label': '完结状态', 'value': ''},
+                {'label': '未认领', 'value': '3'},
+                {'label': '已认领未拍摄', 'value': '4'},
+                {'label': '未拍摄', 'value': '5'},
                 {'label': '拍摄中', 'value': '0'},
                 {'label': '待完结', 'value': '1'},
                 {'label': '已完结', 'value': '2'},
@@ -304,9 +307,15 @@ export default {
         getOrgList:async function(){
             let data=await api.getAxios('org?siteKey='+this.stationKey+'&name=');
             if(data.status == 200){
-                let orgList = [{'label':'全部机构','value':''}];
+                let orgList = []; //{'label':'全部机构','value':''}
                 data.data.map((item)=>{
-                    orgList.push({'label': item.organizationNo,'value': item._key});
+                    if(this.roleType == 'host'){
+                        orgList.push({'label': item.organizationNo,'value': item._key});
+                    }else{
+                        if(this.orgId == item._key){
+                            orgList.push({'label': item.organizationNo,'value': item._key});
+                        }
+                    }
                 });
                 this.orgList = orgList;
             }else{
@@ -358,6 +367,7 @@ export default {
             stationlogo: state => state.nav.stationlogo,
             orgAdmin: state => state.nav.orgAdmin,
             orgId: state => state.nav.orgId,
+            roleType: state => state.nav.roleType,
         })
     },
     watch:{
@@ -391,6 +401,34 @@ export default {
         },
         'parameters.gcStatus': function(nv, ov){
             this.$emit('change-parameters',this.parameters);
+        },
+        'parameters.waitComplete': function(nv, ov){
+            if(nv){
+                if(this.roleType == 'host'){
+
+                }else{
+                    this.parameters.orgKey = [this.orgId];
+                    this.$emit('change-parameters',this.parameters);
+                }
+                
+            }else{
+
+            }
+        },
+        'parameters.orgKey': function(nv, ov){
+            console.log(nv);
+            
+            if(this.roleType == 'host'){
+
+            }else{
+                if(nv.length){
+                    
+                }else{
+                    // this.parameters.waitComplete = '';
+                    // this.$emit('change-parameters',this.parameters);
+                }
+                
+            }
         },
     }
 };

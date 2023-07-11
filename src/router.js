@@ -82,6 +82,7 @@ import AutoCompleteSearch from './components/takeCamera/AutoCompleteSearch.vue';
 import MenuDefinition from './views/manage/MenuDefinition.vue';
 import RoleDefinition from './views/manage/RoleDefinition.vue';
 import CatalogWorkload from './views/manage/CatalogWorkload.vue';
+import ViewImage from './views/manage/ViewImage.vue';
 
 
 
@@ -92,6 +93,14 @@ const routes = [
     path: "/404",
     name: "notfound",
     component: NotFound
+  },
+  {
+    path: "/:id/viewImage",
+    name: "ViewImage",
+    meta: {
+      requireAuth: true,
+    },
+    component: ViewImage
   },
   {
     path: "/:id/catalogWorkload",

@@ -8,8 +8,7 @@
                     <i>{{genealogyDetail.genealogyName ? genealogyDetail.genealogyName.replace(/[“”（）()]/g,'') : ''}}</i>
                 </div>
                 <a class="view-btn hide" v-if="genealogyDetail.imageLink" :href="genealogyDetail.imageLink" target="_blank">查看影像</a>
-                <router-link v-else class="view-btn hide" :to="'/'+pathname+'/view?gid='+genealogyDetail._key+'&volume=1&page=1'" v-show="genealogyDetail.hasImage"><i></i><span>查看影像</span></router-link>
-                <a class="view-btn hide marginTop10" :href="'https://youpu.qingtime.cn/v2/pedigree?genkey='+genealogyDetail._key+'&token='+token2" v-show="genealogyDetail.appeared == 1 && genealogyDetail.delivered == 2 && token && token2" target="_blank"><i></i><span>查看全文</span></a>
+                <router-link v-else class="view-btn" :to="'/'+pathname+'/viewImage?gid='+genealogyDetail._key+'&genealogyName='+genealogyDetail.genealogyName" v-show="genealogyDetail.volumeNumber"><i></i><span>查看影像</span></router-link>
             </div>
             <div class="summary">
                 <h3>{{genealogyDetail.genealogyName || ''}}<span  class="place" v-show="genealogyDetail.place"><img src="../../assets/gdetail/place.png" alt="" />{{genealogyDetail.place}}</span></h3>
@@ -18,70 +17,7 @@
                         <label for="">{{item.label}}</label>
                         <span>{{genealogyDetail[item.value]}}</span>
                     </div>
-                    <!-- <div class="summary-content-left">
-                        <div class="summary-list">
-                            <span class="summary-list-title">正题名</span>
-                            <p class="generationName">{{data.generationName || '不详'}}</p>
-                        </div>
-                        <div class="summary-list">
-                            <span class="summary-list-title">责任者</span>
-                            <p>{{(data.author == '*' ? '不详' : data.authors) || '不详'}}</p>
-                        </div>
-                        <div class="summary-list">
-                            <span class="summary-list-title">堂号</span>
-                            <p>{{(data.hall == '*' ? '不详' : data.hall) || '不详'}}</p>
-                        </div>
-                        <div class="summary-list">
-                            <span class="summary-list-title">撰修时间</span>
-                            <p>{{data.writeTime ? data.writeTime : '不详'}}</p>
-                        </div>
-                        <div class="summary-list">
-                            <span class="summary-list-title">姓氏</span>
-                            <p>{{(data.surname == '*' ? '不详' : data.surname) || '不详'}}</p>
-                        </div>
-                        <div class="summary-list">
-                            <span class="summary-list-title">卷数</span>
-                            <p>{{data.volume || '不详'}}</p>
-                        </div>
-                        <div class="summary-list">
-                            <span class="summary-list-title">页数</span>
-                            <p>{{data.imagePages || '不详'}}</p>
-                        </div>
-                    </div>
-                    <div class="summary-content-log hide">
-                        <span class="summary-list-title">摘要</span>
-                        <p>{{data.summary || '不详'}}</p>
-                    </div> -->
                 </div>
-            </div>
-        </div>
-        <div class="content_xs">
-            <div class="title_xs">
-                <div class="coverGg">
-                    <img src="../../assets/gdetail/cover.png" alt="封面" />
-                    <i>{{genealogyDetail.genealogyName ? genealogyDetail.genealogyName.replace(/[“”（）()]/g,'') : ''}}</i>
-                </div>
-                <div class="right_xs">
-                    <h3>{{genealogyDetail.genealogyName || ''}}</h3>
-                    <router-link :to="'/nearGenealogy?long='+(genealogyDetail.location && (genealogyDetail.location[0] || '')) +'&lat='+(genealogyDetail.location && (genealogyDetail.location[1] || ''))+'&place='+genealogyDetail.place" target='_blank' class="place" v-show="genealogyDetail.place"><img src="../../assets/gdetail/place.png" alt="" />{{genealogyDetail.place}}</router-link>
-                    <span v-show="genealogyDetail.hasImage" @click="gotoView(genealogyDetail)" class="quanwen">查看影像</span>
-                    <a class="view-btn hide marginTop10" :href="'https://youpu.qingtime.cn/v2/pedigree?genkey='+genealogyDetail._key+'&token='+token2" v-show="genealogyDetail.appeared == 1 && genealogyDetail.delivered == 2 && token && token2" target="_blank"><i></i><span>查看全文</span></a>
-                </div>
-            </div>
-            <ul class="genealogy_xs">
-                <li><span>正题名</span><span>{{genealogyDetail.generationName || '不详'}}</span></li>
-                <li><span>责任者</span><span>{{genealogyDetail.authors || '不详'}}</span></li>
-                <li><span>堂号</span><span>{{genealogyDetail.hall || '不详'}}</span></li>
-                <li><span>撰修时间</span><span>{{genealogyDetail.publish || '不详'}}</span></li>
-                <li><span>姓氏</span><span>{{genealogyDetail.surname || '不详'}}</span></li>
-                <li><span>卷数</span><span>{{genealogyDetail.volume || '不详'}}</span></li>
-                <li><span>页数</span><span>{{genealogyDetail.imagePages || '不详'}}</span></li>
-            </ul>
-        </div>
-        <div class="width768">
-            <div class="xs_desc pcHide">
-                <span>摘要</span>
-                <p>{{genealogyDetail.summary || '不详'}}</p>
             </div>
         </div>
         <div class="qrcodeWrap">
@@ -121,6 +57,8 @@ export default {
         this.pathname=window.localStorage.getItem('pathname') || '';
         let token=window.localStorage.getItem('token') || '';
         this.token=token;
+
+        console.log(this.genealogyDetail);
         this.qrcode();
         this.getToken();
     },

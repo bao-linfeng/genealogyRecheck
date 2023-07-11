@@ -16,7 +16,7 @@
                 <th>版本类型</th>
                 <th>状态</th>
                 <th>影像</th>
-                <th>全文</th>
+                <!-- <th>全文</th> -->
             </tr>
         </thead>
         <tbody class="tbody">
@@ -32,8 +32,8 @@
                 <td>{{item.authors || '不详'}}</td>
                 <td>{{item.version || '不详'}}</td>
                 <td>{{item.condition}}</td>
-                <td>{{item.hasImage ? '有' : '无'}}</td>
-                <td>{{item.delivered == 2 ? '有' : '无'}}</td>
+                <td>{{item.volumeNumber || item.imageLink ? '有' : '无'}}</td>
+                <!-- <td>{{item.delivered == 2 ? '有' : '无'}}</td> -->
             </tr>
         </tbody>
     </table>

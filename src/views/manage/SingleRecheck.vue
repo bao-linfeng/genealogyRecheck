@@ -296,7 +296,7 @@ export default {
         async getDataList(){
             this.loading = true;
             this.tableData = [];
-            let data = await api.getAxios('data/checkTaskList?gcKey='+this.gcKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&hasVerify='+this.hasVerify+'&hitTarget='+this.hitTarget+'&applyStartTime='+this.startTime+'&applyEndTime='+this.endTime+'&orgKey='+this.orgKey+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('data/checkTaskList?gcKey='+this.gcKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&hasVerify='+this.hasVerify+'&hitTarget='+this.hitTarget+'&applyStartTime='+this.startTime+'&applyEndTime='+(this.endTime ? this.endTime+24*60*60*1000 - 1 : this.endTime)+'&verifyStartTime='+this.verifyStartTime+'&verifyEndTime='+(this.verifyEndTime ? this.verifyEndTime+24*60*60*1000 - 1 : this.verifyEndTime)+'&orgKey='+this.orgKey+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 this.tableData = data.result.list.map((ele) => {

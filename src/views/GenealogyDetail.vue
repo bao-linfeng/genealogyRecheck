@@ -7,7 +7,7 @@
                 <GDetail :genealogyDetail="genealogyDetail" :fieldFilters="fieldFilters" v-on:toggle-aide="aideTogglefn" />
                 <!-- <TitleVue id="gongyi" :title="'公益赞助'" :url="'/person'" /> -->
                 <!-- <Sponsor v-if="genealogyDetail" :gid="id" :gname="genealogyDetail && genealogyDetail.genealogyName" /> -->
-                <TitleVue id="commentTitle" :title="'评论留言'" :url="'/person'" />
+                <!-- <TitleVue id="commentTitle" :title="'评论留言'" :url="'/person'" />
                 <Comment v-if="genealogyDetail && genealogyDetail._key" :gid="genealogyDetail && genealogyDetail._key" />
                 <div class="toolBox">
                     <i @click="share('douban')" class="weixin"></i>
@@ -16,7 +16,7 @@
                     <hr />
                     <i @click="moveToComment" class="edit"></i>
                     <i class="sanjiao"></i>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -25,9 +25,9 @@
         <i class="xs_comment" @click="commentToggle=true"><span>评论</span></i>
         <i v-show="isWeixin" class="xs_share" @click="share_sm=true"><span>分享</span></i>
     </div> -->
-    <ShareSM v-show="share_sm" :detail="genealogyDetail" v-on:toggle-share="share_sm=false" />
+    <!-- <ShareSM v-show="share_sm" :detail="genealogyDetail" v-on:toggle-share="share_sm=false" /> -->
     <!-- 评论手机 -->
-    <CommentSM v-if="commentToggle" v-on:hide-comment="toggleComment" :gid="genealogyDetail && genealogyDetail._key" />
+    <!-- <CommentSM v-if="commentToggle" v-on:hide-comment="toggleComment" :gid="genealogyDetail && genealogyDetail._key" /> -->
   </div>
 </template>
 

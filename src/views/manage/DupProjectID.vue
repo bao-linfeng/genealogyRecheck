@@ -88,7 +88,7 @@
                     :row-class-name="rowClassName"
                     @checkbox-change = "checkboxChange"
                     @checkbox-all = "checkboxChange">
-                    <vxe-table-column type="checkbox" field="checkbox" width="60"></vxe-table-column>
+                    <vxe-table-column type="checkbox" field="checkbox" width="60" fixed="left"></vxe-table-column>
                     <vxe-table-column field="fileName" width="100" title="文件标题"></vxe-table-column>
                     <vxe-table-column field="Filenames" width="100" title="档名"></vxe-table-column>
                     <vxe-table-column field="Filetimes" width="100" title="档案时间"></vxe-table-column>

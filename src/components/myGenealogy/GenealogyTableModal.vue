@@ -130,6 +130,7 @@ export default {
             {'fieldMeans': '可拍册数', 'fieldName': 'hasVolume'},
             {'fieldMeans': '实拍册数', 'fieldName': 'volumeNumber'},
             {'fieldMeans': '通过册数', 'fieldName': 'passVolumeNumber'},
+            {'fieldMeans': '认领状态', 'fieldName': 'takeStatus'},
             {'fieldMeans': '作者', 'fieldName': 'authors'},
             {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
             {'fieldMeans': '版本类型', 'fieldName': 'version'},
