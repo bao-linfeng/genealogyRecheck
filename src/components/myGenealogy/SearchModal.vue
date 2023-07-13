@@ -59,6 +59,14 @@
                     :value="item.value">
                 </el-option>
             </el-select>
+            <el-select v-model="parameters.createOrgKey" multiple placeholder="上传机构" class="w15 marginB10">
+                <el-option
+                    v-for="item in orgList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
             <el-select v-model="parameters.condition" multiple placeholder="谱状态" class="w15 marginB10">
                 <el-option
                     v-for="item in conditionList"
@@ -130,7 +138,7 @@
                 <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
             </div>
-            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 19 : 16))%6 || 6))" :key="'kon'+item"></div>
+            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 20 : 17))%6 || 6))" :key="'kon'+item"></div>
             <div class="search-input-modal"></div>
         </div>
         <div class="search-modal-box" v-if="!isShow">
@@ -163,6 +171,14 @@
                 </el-option>
             </el-select>
             <el-select v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
+                <el-option
+                    v-for="item in orgList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-select v-model="parameters.createOrgKey" multiple placeholder="上传机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
                     :key="item.value"
@@ -220,6 +236,7 @@ export default {
                 equal: 1,
                 _key:'',
                 orgKey: [],
+                createOrgKey: [],
                 begYear: '',
                 endYear: '',
                 noPublishAD: false,

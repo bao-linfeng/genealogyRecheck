@@ -77,6 +77,7 @@ export default {
             libKey: '',
             equal: 1,
             orgKey: '',
+            createOrgKey: '',
             prop: '',
             order: '',
             page: 1,
@@ -171,6 +172,7 @@ export default {
                 'endYear': this.endYear,
                 'libKey': this.libKey,
                 'claimOrgKey': (this.orgKey).join(','),
+                'orgKey': (this.createOrgKey).join(','),
                 'equal': this.equal,
                 'gcStatus': this.gcStatus,
                 'waitComplete': this.waitComplete,
@@ -210,7 +212,7 @@ export default {
             '&begYear='+this.begYear+
             '&endYear='+this.endYear+
             '&libKey='+this.libKey+
-            // '&orgKey='+this.orgKey+
+            '&orgKey='+this.createOrgKey+
             '&claimOrgKey='+ this.orgKey+
             '&equal='+this.equal+
             '&gcStatus='+this.gcStatus+
@@ -264,6 +266,7 @@ export default {
             this.libKey = data['libKey'];
             this.equal = data['equal'];
             this.orgKey = data['orgKey'];
+            this.createOrgKey = data['createOrgKey'];
             this.begYear = data['begYear'] || '';
             this.endYear = data['endYear'] || '';
             this.noPublishAD = data['noPublishAD'] ? 1 : '';
@@ -283,7 +286,7 @@ export default {
             this.claimEndTime = data['claimEndTime'] || '';
 
             for(let key in data){
-                if(key == 'claimStartTime' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -300,6 +303,7 @@ export default {
             this.libKey = data['libKey'];
             this.equal = data['equal'];
             this.orgKey = data['orgKey'];
+            this.createOrgKey = data['createOrgKey'];
             this.begYear = data['begYear'] || '';
             this.endYear = data['endYear'] || '';
             this.noPublishAD = data['noPublishAD'] ? 1 : '';
@@ -312,7 +316,7 @@ export default {
             this.claimEndTime = data['claimEndTime'] || '';
 
             for(let key in data){
-                if(key == 'claimStartTime' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];

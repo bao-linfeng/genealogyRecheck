@@ -32,6 +32,10 @@
             </div>
             <h3 class="title" @click="isShow = 8">{{takeStatusO[takeStatus]}} ({{scale*100}}%)</h3>
             <div class="head-right">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 11">
+                    <img src="../../assets/shoot/delete.svg" alt="">
+                    <span class="span">影像恢复</span>
+                </div>
                 <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 10">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">影像移动</span>
@@ -164,6 +168,8 @@
         <ReshootImages v-if="isShow == 9" :gid="gid" :vid="vid" :device="device" :imageKey="pageKey" :imageURL="imageURL" :page="page" v-on:close="closeReshoot" />
         <!-- 影像快捷移动 -->
         <ImageMoveModule v-if="isShow == 10" :gcKey="gid" :volumeKey="vid" :page="page" v-on:close="isShow = 0" v-on:save="handleImageMoveSave" />
+        <!-- 删除影像恢复 -->
+        <DeleteImageRestoreModule v-if="isShow == 11" :gcKey="gid" :volumeKey="vid" :imageHref="imageHref" v-on:close="isShow = 0" v-on:restore="restoreImage" />
     </div>
 </template>
 
@@ -182,11 +188,13 @@ import ImagesCheck from '../../components/takeCamera/ImagesCheck.vue';
 import ImageView from '../../components/takeCamera/ImageView.vue';
 import ReshootImages from '../../components/takeCamera/ReshootImages.vue';
 import ImageMoveModule from '../../components/takeCamera/ImageMoveModule.vue';
+import DeleteImageRestoreModule from '../../components/takeCamera/DeleteImageRestoreModule.vue';
 
 export default {
     name: "cameraImage",
     components: {
         PassModule, VolumeReturnReason, ComplainVolumeModule, DORModule, EditVolume, CatalogView, ImagesCheck, EditCatalog, ImageView, ReshootImages, ImageMoveModule,
+        DeleteImageRestoreModule, 
     },
     data: () => {
         return {
@@ -308,6 +316,10 @@ export default {
         enterKeyUpDestoryed();
     },
     methods:{
+        restoreImage(){
+            this.isShow = 0;
+            this.getImageList();
+        },
         handleImageMoveSave(data){
             this.isShow = 0;
             this.getImageList();
@@ -1116,7 +1128,7 @@ export default {
                 cursor: pointer;
             }
             .lazyload{
-                height: 100%;
+                height: calc(100% - 20px);
             }
             &.active{
                 border: 5px solid #85b83e;
@@ -1134,7 +1146,11 @@ export default {
                 align-items: center;
                 // backdrop-filter: blur(8px);
                 i{
-                    color: #85b83e;
+                    color: #000;
+                    // text-shadow: #000 1px 0 0, #000 0 1px 0, #000 -1px 0 0, #000 0 -1px 0, #000 2px 0 1px, #000 1px 1px 1px, #000 -2px 0 1px, #000 0 -2px 1px;
+                    // 4px 4px 0 #000, 4px -4px 0 #000, -4px -4px 0 #000, -4px 4px 0 #000, 4px 3px 0 #000, 4px -3px 0 #000, -4px -3px 0 #000, -4px 3px 0 #000, 4px 2px 0 #000, 4px -2px 0 #000, -4px -2px 0 #000, -4px 2px 0 #000, 4px 1px 0 #000, 4px -1px 0 #000, -4px -1px 0 #000, -4px 1px 0 #000, 4px 0px 0 #000, 4px 0px 0 #000, -4px 0px 0 #000, -4px 0px 0 #000, 3px 4px 0 #000, 3px -4px 0 #000, -3px -4px 0 #000, -3px 4px 0 #000, 3px 3px 0 #000, 3px -3px 0 #000, -3px -3px 0 #000, -3px 3px 0 #000, 3px 2px 0 #000, 3px -2px 0 #000, -3px -2px 0 #000, -3px 2px 0 #000, 3px 1px 0 #000, 3px -1px 0 #000, -3px -1px 0 #000, -3px 1px 0 #000, 3px 0px 0 #000, 3px 0px 0 #000, -3px 0px 0 #000, -3px 0px 0 #000, 
+                    // 2px 4px 0 #000, 2px -4px 0 #000, -2px -4px 0 #000, -2px 4px 0 #000, 2px 3px 0 #000, 2px -3px 0 #000, -2px -3px 0 #000, -2px 3px 0 #000, 2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000, -2px 2px 0 #000, 2px 1px 0 #000, 2px -1px 0 #000, -2px -1px 0 #000, -2px 1px 0 #000, 2px 0px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000, -2px 0px 0 #000, 
+                    // text-shadow: 1px 4px 0 #000, 1px -4px 0 #000, -1px -4px 0 #000, -1px 4px 0 #000, 1px 3px 0 #000, 1px -3px 0 #000, -1px -3px 0 #000, -1px 3px 0 #000, 1px 2px 0 #000, 1px -2px 0 #000, -1px -2px 0 #000, -1px 2px 0 #000, 1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, -1px 1px 0 #000, 1px 0px 0 #000, 1px 0px 0 #000, -1px 0px 0 #000, -1px 0px 0 #000, 0px 4px 0 #000, 0px -4px 0 #000, 0px -4px 0 #000, 0px 4px 0 #000, 0px 3px 0 #000, 0px -3px 0 #000, 0px -3px 0 #000, 0px 3px 0 #000, 0px 2px 0 #000, 0px -2px 0 #000, 0px -2px 0 #000, 0px 2px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, 0px -1px 0 #000, 0px 1px 0 #000, 0px 0px 0 #000, 0px 0px 0 #000, 0px 0px 0 #000, 0px 0px 0 #000, 0 0 0 #000;
                     font-weight: bold;
                     font-style: normal;
                 }
