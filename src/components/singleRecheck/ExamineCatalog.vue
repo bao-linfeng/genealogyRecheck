@@ -57,11 +57,12 @@ export default {
     data: () => {
         return {
             conditionList: [
-                {'label': 'f|完结', 'value': 'f'}, 
+                // {'label': 'f|完结', 'value': 'f'}, 
                 {'label': 'nf|可拍', 'value': 'nf'}, 
                 {'label': 'm|待议', 'value': 'm'}, 
                 {'label': 'd|重复', 'value': 'd'}, 
-                {'label': 'r|无效', 'value': 'r'}
+                {'label': 'r|无效', 'value': 'r'},
+                // {'label': 'c|作废', 'value': 'c'}
             ],
             condition: '',
             verifyExplain: '',

@@ -36,11 +36,11 @@
                     <img src="../../assets/shoot/delete.svg" alt="">
                     <span class="span">影像恢复</span>
                 </div>
-                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 10">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1 || ['1526398266'].indexOf(userId) > -1))" class="task-verify" @click="isShow = 10">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">影像移动</span>
                 </div>
-                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268'].indexOf(roleKey) > -1) || ['24690171211'].indexOf(userId) > -1)" class="task-verify" @click="isShow = 9">
+                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268'].indexOf(roleKey) > -1) || ['24690171211', '1546838797', '1526398266'].indexOf(userId) > -1)" class="task-verify" @click="isShow = 9">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">补拍影像</span>
                 </div>
@@ -137,7 +137,7 @@
                     <i>{{index+1}}{{(precent == 1 ? '' : '('+(item.index+1)+')')}}</i>
                 </div>
                 <img class="attachedSheet" v-if="item.attachedSheet == 1" title="附页" src="../../assets/shoot/attachedSheetA.svg" alt="">
-                <i class="check" v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || ((takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && roleType == 'host' && (['9071165200'].indexOf(roleKey) > -1 || ['24690171211'].indexOf(userId) > -1))" :class="{active: checkImageList.indexOf(item._key) > -1}" @click.stop="checkImage(item._key)"></i>
+                <i class="check" v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || ((takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && roleType == 'host' && (['9071165200', '9071165268'].indexOf(roleKey) > -1 || ['24690171211'].indexOf(userId) > -1))" :class="{active: checkImageList.indexOf(item._key) > -1}" @click.stop="checkImage(item._key)"></i>
             </div>
         </div>
         <!-- 放大镜 -->

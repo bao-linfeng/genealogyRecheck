@@ -21,14 +21,14 @@
                     :value="item.value">
                 </el-option>
             </el-select>
-            <el-select v-model="parameters.batchKey" placeholder="请选择批次" class="w15 marginB10">
+            <!-- <el-select v-model="parameters.batchKey" placeholder="请选择批次" class="w15 marginB10">
                 <el-option
                     v-for="(item,index) in batchArr"
                     :key="index"
                     :label="item.label"
                     :value="item.value">
                 </el-option>
-            </el-select>
+            </el-select> -->
             <el-select v-model="parameters.hasImage" placeholder="请选择影像" class="w15 marginB10">
                 <el-option
                     v-for="item in imageList"
@@ -42,15 +42,23 @@
                 v-model="parameters.begYear"
                 type="year"
                 value-format="yyyy"
-                placeholder="版本开始年">
+                placeholder="出版年开始年">
             </el-date-picker>
             <el-date-picker
                 class="w15 marginB10"
                 v-model="parameters.endYear"
                 type="year"
                 value-format="yyyy"
-                placeholder="版本结束年">
+                placeholder="出版年结束年">
             </el-date-picker>
+            <el-select v-model="parameters.type" placeholder="类型" class="w15 marginB10">
+                <el-option
+                    v-for="item in typeList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
             <el-select v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
@@ -253,6 +261,7 @@ export default {
                 gcStatus: '',
                 claimStartTime: '',
                 claimEndTime: '',
+                type: '家谱',
             },
             gcStatusList: [
                 {'label': '全部谱书状态', 'value': ''},
@@ -267,6 +276,11 @@ export default {
                 {'label': '开放谱书', 'value': '35'},
                 {'label': '开放谱认领', 'value': '40'},
                 {'label': '拍摄完结', 'value': '50'},
+            ],
+            typeList: [
+                {'label': '全部类型', 'value': ''},
+                {'label': '家谱', 'value': '家谱'},
+                {'label': '方志', 'value': '方志'},
             ],
             batchArr: [],
             sourcelist: [],
@@ -285,7 +299,16 @@ export default {
                 {'label': '待完结', 'value': '1'},
                 {'label': '已完结', 'value': '2'},
             ],
-            conditionList: [{'label': '全部谱状态', 'value': ''}, {'label': 'f', 'value': 'f'}, {'label': 'nf', 'value': 'nf'}, {'label': 'd', 'value': 'd'}, {'label': 'r', 'value': 'r'}, {'label': 'm', 'value': 'm'}],
+            conditionList: [
+                {'label': '全部谱状态', 'value': ''}, 
+                {'label': 'f', 'value': 'f'}, 
+                {'label': 'nf', 'value': 'nf'}, 
+                {'label': 'd', 'value': 'd'}, 
+                {'label': 'r', 'value': 'r'}, 
+                {'label': 'm', 'value': 'm'},
+                {'label': 'c', 'value': 'c'},
+                {'label': 'fs', 'value': 'other'}
+            ],
             imageList: [{'label':'影像资料','value':2},{'label':'有影像','value':1},{'label':'无影像','value':0}],
             libList: [],
             nolibList: [{'label':'等于','value':1},{'label':'不等于','value':0}],

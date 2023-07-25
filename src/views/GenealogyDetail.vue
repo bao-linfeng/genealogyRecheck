@@ -99,6 +99,7 @@ export default {
             let data = await api.getAxios('data/detail?dataKey='+this.id);
             data.data.hasImage = data.data.hasImage ? '有' : '无';
             this.genealogyDetail = data.data;
+            this.genealogyDetail.Filetimes = this.genealogyDetail.Filetimes ? ADS.getLocalTime(this.genealogyDetail.Filetimes) : '';
         },
         moveToComment(){
             document.getElementById('commentTitle').scrollIntoView();

@@ -37,6 +37,7 @@
                     <vxe-table-column field="claimOrgName" title="认领机构" width="100"></vxe-table-column>
                     <vxe-table-column field="claimTimeO" title="认领时间" width="100"></vxe-table-column>
                     <vxe-table-column field="condition" title="谱状态" width="100"></vxe-table-column>
+                    <vxe-table-column field="createTimeO" title="导入时间" width="100" sort-by="createTime" sortable></vxe-table-column>
                     <vxe-table-column field="Filetimes" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
                     <vxe-table-column field="Filenames" title="档名" width="100"></vxe-table-column>
                     <vxe-table-column field="bookId" title="谱书编号" width="100"></vxe-table-column>

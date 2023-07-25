@@ -378,6 +378,7 @@ export default {
                         });
                         item.rules = rules;
                     }
+                    item.Filetimes = ADS.getLocalTime(item.Filetimes, '-', 1) || '';
                 });
                 this.dubiousData = dubiousData;
             }else{

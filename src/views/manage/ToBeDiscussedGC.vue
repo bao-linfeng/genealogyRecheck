@@ -8,10 +8,10 @@
                 </div>
                 <div class="head-right">
                     <el-button type="primary" size="small" @click="openBaseGenealogy">家谱总目录</el-button>
-                    <el-button v-if="role >= 1 && role <= 3" type="primary" size="small" @click="openOverTimeBatch(4)">批量设置逾期谱</el-button>
-                    <el-button v-if="role >= 1 && role <= 3" type="primary" size="small" @click="openOverTimeBatch(5)">批量更改状态</el-button>
+                    <!-- <el-button v-if="role >= 1 && role <= 3" type="primary" size="small" @click="openOverTimeBatch(4)">批量设置逾期谱</el-button> -->
+                    <!-- <el-button v-if="role >= 1 && role <= 3" type="primary" size="small" @click="openOverTimeBatch(5)">批量更改状态</el-button> -->
                 </div>
-                <p class="condition">谱状态说明:f,审核通过且已拍摄;nf,审核通过未拍摄;r,无效谱;d,谱书重复;m,待议谱。</p>
+                <p class="condition">谱状态说明:f,审核通过且已拍摄;nf,审核通过未拍摄;r,无效谱;d,谱书重复;m,待议谱;c,作废谱。</p>
             </div>
             <div class="search-wrap">
                 <el-input class="width150 marginR10" placeholder="请输入谱ID" v-model="gcKey" clearable size="small"></el-input>
@@ -63,15 +63,16 @@
                     <vxe-table-column field="memo" title="备注" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
-                    <vxe-table-column field="overTime" width="100" title="剩余天数"></vxe-table-column>
+                    <vxe-table-column field="Filetimes" width="100" title="档案时间"></vxe-table-column>
+                    <vxe-table-column field="countdown" width="100" title="倒计时"></vxe-table-column>
                     <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
                     <vxe-table-column field="createTimeO" width="100" title="上传时间"></vxe-table-column>
                     <vxe-table-column field="updateTimeO" width="100" title="打回时间"></vxe-table-column>
                     <vxe-table-column field="updateUserName" title="打回人" width="100"></vxe-table-column>
                     <vxe-table-column field="orgUpdateTimeO" title="复审提交时间" width="100"></vxe-table-column>
                     <vxe-table-column field="orgUpdateUserName" title="复审提交人" width="100"></vxe-table-column>
-                    <vxe-table-column field="updateUserName1" title="处理人员" width="100"></vxe-table-column>
-                    <vxe-table-column field="updateTime1" title="处理时间" width="100"></vxe-table-column>
+                    <!-- <vxe-table-column field="updateUserName" title="处理人员" width="100"></vxe-table-column>
+                    <vxe-table-column field="updateTimeO" title="处理时间" width="100"></vxe-table-column> -->
                     <vxe-table-column fixed="right" title="操作" width="180" :cell-render="{name: 'AdaiActionButton', attr: {data: actionData}, events:{'detail': openDetail, 'attachment': openAttachment, 'log': openLog, 'check': openCheck, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
                 <div class="page-wrap">
@@ -154,6 +155,7 @@ export default {
             isCatalog: false,
             isAttachment: false,
             simplePath: '',
+            taskdays: 90,
         };
     },
     created:function(){
@@ -269,7 +271,15 @@ export default {
                     item.updateTimeO = item.updateTime ? ADS.getLocalTime(item.updateTime) : '';
                     item.orgUpdateTimeO = item.orgUpdateTime ? ADS.getLocalTime(item.orgUpdateTime) : '';
                     item.createTimeO = item.createTime ? ADS.getLocalTime(item.createTime) : '';
-                    item.overTime = item.updateTime ? 30 - (new Date(new Date().setHours(0,0,0,0)) - new Date(new Date(item.updateTime).setHours(0,0,0,0)))/24/3600/1000 : '';
+                    if(item.gcStatus == 23){// 待议复审
+                        if(this.roleType == 'host'){
+                            item.countdown = item.orgUpdateTime ? (7 - ADS.getSurplusDays(item.orgUpdateTime)) : ''; // 倒计时 以 档案时间 7
+                        }
+                    }
+                    if(item.gcStatus == 20 || item.gcStatus == 25){// 待议谱
+                        item.countdown = item.Filetimes ? (90 - ADS.getSurplusDays(item.Filetimes)) : ''; // 倒计时 以 档案时间 90
+                    }
+                    item.overTime = item.updateTime ? 30 - (new Date(new Date().setHours(0,0,0,0)) - new Date(new Date(item.updateTime).setHours(0,0,0,0)))/24/3600/1000 : item.createTime ? 30 - (new Date(new Date().setHours(0,0,0,0)) - new Date(new Date(item.createTime).setHours(0,0,0,0)))/24/3600/1000 : '';
                     item.Filetimes = ADS.getLocalTime(item.createTime, '/', 1) || item.Filetimes;
                 });
                 this.tableData = result.result.list;
@@ -366,13 +376,14 @@ export default {
             orgId: state => state.nav.orgId,
             catalogStatusO: state => state.nav.catalogStatusO,
             pathname: state => state.nav.pathname,
+            roleType: state => state.nav.roleType,
         })
     },
     watch:{
         'isOverTime': function(nv, ov){
             if(nv == '0' || nv == '1'){
                 this.actionData = [
-                    {'label': '查看','value': 'attachment'},
+                    {'label': '补充','value': 'attachment'},
                     {'label': '编辑','value': 'detail'}, 
                     {'label': '记录','value': 'log'}, 
                     {'label': '快捷查询', 'value': 'singleQuick'},

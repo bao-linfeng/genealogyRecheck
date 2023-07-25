@@ -50,7 +50,7 @@
                     <textarea class="memo" v-model="gcStatusRemark" placeholder="此处填写谱状态更改说明信息"></textarea>
                 </div>
             </div>
-            <div class="foot-box" v-if="(role >= 1 && role <= 3 && detail.gcStatus == '23') || ((role < 1 || role > 3) && detail.gcStatus == '20')">
+            <div class="foot-box" v-if="(role >= 1 && role <= 3 && detail.gcStatus == '23') || ((role < 1 || role > 3) && (detail.gcStatus == '20' || detail.gcStatus == '25'))">
                 <el-button size="medium" @click="close(false)">取消</el-button>
                 <el-button type="primary" size="medium" @click="saveData">{{role >= 1 && role <= 3 ? '审核' : '提交审核'}}</el-button>
             </div>
@@ -107,13 +107,14 @@ export default {
                 '35': '', // 开放时，设置此值，被认领后，则调整此值为 40
                 '40': '', // 开放谱被认领
                 '50': '', // 整谱全部拍摄结束（为最终状态，入库封存）
-                '': '',
+                '60': 'c', // 作废
             },
             statusO: {
                 'r': '10',
                 'd': '15',
                 'm': '20',
-                'nf': '30'
+                'nf': '30',
+                'c': '60'
             }
         };
     },

@@ -111,6 +111,7 @@ export default {
             waitComplete: '',
             warnList: [],
             isWarn: false,
+            type: '家谱',
         };
     },
     created:function(){
@@ -171,6 +172,7 @@ export default {
                 'begYear': this.begYear,
                 'endYear': this.endYear,
                 'libKey': this.libKey,
+                'type': this.type,
                 'claimOrgKey': (this.orgKey).join(','),
                 'orgKey': (this.createOrgKey).join(','),
                 'equal': this.equal,
@@ -197,9 +199,9 @@ export default {
             this.loading = true;
             let data = await api.getAxios('catalog/back?siteKey='+this.stationKey+
             '&claimStartTime='+(this.claimStartTime ? new Date(this.claimStartTime).getTime() : '')+
-            '&claimEndTime='+(this.claimEndTime ? new Date(this.claimEndTime).getTime() : '')+
+            '&claimEndTime='+(this.claimEndTime ? new Date(this.claimEndTime).getTime() + 24*60*60*1000 - 1 : '')+
             '&startFileTimes='+(this.FileStartTimes ? new Date(this.FileStartTimes).getTime() : '')+
-            '&endFileTimes='+(this.FileEndTimes ? new Date(this.FileEndTimes).getTime() : '')+
+            '&endFileTimes='+(this.FileEndTimes ? new Date(this.FileEndTimes).getTime() + 24*60*60*1000 - 1 : '')+
             '&condition='+this.condition+
             '&isPublish='+this.isPublish+
             '&isPlace='+this.isPlace+
@@ -208,13 +210,14 @@ export default {
             '&fileName='+this.fileName+
             '&keyWord='+this.keyWord+
             '&startTime='+this.startTime+
-            '&endTime='+this.endTime+
+            '&endTime='+(this.endTime ? this.endTime + 24*60*60*1000 - 1 : this.endTime)+
             '&begYear='+this.begYear+
             '&endYear='+this.endYear+
             '&libKey='+this.libKey+
             '&orgKey='+this.createOrgKey+
             '&claimOrgKey='+ this.orgKey+
             '&equal='+this.equal+
+            '&type='+this.type+
             '&gcStatus='+this.gcStatus+
             '&waitComplete='+this.waitComplete +
             '&keyWordObj='+JSON.stringify(this.keyWordObj)+
@@ -284,9 +287,10 @@ export default {
             this.waitComplete = data['waitComplete'] ? data['waitComplete'] : '';
             this.claimStartTime = data['claimStartTime'] || '';
             this.claimEndTime = data['claimEndTime'] || '';
+            this.type = data['type'] || '';
 
             for(let key in data){
-                if(key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -314,9 +318,10 @@ export default {
             this.waitComplete = data['waitComplete'] ? data['waitComplete'] : '';
             this.claimStartTime = data['claimStartTime'] || '';
             this.claimEndTime = data['claimEndTime'] || '';
+            this.type = data['type'] || '';
 
             for(let key in data){
-                if(key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];

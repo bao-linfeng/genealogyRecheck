@@ -50,6 +50,7 @@ export default {
                 {'label': 'm', 'value': 'm'},
                 {'label': 'r', 'value': 'r'},
                 {'label': 'd', 'value': 'd'},
+                // {'label': 'c', 'value': 'c'},
             ],
             condition: '',
             reason: '',

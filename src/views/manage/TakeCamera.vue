@@ -117,7 +117,7 @@
                     <vxe-table-column v-if="stage >= 3" field="isLeadImagesO" title="电子谱"></vxe-table-column> -->
 
                     <vxe-table-column v-if="stage == 1" field="checkDoneTimeL" title="查重完成日"></vxe-table-column>
-                    <vxe-table-column v-if="stage == 1" field="checkDoneTimeO" title="剩余天数"></vxe-table-column>
+                    <vxe-table-column v-if="stage == 1" field="countdown" title="倒计时"></vxe-table-column>
                     
                     <vxe-table-column v-if="stage == 2" field="clientUser" title="领取人"></vxe-table-column>
                     <vxe-table-column v-if="stage == 1" field="fileName" title="文件标题"></vxe-table-column>
@@ -163,7 +163,7 @@
         <CatalogView v-if="isShow == 1" :read="false" :dataKey="dataKey" :vid="vid" v-on:close="isShow = 0" />
         <!-- 批量修改卷册属性 -->
         <UpdateVolumeProperty v-if="(isShow ==  2)" :list="selectRecords" v-on:close="(isShow = 0)" v-on:save="saveData" />
-        <Loading v-show="loading" />
+        <!-- <Loading v-show="loading" /> -->
         <!-- 记录 -->
         <LogModule v-if="isShow == 3" :id="vid" v-on:close="isShow = 0" />
     </div>
@@ -237,7 +237,7 @@ export default {
             orgKey: '',
             orgListCheck: [],
             isBill: false,
-            taskdays: 90,
+            taskdays: 365,
             isTable: false,
             selectRecords: [],
             tmpObject: {'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '13': 0},
@@ -476,7 +476,7 @@ export default {
                     ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
                     ele.firstSubmitTimeO = ele.firstSubmitTime ? ADS.getLocalTime(ele.firstSubmitTime) : '';
                     ele.checkDoneTimeL = ele.checkDoneTime ? ADS.getLocalTime(ele.checkDoneTime) : '';
-                    ele.checkDoneTimeO = ele.checkDoneTime ? (this.taskdays - ADS.getSurplusDays(ele.checkDoneTime)) : '';
+                    ele.countdown = ele.Filetimes ? (this.taskdays - ADS.getSurplusDays(ele.Filetimes)) : ''; // 倒计时 以 档案时间 365
                     ele.taskTime = ele.passTime ? ((ele.passTime - ele.claimTime)/1000/60/60/24).toFixed(2) : '';
                     ele.stageO = this.stageO[ele.volumeTakeStatus];
                     ele.orgO = ele.orgName || ele.creatorName;

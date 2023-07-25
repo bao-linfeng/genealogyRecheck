@@ -220,6 +220,7 @@ export default {
                 {'label': 'm|待议', 'value': 'm'},
                 {'label': 'd|重复', 'value': 'd'},
                 {'label': 'r|无效', 'value': 'r'},
+                {'label': 'c|作废', 'value': 'c'},
             ],
             imgStatus: '',
             imgStatusList: [

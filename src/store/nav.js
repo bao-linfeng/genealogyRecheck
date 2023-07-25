@@ -51,6 +51,7 @@ const state = {
         '35': '开放谱',
         '40': '认领谱',
         '50': '拍摄完结',
+        '60': '作废谱',
     },
     baseURL: window.location.origin.indexOf('genealogy.1jiapu.com') > -1 ? 'https://genealogydata.1jiapu.com/' : 'https://genealogydatatest.qingtime.cn/',
     roleName: window.localStorage.getItem('roleName') || '',
