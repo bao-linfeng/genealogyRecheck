@@ -101,16 +101,16 @@ VXETable.renderer.add('AdaiTabButton', {
     let arr = [];
     if(row.willIn == 1){
       if(!row[column.property]){
-        arr = [<div class="AdaiTabButton"><span class="active" onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})}>可拍</span><span onClick={() => events.click({'row':row,'status': 2})}>无效</span><span onClick={() => events.click({'row':row,'status': 3})}>打回</span></div>];
+        arr = [<div class="AdaiTabButton"><span class="active" onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})}>可拍</span><span onClick={() => events.click({'row':row,'status': 2})}>无效</span><span onClick={() => events.click({'row':row,'status': 3})}>待议</span></div>];
       }
       if(row[column.property] == 1 || row.hasIn == '是'){
-        arr = [<div class="AdaiTabButton"><span onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})} class="active">可拍</span><span onClick={() => events.click({'row':row,'status': 2})}>无效</span><span onClick={() => events.click({'row':row,'status': 3})}>打回</span></div>];
+        arr = [<div class="AdaiTabButton"><span onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})} class="active">可拍</span><span onClick={() => events.click({'row':row,'status': 2})}>无效</span><span onClick={() => events.click({'row':row,'status': 3})}>待议</span></div>];
       }
       if(row[column.property] == 2){
-        arr = [<div class="AdaiTabButton"><span onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})}>可拍</span><span onClick={() => events.click({'row':row,'status': 2})} class="active">无效</span><span onClick={() => events.click({'row':row,'status': 3})}>打回</span></div>];
+        arr = [<div class="AdaiTabButton"><span onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})}>可拍</span><span onClick={() => events.click({'row':row,'status': 2})} class="active">无效</span><span onClick={() => events.click({'row':row,'status': 3})}>待议</span></div>];
       }
       if(row[column.property] == 3){
-        arr = [<div class="AdaiTabButton"><span onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})}>可拍</span><span onClick={() => events.click({'row':row,'status': 2})}>无效</span><span onClick={() => events.click({'row':row,'status': 3})} class="active">打回</span></div>];
+        arr = [<div class="AdaiTabButton"><span onClick={() => events.click({'row':row,'status': 0})}>重复</span><span onClick={() => events.click({'row':row,'status': 1})}>可拍</span><span onClick={() => events.click({'row':row,'status': 2})}>无效</span><span onClick={() => events.click({'row':row,'status': 3})} class="active">待议</span></div>];
       }
     }
     
@@ -162,7 +162,7 @@ VXETable.renderer.add('AdaiActionButton', {
         arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else if(row.reviewStatus != 1 && item.value == 'volumeLook'){
         arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
-      }else if(!row.imageLink && !row.hasImage && item.value == 'readBook'){
+      }else if(!row.imageLink && !row.hasImageNew && item.value == 'readBook'){
         arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else if(row.imageLink && item.value == 'catalogPass'){
         arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>{item.label}</button>)
@@ -170,6 +170,18 @@ VXETable.renderer.add('AdaiActionButton', {
         arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>{item.label}</button>)
       }else if(['nf', 'f'].indexOf(row.condition) === -1 && item.value == 'catalogPass'){
         arr.push(<button class="AdaiActionButton disabled hide" onClick={() => events[item.value](params)}>{item.label}</button>)
+      }else if(row.checkClaimUserKey && row.checkClaimUserKey != localStorage.getItem('userId') && item.value == 'reviewClaim'){
+        if(localStorage.getItem('roleKey') == '9071165200'){
+          arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>放弃</button>)
+        }else{
+          arr.push(<button class="AdaiActionButton disabled hide" onClick={() => events[item.value](params)}>{item.label}</button>)
+        }
+      }else if(row.checkClaimUserKey && row.checkClaimUserKey == localStorage.getItem('userId') && item.value == 'reviewClaim'){
+        arr.push(<button class="AdaiActionButton" onClick={() => events[item.value](params)}>放弃</button>)
+      }else if(row.checkClaimUserKeyGC && item.value == 'reviewClaim'){
+        arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>放弃</button>)
+      }else if(row.checkConfirm && item.value == 'submit'){
+        arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{row.checkConfirm ? '已确认' : '确认'}</button>)
       }else{
         if(item.value == 'toExamine'){
           if(row.verifyUserKey){

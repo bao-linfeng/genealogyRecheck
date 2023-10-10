@@ -4,7 +4,12 @@
         <el-checkbox-group v-model="passReason">
             <el-checkbox v-for="(item,index) in passReasonList" :key="index" :label="item"></el-checkbox>
         </el-checkbox-group>
-        <input class="pass-input" type="text" v-model="reason" placeholder="自定义标记原因" />
+        <el-input
+            type="textarea"
+            :rows="3"
+            v-model="explain"
+            placeholder="说明">
+        </el-input>
         <button class="btn" @click="singlePageReturn">确定</button>
     </div>
 </template>
@@ -16,88 +21,77 @@ import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "PassModule",
     props:{
-        passReasonA: {
-            type: Array
-        },
         volumeKey: String,
         imageKey: String,
         imageDetail: Object,
         submitCount: Number,
+        singleKey: String,
     },
     data: () => {
         return {
-            passReasonList: ['模糊', '缺页', '重复', '有异物', '不完整', '非家谱影像', '影像歪斜'],
+            passReasonList: ['模糊', '缺页', '重复', '有异物', '不完整', '非家谱影像', '影像歪斜', '其他'],
             passReason: [],
-            reason: '',
-            singlePageReturnO: '',
+            singlePageReturnDetail: '',
             isFirst: true,
+            explain: '',
         };
     },
     mounted: function(){
-        // if(this.passReasonA.length == 1 && this.passReasonList.indexOf(this.passReasonA[0]) === -1){
-        //     this.reason = this.passReasonA[0];
-        //     this.passReason = [];
-        // }else{
-        //     this.reason = '';
-        //     this.passReason = this.passReasonA;
-        // }
-
-        this.getSinglePageReturnDetail();
+        console.log(this.singleKey);
+        this.getsinglePageReturnDetailNew();
     },
     methods:{
-        setPassReason(){
-            if(this.reason){
-                this.$emit('set-reason', this.reason);
-                this.reason = '';
-            }else{
-                if(this.passReason.length){
-                    this.$emit('set-reason', this.passReason.join());
-                    this.passReason = [];
-                }else{
-                    this.$emit('set-reason', '');
-                    this.passReason = [];
-                    // this.$XModal.message({message: '请勾选打回原因', status: 'warning'});
-                }
-            }
-        },
         async getSinglePageReturnDetail(){// 单页详情原因
             let result = await api.getAxios('v3/review/singlePageReturnDetail?imageKey='+this.imageKey+'&submitCount='+this.submitCount);
             if(result.status == 200){
-                this.singlePageReturnO = result.data || '';
-                if(this.singlePageReturnO){
-                    if(this.singlePageReturnO.returnReason.length == 1 && this.passReasonList.indexOf(this.singlePageReturnO.returnReason[0]) === -1){
-                        this.reason = this.singlePageReturnO.returnReason;
-                        this.passReason = [];
-                    }else{
-                        this.reason = '';
-                        this.passReason = this.singlePageReturnO.returnReason;
-                    }
+                this.singlePageReturnDetail = result.data || '';
+                if(this.singlePageReturnDetail){
+                    this.passReason = this.singlePageReturnDetail.returnReason;
+                    this.explain = this.singlePageReturnDetail.explain;
+                }else{
+                    this.passReason = [];
+                    this.explain = '';
+                }
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
+        async getsinglePageReturnDetailNew(){// 单页详情原因
+            console.log('---单页详情原因---','单页详情原因');
+            let result = await api.getAxios('v3/review/singlePageReturnDetailNew?dataKey='+this.singleKey);
+            if(result.status == 200){
+                this.singlePageReturnDetail = result.data || '';
+                if(this.singlePageReturnDetail){
+                    this.passReason = this.singlePageReturnDetail.returnReason;
+                    this.explain = this.singlePageReturnDetail.explain;
+                }else{
+                    this.passReason = [];
+                    this.explain = '';
                 }
             }else{
                 this.$XModal.message({message: result.msg, status: 'warning'})
             }
         },
         async singlePageReturn(){
+            if(this.passReason.indexOf('其他') > -1 && !this.explain){
+                return ADS.message('请填写说明');
+            }
             if(this.isFirst){
                 this.isFirst = false;
             }else{
                 return;
             }
             
-            let returnReason = [], returnReasonKey = this.singlePageReturnO ? this.singlePageReturnO._key : '';
-            if(this.reason){
-                returnReason = [this.reason];
-            }else{
-                returnReason = this.passReason;
-            }
+            let returnReasonKey = this.singlePageReturnDetail ? this.singlePageReturnDetail._key : '';
             let result = await api.postAxios('v3/review/singlePageReturn', 
                 {
                     "volumeKey": this.volumeKey, 
                     "imageKey": this.imageDetail._key, 
                     "name": this.imageDetail.name, 
                     "index": this.imageDetail.index, 
-                    "returnReason": returnReason, 
+                    "returnReason": this.passReason, 
                     "returnReasonKey": returnReasonKey,
+                    'explain': this.explain,
                     'userKey': this.userId,
                 } 
             , false);
@@ -123,20 +117,15 @@ export default {
         })
     },
     watch:{
-        'passReasonA': function(nv,ov){
-            // if(nv.length == 1 && this.passReasonList.indexOf(nv[0]) === -1){
-            //     this.reason = nv[0];
-            //     this.passReason = [];
-            // }else{
-            //     this.reason = '';
-            //     this.passReason = nv;
-            // }
-        },
-        'imageKey': function(nv, ov){
+        // 'imageKey': function(nv, ov){
+        //     console.log(nv);
+        //     this.passReason = [];
+        //     this.getsinglePageReturnDetailNew();
+        // },
+        'singleKey': function(nv, ov){
             console.log(nv);
-            this.reason = '';
             this.passReason = [];
-            this.getSinglePageReturnDetail();
+            this.getsinglePageReturnDetailNew();
         },
     }
 };
@@ -147,7 +136,7 @@ export default {
     position: absolute;
     bottom: 40px;
     right: -80px;
-    height: 330px;
+    height: 405px;
     padding: 0 20px 10px 20px;
     background: #D8D8D8;
     border-radius: 5px;
@@ -157,7 +146,7 @@ export default {
         content: '';
         position: absolute;
         bottom: -16px;
-        left: 50%;
+        left: calc(50% + 60px);
         transform: translateX(-50%);
         width: 0;
         height: 0;
@@ -191,6 +180,7 @@ export default {
         border-radius: 4px;
         cursor: pointer;
         color: #fff;
+        margin-top: 10px;
     }
 }
 .el-checkbox-group{

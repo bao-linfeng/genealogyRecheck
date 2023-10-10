@@ -5,10 +5,10 @@
             <h3 class="title">谱目编辑</h3>
             <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
         </div>
-        <div class="content-box">
+        <div class="content-box" @mousedown.stop="">
             <ul class="edit-content">
                 <li :class="{w100: item.w, marginL10: item.marginL10}" v-for="(item, index) in argumentsList" :key="index" v-show="!item.hide">
-                    <label class="label" :class="{w105: ['place', 'LocalityModern'].indexOf(item.fieldName) > -1}">
+                    <label class="label" :class="{w105: ['place', 'place2', 'place3', 'LocalityModern'].indexOf(item.fieldName) > -1}">
                         <i>{{item.fieldMeans}}</i>
                         <div v-if="item.rule" class="tooltip">
                             <img class="title" @click="changeTooltip(item.fieldName)" src="../../assets/help.svg" />
@@ -63,7 +63,7 @@
                         class="textarea h30"
                         :class="{changeActive: changeFieldArrAll.indexOf('explain') > -1}"
                         type="textarea"
-                        :rows="1"
+                        :rows="2"
                         placeholder=""
                         :disabled="read"
                         v-model="parameter['explain']">
@@ -142,8 +142,10 @@ export default {
                 {'fieldMeans': '堂号', 'fieldName': 'hall', 'required': true,'clearable': true, 'marginL10': 10, 'rule': '不可空白，如無堂號請填“無”'},
                 {'fieldMeans': '一世祖', 'fieldName': 'firstAncestor', 'tooltip': true, 'clearable': true, 'rule': '只能放1個人的完整姓名（姓+名），不可有其他標點符號，除了拆字（）'},
                 {'fieldMeans': '始迁祖', 'fieldName': 'migrationAncestor', 'clearable': true, 'marginL10': 10, 'rule': '只能放1個人的完整姓名（姓+名），不可有其他標點符號，除了拆字（）'},
-                {'fieldMeans': '谱籍地(现代)', 'fieldName': 'place', 'tooltip': true, 'clearable': true, 'required': true, 'w': '100%', 'rule': '不同的行政區劃需用","只能放文字，國字數字小寫, 分開只能錄入一個完整地名，含省份，市，縣，鄉/鎮/街道，如果有村可錄入；'},
                 {'fieldMeans': '谱籍地(原谱)', 'fieldName': 'LocalityModern', 'tooltip': true, 'clearable': true, 'required': true, 'w': '100%', 'rule': '不同的行政區劃需用","分開，只能放文字，國字數字小寫，不可有空格,不可有其他標點符號,除了拆字（）'},
+                {'fieldMeans': '谱籍地(现代)', 'fieldName': 'place', 'tooltip': true, 'clearable': true, 'required': true, 'w': '100%', 'rule': '不同的行政區劃需用","只能放文字，國字數字小寫, 分開只能錄入一個完整地名，含省份，市，縣，鄉/鎮/街道，如果有村可錄入；'},
+                {'fieldMeans': '谱籍地(现代)2', 'fieldName': 'place2', 'tooltip': true, 'clearable': true, 'required': false, 'w': '100%', 'rule': '不同的行政區劃需用","只能放文字，國字數字小寫, 分開只能錄入一個完整地名，含省份，市，縣，鄉/鎮/街道，如果有村可錄入；'},
+                {'fieldMeans': '谱籍地(现代)3', 'fieldName': 'place3', 'tooltip': true, 'clearable': true, 'required': false, 'w': '100%', 'rule': '不同的行政區劃需用","只能放文字，國字數字小寫, 分開只能錄入一個完整地名，含省份，市，縣，鄉/鎮/街道，如果有村可錄入；'},
                 {'fieldMeans': '总卷数', 'fieldName': 'volume', 'tooltip': true, 'required': true, 'clearable': true, 'w': '100%', 'rule': '依照譜書目錄填入卷（冊）數，可以使用","，不可有空格，不分卷全____冊'},
                 {'fieldMeans': '缺卷说明', 'fieldName': 'lostVolume', 'tooltip': true, 'clearable': true, 'w': '100%', 'required': true, 'rule': '提供錄入選單如下: 選項1：總卷數欄位如為總卷數不詳，填"存卷______________”；選項2：總卷數欄位如為不分卷且確定不全，填"存___冊”；選項3：不缺卷（冊）；選項4：知道總卷數且確定不全，則填“缺。。。”；選項5：其他（可自由填入資訊）只可以使用半型“,“~“，數字必須是阿拉伯數字，不可有空格；'},
                 {'fieldMeans': '可拍册数', 'fieldName': 'hasVolume', 'tooltip': true, 'clearable': true, 'required': true, 'rule': '只要填阿拉伯數字，沒有文字'},
@@ -152,6 +154,8 @@ export default {
                 {'fieldMeans': '作者职务', 'fieldName': 'authorJob', 'clearable': true, 'marginL10': 10, 'required': true, 'rule': '只能放1個職務，不可有標點符號；可寫不詳'},
                 {'fieldMeans': '版本类型', 'fieldName': 'version', 'clearable': true},
                 {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid', 'clearable': true, 'marginL10': 10, 'rule': '只能填譜ID，只要有資料就表示要關聯系統原有譜書ID'},
+                {'fieldMeans': '谱书编号', 'fieldName': 'bookId', 'clearable': true},
+                {'fieldMeans': 'DGS号码', 'fieldName': 'DGS', 'clearable': true, 'marginL10': 10},
 
                 {'fieldMeans': '姓氏2', 'fieldName': 'surname2', 'hide': true},
                 {'fieldMeans': '姓氏3', 'fieldName': 'surname3', 'hide': true},
@@ -247,7 +251,7 @@ export default {
                 this.changeFieldArr = result.data.changeFieldArr || [];
                 this.changeFieldArrAll = result.data.changeFieldArrAll || [];
                 this.argumentsList.forEach((ele) => {
-                    parameter[ele.fieldName] = result.data[ele.fieldName];
+                    parameter[ele.fieldName] = result.data[ele.fieldName] || '';
                 });
 
                 this.parameter = parameter;
@@ -273,8 +277,8 @@ export default {
                 }
             });
             dataObj['lostVolume'] = this.parameter['lostVolume'].replace(/\s+/g, '');
-            dataObj['explain'] = this.parameter['explain'];
-            dataObj['memo'] = this.parameter['memo'];
+            dataObj['explain'] = this.parameter['explain'] || '';
+            dataObj['memo'] = this.parameter['memo'] || '';
             dataObj['GCOver'] = this.GCOver;
             dataObj['NoIndex'] = this.NoIndex ? 1 : 0;
 
@@ -318,12 +322,14 @@ export default {
             if(new RegExp(/\d+/g).test(this.parameter['genealogyName']) && this.parameter['genealogyName']){
                 return this.$XModal.message({ message: '谱名 不可有阿拉伯数字', status: 'warning' });
             }
-            if(new RegExp(/[,\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['genealogyName']) && this.parameter['genealogyName']){
+            if(new RegExp(/[,\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['genealogyName']) && this.parameter['genealogyName']){
                 return this.$XModal.message({ message: '谱名 不可以有其他標點符號，除了 . () 拆字可用（）', status: 'warning' });
             }
             if(new RegExp(/[\s]/g).test(this.parameter['genealogyName']) && this.parameter['genealogyName']){
                 return this.$XModal.message({ message: '谱名 不可有空格', status: 'warning' });
             }
+
+            this.parameter['genealogyName'] = this.parameter['genealogyName'].replace(/。/g, '.').replace(/（/g, '(').replace(/）/g, ')');
 
             // 姓氏 第1欄不可為空白，第2-3欄可以空白；提供三個欄位，每個欄位只能放一個姓氏，不可加“氏”，最多三個姓氏
             if(this.parameter['surname'] && this.parameter['surname'].indexOf('氏') > -1){
@@ -345,22 +351,35 @@ export default {
             }
 
             // 堂号 不可空白，如無堂號請填“無”
+            if(new RegExp(/[,.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['hall']) && this.parameter['hall']){
+                return this.$XModal.message({ message: '谱名 不可以有其他標點符號，除了 () 拆字可用（）', status: 'warning' });
+            }
+
+            this.parameter['hall'] = this.parameter['hall'].replace(/（/g, '(').replace(/）/g, ')');
 
             // 一世祖、始迁祖    只能放1個人的完整姓名（姓+名），不可有其他標點符號除了拆字（）
             // if(this.parameter['firstAncestor'][this.parameter['firstAncestor'].length - 1] == '公'){
             //     return this.$XModal.message({ message: '一世祖最后一个字不能是 公', status: 'warning' });
             // }
-            if(new RegExp(/[,\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['firstAncestor']) && this.parameter['firstAncestor']){
+            if(new RegExp(/[,\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['firstAncestor']) && this.parameter['firstAncestor']){
                 return this.$XModal.message({ message: '一世祖不可有其他標點符號，除了拆字（）', status: 'warning' });
             }
-            if(new RegExp(/[,\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['migrationAncestor']) && this.parameter['migrationAncestor']){
+
+            this.parameter['firstAncestor'] = this.parameter['firstAncestor'].replace(/（/g, '(').replace(/）/g, ')');
+
+            if(new RegExp(/[,\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['migrationAncestor']) && this.parameter['migrationAncestor']){
                 return this.$XModal.message({ message: '始迁祖不可有其他標點符號，除了拆字（）', status: 'warning' });
             }
 
+            this.parameter['migrationAncestor'] = this.parameter['migrationAncestor'].replace(/（/g, '(').replace(/）/g, ')');
+
             // 谱籍地(原谱)    不同的行政區劃需用","分開，只能放文字，國字數字小寫，不可有空格,不可有其他標點符號,除了拆字（）
-            if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
+            if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
                 return this.$XModal.message({ message: '谱籍地(原谱)不可有其他標點符號，除了拆字（）或者用 , 分割行政区', status: 'warning' });
             }
+
+            this.parameter['LocalityModern'] = this.parameter['LocalityModern'].replace(/，/g, ',').replace(/（/g, '(').replace(/）/g, ')');
+
             // if(new RegExp(/[\s]/g).test(this.parameter['LocalityModern']) && this.parameter['LocalityModern']){
             //     return this.$XModal.message({ message: '谱籍地(原谱)不可有空格', status: 'warning' });
             // }
@@ -369,12 +388,15 @@ export default {
             // }
 
             // 谱籍地(現代)    不同的行政區劃需用","只能放文字，國字數字小寫, 分開只能錄入一個完整地名，含省份，市，縣，鄉/鎮/街道，如果有村可錄入；
-            if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['place']) && this.parameter['place']){
-                return this.$XModal.message({ message: '谱籍地(現代)不可有其他標點符號，除了拆字（）或者用 , 分割行政区', status: 'warning' });
+            if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*()_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['place']) && this.parameter['place']){
+                return this.$XModal.message({ message: '谱籍地(現代)不可有其他標點符號，除了用 , 分割行政区', status: 'warning' });
             }
             if(new RegExp(/[\s]/g).test(this.parameter['place']) && this.parameter['place']){
                 return this.$XModal.message({ message: '谱籍地(現代)不可有空格', status: 'warning' });
             }
+
+            this.parameter['place'] = this.parameter['place'].replace(/，/g, ',');
+
             // if(new RegExp(/[\d]/g).test(this.parameter['place']) && this.parameter['place']){
             //     return this.$XModal.message({ message: '谱籍地(現代) 国字数字小写', status: 'warning' });
             // }
@@ -383,9 +405,11 @@ export default {
             if(new RegExp(/[\s]/g).test(this.parameter['volume']) && this.parameter['volume']){
                 return this.$XModal.message({ message: '总卷数不可有空格', status: 'warning' });
             }
-            if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*\(\)_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['volume']) && this.parameter['volume']){
+            if(new RegExp(/[\.\/;'\\\[\]~!@#\$%\^&\*\(\)_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['volume']) && this.parameter['volume']){
                 return this.$XModal.message({ message: '总卷数不可有其他標點符號，除了 ,', status: 'warning' });
             }
+
+            this.parameter['volume'] = this.parameter['volume'].replace(/，/g, ',');
 
             // 缺卷说明    
             /**提供錄入選單如下
@@ -396,7 +420,7 @@ export default {
             *選項5：其他（可自由填入資訊）
             *只可以使用半型“,“~“，數字必須是阿拉伯數字，不可有空格；
             */
-            if(new RegExp(/[\.\/;'\\\[\]!@#\$%\^&\*\(\)_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
+            if(new RegExp(/[\.\/;'\\\[\]!@#\$%\^&\*\(\)_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
                 return this.$XModal.message({ message: '缺卷说明 不可有其他標點符號，除了 , ~', status: 'warning' });
             }
             // if(new RegExp(/[\s]/g).test(this.parameter['lostVolume']) && this.parameter['lostVolume']){
@@ -407,15 +431,19 @@ export default {
                 return this.$XModal.message({ message: '缺卷说明 数字必须是阿拉伯数字', status: 'warning' });
             }
 
+            this.parameter['lostVolume'] = this.parameter['lostVolume'].replace(/，/g, ',').replace(/~/g, '~');
+
             // 可拍册数    只要填阿拉伯數字，沒有文字
             if(!new RegExp(/^[1-9]\d*$/g).test(this.parameter['hasVolume']) && this.parameter['hasVolume']){
                 return this.$XModal.message({ message: '可拍册数 只能是非零阿拉伯数字', status: 'warning' });
             }
 
             // 作者    只能放1個人的完整姓名（姓+名）,除了拆字（），不可有其他標點符號；可寫不詳
-            if(new RegExp(/[,\./;'\\\[\]~!@#\$%\^&*()_+-=<>\?:"|{}"'`]|[，。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['authors']) && this.parameter['authors']){
+            if(new RegExp(/[,\./;'\\\[\]~!@#\$%\^&*_+-=<>\?:"|{}"'`]|[，。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['authors']) && this.parameter['authors']){
                 return this.$XModal.message({ message: '作者 不可有其他標點符號，除了拆字 （）', status: 'warning' });
             }
+
+            this.parameter['authors'] = this.parameter['authors'].replace(/（/g, '(').replace(/）/g, ')');
 
             // 作者职务    只能放1個職務，不可有標點符號；可寫不詳
             if(new RegExp(/[,\./;'\\\[\]~!@#\$%\^&*()_+-=<>\?:"|{}"'`]|[，。、；‘、【】~！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['authorJob']) && this.parameter['authorJob']){
@@ -423,14 +451,18 @@ export default {
             }
 
             // 备注    必須要半型的標點符號
-            if(new RegExp(/[\/;'\\\[\]!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['memo']) && this.parameter['memo']){
-                return this.$XModal.message({ message: '备注 只能半型標點符號 , . () ~', status: 'warning' });
+            if(new RegExp(/[\/'\\\[\]!@#\$%\^&\*_\+\-\=<>\?\"\|\{\}\"\'\`]|[、‘、【】！@#￥%……&*——+\-=《》？“|{}·]/g).test(this.parameter['memo']) && this.parameter['memo']){
+                return this.$XModal.message({ message: '备注 只能半型標點符號 , . () ~:;', status: 'warning' });
             }
 
+            this.parameter['memo'] = this.parameter['memo'].replace(/，/g,',').replace(/。/g,'.').replace(/（/g, '(').replace(/）/g, ')').replace(/~/g,'~').replace(/：/g,':').replace(/；/g, ';');
+
             // 说明    必須要半型的標點符號
-            if(new RegExp(/[\/;'\\\[\]!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'`]|[，。、；‘、【】！@#￥%……&*（）——+\-=《》？：“|{}·]/g).test(this.parameter['explain']) && this.parameter['explain']){
-                return this.$XModal.message({ message: '说明 只能半型標點符號 , . () ~', status: 'warning' });
+            if(new RegExp(/[\/'\\\[\]!@#\$%\^&\*_\+\-\=<>\?\"\|\{\}\"\'`]|[、‘、【】！@#￥%……&*——+\-=《》？“|{}·]/g).test(this.parameter['explain']) && this.parameter['explain']){
+                return this.$XModal.message({ message: '说明 只能半型標點符號 , . () ~:;', status: 'warning' });
             }
+
+            this.parameter['explain'] = this.parameter['explain'].replace(/，/g,',').replace(/。/g,'.').replace(/（/g, '(').replace(/）/g, ')').replace(/~/g,'~').replace(/：/g,':').replace(/；/g, ';');
 
             this.editCatalog();
         },

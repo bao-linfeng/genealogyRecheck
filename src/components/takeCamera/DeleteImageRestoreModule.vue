@@ -9,7 +9,7 @@
                 border
                 :data="tableData"
                 style="width: 100%"
-                max-height="350">
+                min-height="350">
                 <el-table-column prop="name" label="名称"></el-table-column>
                 <el-table-column
                     label="影像">
@@ -29,6 +29,20 @@
         </div>
         <div class="foot-box">
             
+        </div>
+
+        <div class="restore-box" v-if="isShow">
+            <div class="head-wrap">
+                <h3 class="title">恢复影像</h3>
+            </div>
+            <div class="main-wrap">
+                <label class="label">插入的拍数</label>
+                <el-input class="width100" v-model="page"></el-input>
+            </div>
+            <div class="foot-wrap">
+                <el-button type="primary" size="medium" @click="isShow = false">取消</el-button>
+                <el-button type="primary" size="medium" @click="handleRestoreSave">确定</el-button>
+            </div>
         </div>
     </div>
 </template>
@@ -50,6 +64,9 @@ export default {
     data: () => {
         return {
             tableData: [],
+            page: 1,
+            isShow: false,
+            row: {},
         };
     },
     mounted: function(){
@@ -68,12 +85,16 @@ export default {
             this.$emit('close', f);
         },
         handleRestore(row){
+            this.row = row;
+            this.isShow = true;
+        },
+        handleRestoreSave(){
             this.$confirm('此操作将删除的影像恢复, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                this.restoreLogicDeleteImage(row._key);
+                this.restoreLogicDeleteImage(this.row._key);
             }).catch(() => {});
         },
         async restoreLogicDeleteImage(imageKey){// 恢复误删的影像页
@@ -82,9 +103,12 @@ export default {
                 'userKey': this.userId,
                 'orgKey': this.orgId,
                 'volumeKey': this.volumeKey,
-                'imageKey': imageKey
+                'imageKey': imageKey,
+                'page': Number(this.page),
             });
             if(result.status == 200){
+                this.row = {};
+                this.isShow = false;
                 this.getLogicDeleteImageList();
                 this.$emit('restore', true);
             }else{
@@ -158,6 +182,35 @@ export default {
 
 .image{
     height: 120px;
+}
+.restore-box{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    text-align: center;
+    padding: 10px 20px;
+    box-shadow: 0 0 1px 3px #ddd;
+    z-index: 1000;
+    .head-wrap{
+        height: 30px;
+        line-height: 30px;
+    }
+    .main-wrap{
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        .label{
+            width: 100px;
+        }
+    }
+    .foot-wrap{
+        
+    }
+}
+.width100{
+    width: 200px;
 }
 </style>
 

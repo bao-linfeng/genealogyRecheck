@@ -16,12 +16,15 @@
         </div>
         <div class="foot-box">
             <el-button size="medium" @click="close(false)">取消更改</el-button>
-            <el-button type="primary" size="medium" @click="save">确认更改</el-button>
+            <el-button v-if="isFirst" type="primary" size="medium" @click="save">确认更改</el-button>
         </div>
         <div class="memo-wrap">
             <h3>备注</h3>
             <p>1.本页面只处理单个页面移动；</p>
             <p>2.如页面错乱、大范围页面丢失等复杂问题，还需要在拍机客户端处理；</p>
+        </div>
+        <div class="load-wrap" v-if="load">
+            <span>处理中...</span>
         </div>
     </div>
 </template>
@@ -45,6 +48,8 @@ export default {
         return {
             fromPage: 1,
             toPage: 1,
+            load: false,
+            isFirst: true,
         };
     },
     mounted: function(){
@@ -56,9 +61,13 @@ export default {
             this.$emit('close', f);
         },
         save(){
-            this.imageMove();
+            if(this.isFirst){
+                this.isFirst = false;
+                this.imageMove();
+            }
         },
         async imageMove(){
+            this.load = true;
             let result = await api.patchAxios('v3/review/image/move', {
                 'siteKey': this.stationKey,
                 'userKey': this.userId,
@@ -68,6 +77,7 @@ export default {
                 'from': Number(this.fromPage),
                 'to': Number(this.toPage)
             });
+            this.load = false;
             if(result.status == 200){
                 this.$emit('save', {'fromPage': Number(this.fromPage), 'toPage': Number(this.toPage)});
             }else{
@@ -140,6 +150,7 @@ export default {
             }
         }
     }
+    z-index: 999;
 }
 .foot-box{
     text-align: center;
@@ -197,6 +208,18 @@ export default {
 }
 .width200{
     width: 200px;
+}
+.load-wrap{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
 }
 </style>
 

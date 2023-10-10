@@ -13,7 +13,6 @@
                     :keep-source="true"
                     :row-key="true"
                     :auto-resize="true"
-                    show-overflow
                     highlight-current-row
                     ref="xTable3"
                     :height="h*0.6"
@@ -23,13 +22,12 @@
                     :edit-config="{trigger: 'click', mode: 'row',showStatus: true,activeMethod:activeCellMethod}"
                     @checkbox-all="selectAllEvent"
                     @checkbox-change="selectChangeEvent"
-                    @edit-closed="editClosedEvent"
                     :row-class-name="rowClassName"
                     @cell-click="cellClickEvent">
                     <vxe-table-column type="checkbox" width="60" fixed="left"></vxe-table-column>
                     <vxe-table-column v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" fixed="left"></vxe-table-column>
 
-                    <vxe-table-column v-if="active == 3" field="addInformation" title="审核意见" width="140" fixed="left"></vxe-table-column>
+                    <!-- <vxe-table-column v-if="active == 3" field="addInformation" title="审核意见" width="140" fixed="left"></vxe-table-column> -->
                     <vxe-table-column v-if="active >= 3 && active <= 4" field="hasIn" title="可拍摄" width="70"></vxe-table-column>
                     <vxe-table-column v-if="active == 3" width="100" field="suggIn" title="系统建议入库"></vxe-table-column>
                     <vxe-table-column v-if="active == 3" title="待提交" width="100" :cell-render="{name:'RuKuModal',attr:{value:'是'},events:{'click':dataWillInEvent}}"></vxe-table-column>
@@ -43,13 +41,14 @@
                     <vxe-table-column v-if="active <= 3" width="100" field="lackFields" title="残缺字段"></vxe-table-column>
                     <vxe-table-column v-if="active <= 3" width="100" field="repeatInBatchArr" title="同批次重复记录"></vxe-table-column>
                     <vxe-table-column v-if="active <= 3" width="100" field="repeatInISGNArr" title="ISGN重复记录"></vxe-table-column>
-                    <vxe-table-column v-if="active >= 3 && active <= 4" fixed="right" field="annex" title="附件上传" width="160" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'附件','value':'annex'}, {'label':'快捷查询','value':'singleQuick'}]},events:{'annex':annex, 'singleQuick': singleQuick}}"></vxe-table-column>
+                    <vxe-table-column v-if="active >= 2 && active <= 4" fixed="right" field="annex" title="附件上传" width="270" :cell-render="{name:'AdaiActionButton',attr:{data: actionDataArr},events:{'annex':annex, 'editBook': editBook, 'deleteBook': deleteBook, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
             </div>
             
-            <RepeatJiapuModal v-if="active >= 2" :row="row" :h="h" :active="active" :pumuThead="pumuThead" />
+            <RepeatJiapuModal v-if="active >= 2" :row="row" :h="h" :active="active" :pumuThead="pumuThead" :isF="true" />
         </div>
         <AdaiSourceModal v-if="active == 2 && isShow" :stationKey="stationKey" v-on:close-source="closeSource" v-on:source-check="clickDataCheck" />
+        <!-- 附件 -->
         <AnnexModal v-if="isShowAnnex" :gid="gid" :createUser="createUser" :row="annexRow" v-on:close-annex="isShowAnnex = false" :active="active" />
         <ManageModal v-show="isManage" v-on:close-manage="isManage = false" v-on:set-filter="setFilter" />
         <div class="process-wrap" v-if="Ppage && Ppage < Ptotal">
@@ -62,6 +61,8 @@
             <vxe-input v-model="suggest"></vxe-input>
             <vxe-button content="保存" @click="saveSuggest"></vxe-button>
         </div>
+        <!-- 谱目编辑 -->
+        <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeEdit" />
     </div>
 </template>
 
@@ -74,11 +75,12 @@ import AdaiStepModal from "../../components/batchManage/AdaiStepModal.vue";
 import AdaiSourceModal from "../../components/batchManage/AdaiSourceModal.vue";
 import RepeatJiapuModal from "../../components/batchManage/RepeatJiapuModal.vue";
 import BatchNavModal from "../../components/batchManage/BatchNavModal.vue";
+import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "batchdatastage",
     components: {
-        AnnexModal,ManageModal,AdaiStepModal,AdaiSourceModal,RepeatJiapuModal,BatchNavModal,
+        AnnexModal,ManageModal,AdaiStepModal,AdaiSourceModal,RepeatJiapuModal,BatchNavModal, EditCatalog, 
     },
     data: () => {
         return {
@@ -130,6 +132,12 @@ export default {
             field_branch: [],
             isShowTable: true,
             Tobediscussed: true,
+            isEdit: false,
+            actionDataArr: [
+                {'label':'附件','value':'annex'}, 
+                {'label': '编辑', 'value': 'editBook'}, 
+                {'label':'快捷查询','value':'singleQuick'}
+            ],
         };
     },
     created:function(){
@@ -168,12 +176,61 @@ export default {
             {'fieldMeans': '档案名称', 'fieldName': 'Filenames'},
             {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
             {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
+            {'fieldMeans': '谱籍地(现代)2', 'fieldName': 'place2'},
+            {'fieldMeans': '谱籍地(现代)3', 'fieldName': 'place3'},
         ];
     },
     mounted:function(){
         this.getPumuTable();
     },
     methods:{
+        closeEdit(f){
+            this.isEdit = false;
+            f ? this.getDataCheckLog() : null; 
+        },
+        editBook({row}){// 编辑谱目
+            if(this.active == 2){
+                this.gid = row._key;
+                this.isEdit = true;
+            }else{
+                ADS.message('该状态不允许编辑！');
+            }
+        },
+        async deleteCatalogList(row){
+            let i = -1;
+            this.changeLoading();
+            let result = await api.deleteAxios('catalog', {
+                'catalogKeyArr': [row._key],
+                'userKey': this.userId,
+                'siteKey': this.stationKey,
+                'batchKey': '',
+                'orgKey': this.orgId,
+            });
+            this.changeLoading(false);
+            if(result.status == 200){
+                this.tableData.map((item,index) => {
+                    if(item._key == row._key){
+                        i = index;
+                    }
+                });
+                this.tableData.splice(i,1);
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' });
+            }
+        },
+        deleteBook({row}){
+            if(this.active == 3 && (this.orgAdmin == 'admin' || ['9071693612'].indexOf(this.roleKey) > -1)){
+                this.$confirm('确定删除 '+row.genealogyName+' 谱目吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.deleteCatalogList(row);
+                }).catch(() => {});
+            }else{
+                ADS.message('您无权删除！');
+            }
+        },
         singleQuick({ row }){
             console.log(row);
             window.open('/'+this.pathname+'/singleQuickSearch?id='+row._key, '_blank');
@@ -328,6 +385,7 @@ export default {
             }
         },
         next(active){
+            console.log(this.active, active);
             if(this.active <= 4){
                 switch(active){
                     case 0:
@@ -376,18 +434,7 @@ export default {
             }
         },
         activeCellMethod({row,column}){//控制编辑
-            if(this.active <= 0 || this.active == 2 || this.active == 4 || (this.active == 3 && !this.needReview) || (this.active == 3 && row.canTake != 3)){
-                return false;
-            }
-            if(['willIn','suggIn','hasIn','annex','delete'].indexOf(column.property) > -1){
-                return false;
-            }
-            return true;
-        },
-        editClosedEvent({row}){
-            if(this.active == 1 || this.active == 3 || this.active == 5){
-                this.editCatalog(row);
-            }
+            return false;
         },
         cellClickEvent({row,column}){
             if(this.active === 3 && column.property == 'toggle'){
@@ -529,6 +576,14 @@ export default {
                         xTable3.refreshColumn();
                     },200);
                 }
+                if(this.active == 3 && (this.orgAdmin == 'admin' || ['9071693612'].indexOf(this.roleKey) > -1)){
+                    this.actionDataArr = [
+                        {'label':'附件','value':'annex'}, 
+                        {'label': '编辑', 'value': 'editBook'}, 
+                        {'label': '删除', 'value': 'deleteBook'}, 
+                        {'label':'快捷查询','value':'singleQuick'}
+                    ];
+                }
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
@@ -563,35 +618,6 @@ export default {
                         item.willIns = data.data == 1 ? '是' : '否';
                     }
                 });
-            }else{
-                this.$XModal.message({ message: data.msg, status: 'warning' });
-            }
-        },
-        editCatalog:async function(row){// 编辑谱目
-            let dataObj = {};
-            // this.pumuThead.map((item)=>{
-            //     dataObj[item.fieldName] = row[item.fieldName];
-            // });
-            this.field_main.map((item)=>{
-                if(item.fieldName == 'condition'){
-                    if(this.role >= 1 && this.role <= 3){
-                        dataObj[item.fieldName] = row[item.fieldName];
-                    }else{
-                        
-                    }
-                }else{
-                    dataObj[item.fieldName] = row[item.fieldName];
-                }
-                // dataObj[item.fieldName] = row[item.fieldName];
-            });
-            this.field_branch.map((item)=>{
-                dataObj[item.fieldName] = row[item.fieldName];
-            });
-            this.changeLoading();
-            let data=await api.patchAxios('data/edit',{'dataKey':row._key,'dataObj':dataObj,'userKey': this.userId, siteKey: this.stationKey});
-            this.changeLoading(false);
-            if(data.status == 200){
-                this.active == 1 || this.active == 5 ? this.dataCleanSingle(row._key) : null;
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' });
             }
@@ -655,6 +681,8 @@ export default {
             Ppage: state => state.nav.Ppage,
             cleanOk: state => state.nav.cleanOk,
             pathname: state => state.nav.pathname,
+            orgAdmin: state => state.nav.orgAdmin,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{

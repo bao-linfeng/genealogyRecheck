@@ -1,25 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
 
-// const Home = () => import("./views/Home.vue");
-// const GenealogySearch = () => import("./views/GenealogySearch.vue");
-// const GenealogyDetail = () => import("./views/GenealogyDetail.vue");
-// const View = () => import("./views/View.vue");
-// const Payment = () => import("./views/Payment.vue");
-// const PaymentOk = () => import("./views/PaymentOk.vue");
-
-// const MyGenealogy = () => import("./views/manage/MyGenealogy.vue");
-// const QtGenealogy = () => import("./views/manage/QtGenealogy.vue");
-// const FGenealogy = () => import("./views/manage/FGenealogy.vue");
-// const PurchaseHistory = () => import("./views/manage/PurchaseHistory.vue");
-// const Message = () => import("./views/manage/Message.vue");
-// const Coupon = () => import("./views/manage/Coupon.vue");
-// const About = () => import("./views/manage/About.vue");
-// const OCR = () => import("./views/manage/OCR.vue");
-// const Payments = () => import("./components/qtGenealogy/Payments.vue");
-// const CouponPayment = () => import("./components/coupon/Payment.vue");
-// const CouponPaymentOk = () => import("./components/qtGenealogy/PaymentOk.vue");
-
 import Home from "./views/Home.vue";
 import GenealogySearch from "./views/GenealogySearch.vue";
 import GenealogyDetail from "./views/GenealogyDetail.vue";
@@ -83,6 +64,8 @@ import MenuDefinition from './views/manage/MenuDefinition.vue';
 import RoleDefinition from './views/manage/RoleDefinition.vue';
 import CatalogWorkload from './views/manage/CatalogWorkload.vue';
 import ViewImage from './views/manage/ViewImage.vue';
+import CatalogCheckStatistics from './views/manage/CatalogCheckStatistics.vue';
+import CatalogEditStatistics from './views/manage/CatalogEditStatistics.vue';
 
 
 
@@ -93,6 +76,22 @@ const routes = [
     path: "/404",
     name: "notfound",
     component: NotFound
+  },
+  {
+    path: "/:id/CatalogEditStatistics",
+    name: "CatalogEditStatistics",
+    meta: {
+      requireAuth: true,
+    },
+    component: CatalogEditStatistics
+  },
+  {
+    path: "/:id/CatalogCheckStatistics",
+    name: "CatalogCheckStatistics",
+    meta: {
+      requireAuth: true,
+    },
+    component: CatalogCheckStatistics
   },
   {
     path: "/:id/viewImage",

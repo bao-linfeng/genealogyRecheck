@@ -17,13 +17,14 @@
                     </el-option>
                 </el-select>
                 <el-date-picker
+                    class="w250"
                     v-model="time"
                     type="daterange"
                     unlink-panels
                     start-placeholder="开始时间"
                     end-placeholder="结束时间"
                 />
-                <el-select class="w150" v-model="libListCheck" multiple placeholder="请选择机构序号">
+                <el-select class="w150" v-model="libListCheck" multiple placeholder="请选择机构">
                     <el-option
                         v-for="item in libList"
                         :key="item.value"
@@ -39,11 +40,50 @@
                         :value="item.value">
                     </el-option>
                 </el-select>
+                <el-select v-if="stage == 'hasSubmit'" class="w150" v-model="claimUserKey">
+                    <el-option
+                        v-for="item in claimUserList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
                 <el-input class="w150" v-model="fileName" placeholder="文件标题"></el-input>
                 <el-button type="primary" @click="refresh">检索</el-button>
             </div>
             <div class="vex-table-box">
-                <vxe-table
+                <el-table
+                    ref="table"
+                    :loading="loading"
+                    :data="tableData"
+                    :height="h"
+                    @sort-change="sortChangeEvent"
+                    border
+                    style="width: 100%">
+                    <el-table-column prop="fileName" label="文件标题" min-width="180" align="center"></el-table-column>
+                    <el-table-column prop="status" label="状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="dataNum" label="已导入数" width="120" align="center"></el-table-column>
+                    <el-table-column prop="hasMarkISGNNum" label="已入库数" width="120" align="center"></el-table-column>
+                    <el-table-column prop="toBeDiscussedNumber" label="待议数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="duplicateNumber" label="重复数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="invalidNumber" label="无效数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="cancelNumber" label="作废数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="lib" label="来源" width="100" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="checkUserName" label="审核人" width="100" align="center"></el-table-column>
+                    <el-table-column prop="createTime" label="导入时间" width="160" align="center" sortable="custom"></el-table-column>
+                    <el-table-column
+                        label="操作"
+                        width="300"
+                        align="center">
+                        <template slot-scope="scope">
+                            <button v-if="!scope.row.claimUserKey && scope.row.status == '提交审核'" class="AdaiActionButton" @click="claimBatch(scope.row)">认领</button>
+                            <button v-if="(scope.row.claimUserKey == userId && scope.row.status == '提交审核') || scope.row.status != '提交审核'" class="AdaiActionButton" @click="navTo(scope.row)">查看</button>
+                            <button class="AdaiActionButton" @click="downloadExcel(scope.row)">Excel(修正)</button>
+                            <button class="AdaiActionButton" @click="downloadNaturalExcel(scope.row)">Excel(原始)</button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!-- <vxe-table
                     class="table-scrollbar"
                     :loading="loading"
                     border
@@ -60,24 +100,18 @@
                     @sort-change="sortChangeEvent"
                     >
                     <vxe-table-column field="fileName" title="文件标题" width="180"></vxe-table-column>
-                    <!-- <vxe-table-column field="hasClean" title="清洗" width="80" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
-                    <vxe-table-column field="hasCheckInBatch" title="自查重" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
-                    <vxe-table-column field="hasCheckInISGN" title="大库查重" :edit-render="{name: '$select', options: stageState}"></vxe-table-column> -->
-                    <!-- <vxe-table-column field="hasSubmitO" title="提交审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
-                    <vxe-table-column field="needReviewO" title="打回" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
-                    <vxe-table-column field="hasPast" title="通过审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column> -->
                     <vxe-table-column field="status" title="状态"></vxe-table-column>
-                    <!-- <vxe-table-column field="excelDataNum" title="表格总数"></vxe-table-column> -->
                     <vxe-table-column field="dataNum" title="已导入数"></vxe-table-column>
                     <vxe-table-column field="hasMarkISGNNum" title="已入库数"></vxe-table-column>
                     <vxe-table-column field="toBeDiscussedNumber" title="待议数"></vxe-table-column>
                     <vxe-table-column field="duplicateNumber" title="重复数"></vxe-table-column>
                     <vxe-table-column field="invalidNumber" title="无效数"></vxe-table-column>
+                    <vxe-table-column field="cancelNumber" title="作废数"></vxe-table-column>
                     <vxe-table-column field="libO" title="来源" sort-by="libCode" sortable></vxe-table-column>
                     <vxe-table-column field="checkUserName" title="审核人"></vxe-table-column>
                     <vxe-table-column field="createTime" title="导入时间" :formatter="['formatDate', '']" sort-by="createTime" sortable></vxe-table-column>
                     <vxe-table-column title="操作" width="260" :cell-render="{name:'AdaiActionButton2',attr:{data:actionData},events:{'look':navTo,'download': downloadExcel, 'downloadNaturalExcel': downloadNaturalExcel}}"></vxe-table-column>
-                </vxe-table>
+                </vxe-table> -->
                 <vxe-pager
                     :loading="loading"
                     :current-page="page"
@@ -137,6 +171,8 @@ export default {
             fileName: '',
             sortField: '', 
             sortType: 'auto',
+            claimUserList: [],
+            claimUserKey: '',
         };
     },
     created:function(){
@@ -147,7 +183,7 @@ export default {
         this.libListCheck = ADS.getQueryVariable('libListCheck') ? ADS.getQueryVariable('libListCheck').split(',') : '';
         this.startTime = ADS.getQueryVariable('startTime');
         this.endTime = ADS.getQueryVariable('endTime');
-        this.stage = ADS.getQueryVariable('stage');
+        this.stage = ADS.getQueryVariable('stage') || 'hasSubmit';
         this.page = ADS.getQueryVariable('page') ? Number(ADS.getQueryVariable('page')) : 1;
     },
     mounted:function(){
@@ -156,15 +192,45 @@ export default {
         this.getBatchList(); 
         this.getLibList();
         this.getBatch(false);
+        this.getClaimUserList();
     },
     methods:{
-        sortChangeEvent({column, property, order, sortBy, sortList, $event}){
-            console.log(property, order, sortBy);
-            this.sortField = sortBy;
-            this.sortType = order;
+        async claimBatch(row){//认领
+            let result = await api.patchAxios('batch/claim',{
+                'batchKey': row._key,
+                'claimUserKey': this.userId
+            });
+            if(result.status == 200){
+                this.getBatch(false);
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
+            }
+        },
+        async getClaimUserList(){
+            let result = await api.getAxios('batch/claimUserList');
+            if(result.status == 200){
+                let claimUserList = [{'label': '认领人', 'value': ''}];
+                result.data.map((item)=>{
+                    claimUserList.push({'label': item.userName, 'value': item._key});
+                });
+                this.claimUserList = claimUserList;
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
+            }
+        },
+        sortChangeEvent({column, prop, order}){
+            console.log(column, prop, order);
+            this.sortField = prop || '';
+            this.sortType = order === 'ascending' ? 'asc' : order === 'descending' ? 'desc' : '';
             this.refresh();
         },
-        async downloadExcel({row}){//下载excel
+        // sortChangeEvent({column, property, order, sortBy, sortList, $event}){
+        //     console.log(property, order, sortBy);
+        //     this.sortField = sortBy;
+        //     this.sortType = order;
+        //     this.refresh();
+        // },
+        async downloadExcel(row){//下载excel
             let data = await api.postAxios('data/feedbackMark',{'batchKey':row._key});
             if(data.status == 200){
                 ADS.downliadLink(data.result);
@@ -172,7 +238,7 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        downloadNaturalExcel({row}){
+        downloadNaturalExcel(row){
             console.log(row);
             if(row.uploadOriginalFileName){
                 window.open(this.baseURL+'catalogFile/'+row.uploadOriginalFileName);
@@ -183,7 +249,7 @@ export default {
         async getLibList(){
             let data = await api.getAxios('lib?siteKey='+this.stationKey);
             if(data.status == 200){
-                let libList = [{'label':'全部机构序号','value':''}];
+                let libList = [{'label':'全部机构','value':''}];
                 data.data.map((item)=>{
                     libList.push({'label': item.libName+'('+item.libCode+')','value': item._key});
                 });
@@ -224,7 +290,7 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        navTo({row}){
+        navTo(row){
             let state = 0;
             row.hasClean ? state = 1 : null;
             row.hasCheckInBatch ? state = 2 : null;
@@ -265,11 +331,11 @@ export default {
         async getBatch(f = true){// 批次列表
             f ? this.$router.push('/'+window.localStorage.getItem('pathname')+'/bookaudit?type='+this.type+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&stage='+this.stage+'&page='+this.page) : null;
             this.loading = true
-            let data=await api.getAxios('batch?type='+this.type+'&sortField='+this.sortField+'&sortType='+this.sortType+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&batchKey='+this.batchId+'&siteKey='+this.stationKey+'&stage='+this.stage+'&userKey='+this.userId+'&creator='+this.userKey+'&userRole='+this.role+'&page='+this.page+'&limit='+this.pages);
+            let data=await api.getAxios('batch?type='+this.type+'&claimUserKey='+this.claimUserKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&batchKey='+this.batchId+'&siteKey='+this.stationKey+'&stage='+this.stage+'&userKey='+this.userId+'&creator='+this.userKey+'&userRole='+this.role+'&page='+this.page+'&limit='+this.pages);
             if(data.status == 200){
                 let excelDataNum = 0, dataNum = 0, hasMarkISGNNum = 0, arr = [];
                 this.tableData = data.data.map((ele) => {
-                    ele.libO = ele.lib+'('+ele.libCode+')';
+                    ele.lib = ele.lib+'('+ele.libCode+')';
                     excelDataNum = excelDataNum + ele.excelDataNum;
                     dataNum = dataNum + ele.dataNum;
                     hasMarkISGNNum = hasMarkISGNNum + ele.hasMarkISGNNum;
@@ -277,6 +343,7 @@ export default {
                     ele.hasSubmitO = ele.hasSubmit == 1 || (ele.repulseTime ? 1 : 0) || ele.hasPass == 1;
                     ele.needReviewO = ele.needReview == 1 && ele.hasPass != 1 && (ele.repulseTime ? 1 : 0);
                     ele.status = ele.hasPast ? '审核通过' : ele.needReviewO ? '打回' : ele.hasSubmitO ? '提交审核' : '待提交';
+                    ele.createTime = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
 
                     return ele;
                 });
@@ -311,6 +378,11 @@ export default {
             }else{
                 this.startTime = '';
                 this.endTime = '';
+            }
+        },
+        'stage': function(nv, ov){
+            if(nv != 'hasSubmit'){
+                this.claimUserKey = '';
             }
         },
     },
@@ -361,6 +433,9 @@ export default {
 }
 .w150{
     width: 150px;
+}
+.w250{
+    width: 250px !important;
 }
 </style>
 

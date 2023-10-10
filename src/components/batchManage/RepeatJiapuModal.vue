@@ -312,26 +312,6 @@ export default {
             }
             return true;
         },
-        deleteGenealogy:async function({row}){//删除
-            if(row._key){
-                let data=await api.deleteAxios('catalog',{'catalogKeyArr': [row._key],'userKey':this.userId,'siteKey':this.stationKey});
-                if(data.status == 200){
-                    let dubiousData = [];
-                    this.dubiousData.map((item) => {
-                        if(item._key == row._key){
-
-                        }else{
-                            dubiousData.push(item);
-                        }
-                    });
-                    this.dubiousData = dubiousData;
-                }else{
-                    this.$message({message: '删除家谱出错，请重新删除',type: 'warning'});
-                }
-            }else{
-                this.$message({message: '该家谱属于痕迹，无法删除',type: 'warning'});
-            }
-        },
         changeLoading(flag = true){
             this.$store.dispatch('setPropertyValue',{'property':'loading','value': flag});
         },

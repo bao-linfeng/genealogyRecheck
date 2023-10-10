@@ -26,8 +26,8 @@
                     <el-radio :class="{noMarginL: index == 2, marginT10: index >= 2}" v-for="(item, index) in operateStatusList" :label="item.value" :key="index">{{item.label}}</el-radio>
                 </el-radio-group>
             </div>
-            <div class="returnReason-wrap" v-if="[5, 6, 7, 12, 13, 14].indexOf(detail.takeStatus) > -1">
-                <h3 class="title">请输入说明<i :class="{red: ((operate == 'toVoid' || operate == 'return') && !returnReason) || (orgAdmin == 'admin' && takeStatus == 6 && operate == 'recheck')}">*</i>:</h3>
+            <div class="returnReason-wrap" v-if="[5, 6, 7, 12, 13, 14, 16].indexOf(detail.takeStatus) > -1">
+                <h3 class="title">请输入说明<i :class="{red: ((operate == 'toVoid' || operate == 'return') && !returnReason) || (orgAdmin == 'admin' && takeStatus == 6 && operate == 'recheck') || (['9138241994'].indexOf(roleKey) > -1 && takeStatus == 6 && operate == 'recheck')}">*</i>:</h3>
                 <el-input
                     type="textarea"
                     :rows="3"
@@ -86,7 +86,7 @@ export default {
             if(this.takeStatus == 5){
                 this.operateStatusList = [
                     {'label': '初审通过', 'value': 'pass'}, 
-                    {'label': '初审不通过(打回)', 'value': 'return'}
+                    // {'label': '初审不通过(打回)', 'value': 'return'}
                 ];
             }
             return;
@@ -101,7 +101,7 @@ export default {
             if(this.takeStatus == 5){
                 this.operateStatusList = [
                     {'label': '初审通过', 'value': 'pass'}, 
-                    {'label': '初审不通过(打回)', 'value': 'return'},
+                    // {'label': '初审不通过(打回)', 'value': 'return'},
                     // {'label': '作废', 'value': 'toVoid'}
                 ];
             }
@@ -145,6 +145,14 @@ export default {
                     {'label': '审核不通过(打回)', 'value': 'return'}
                 ];
             }
+        }else{
+            if(this.takeStatus == 6){// 机构 打回 => 提交复审、作废
+                if(['9138241994'].indexOf(this.roleKey) > -1){
+                    this.operateStatusList = [
+                        {'label': '提交复审', 'value': 'recheck'}
+                    ];
+                }
+            }
         }
     },
     methods:{
@@ -156,6 +164,9 @@ export default {
                 return ADS.message('请输入说明！');
             }
             if(this.orgAdmin == 'admin' && this.takeStatus == 6 && this.operate == 'recheck' && !this.returnReason){
+                return ADS.message('请输入说明！');
+            }
+            if(['9138241994'].indexOf(this.roleKey) > -1 && this.takeStatus == 6 && this.operate == 'recheck' && !this.returnReason){
                 return ADS.message('请输入说明！');
             }
             this.$confirm('确认'+this.operateO[this.operate]+' '+this.detail.genealogyName+' '+this.detail.volumeNumber+' 的影像吗?', '提示', {
@@ -213,7 +224,7 @@ export default {
                 if(nv == 1){
                     this.operateStatusList = [
                         {'label': '初审通过', 'value': 'pass'}, 
-                        {'label': '初审不通过(打回)', 'value': 'return'},
+                        // {'label': '初审不通过(打回)', 'value': 'return'},
                         // {'label': '作废', 'value': 'toVoid'},
                     ];
                 }

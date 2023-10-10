@@ -17,20 +17,26 @@
                 <!-- v-show="stationKey != '1528234980'" -->
                 <!-- <el-button v-if="this.role >=1 && this.role <= 2"  class="marginLeft20" size="small" type="primary" @click="isEdit = true">编辑的家谱</el-button> -->
                 <!-- 全部完结 -->
-                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2 || (orgAdmin == 'admin')" @click="handleCompleteCatalog('all')">全部完结</el-button>
+                <!-- || (orgAdmin == 'admin') -->
+                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('all')">全部完结</el-button>
                 <!-- 批量完结 -->
-                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2 || (orgAdmin == 'admin')" @click="handleCompleteCatalog('some')">批量完结</el-button>
+                <!-- || (orgAdmin == 'admin') -->
+                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('some')">批量完结</el-button>
+                <!-- <el-button size="small" type="primary" @click="handleSearchImages">影像统计</el-button> -->
             </div>
             <!-- 家谱table -->
-            <GenealogyTableModal v-if="fieldFilters.length" :fieldFilters="fieldFilters" :total="total" :list="list" v-on:toggle-full="toggleFull" v-on:checkbox-change="checkboxChange" v-on:get-genealogy="getJiapuList" />
-            <vxe-pager
-                align="center"
-                @page-change = "changePage"
-                :current-page.sync="page"
-                :page-size.sync="limit"
-                :total="total"
-                :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'FullJump', 'Total']">
-            </vxe-pager>
+            <GenealogyTableModal :total="total" :list="list" v-on:toggle-full="toggleFull" v-on:checkbox-change="checkboxChange" v-on:get-genealogy="getJiapuList" />
+            <footer class="foot-wrap">
+                <div class="left">{{imageTotal ? '共'+imageTotal+'页影像' : ''}}</div>
+                <vxe-pager
+                    align="center"
+                    @page-change = "changePage"
+                    :current-page.sync="page"
+                    :page-size.sync="limit"
+                    :total="total"
+                    :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'FullJump', 'Total']">
+                </vxe-pager>
+            </footer>
         </div>
         <!-- 分级公开 -->
         <RootModal v-if="isRootShow" :checkList="checkList" :siteKey="stationKey" v-on:close-root="isRootShow=false" v-on:save-root="saveRoot" />
@@ -103,6 +109,8 @@ export default {
             condition: '',
             FileStartTimes: '',
             FileEndTimes: '',
+            publishStartTime: '',
+            publishEndTime: '',
             claimStartTime: '',
             claimEndTime: '',
             isFull: false,
@@ -112,6 +120,8 @@ export default {
             warnList: [],
             isWarn: false,
             type: '家谱',
+            imageTotal: 0,
+            GCOver: '',
         };
     },
     created:function(){
@@ -160,6 +170,8 @@ export default {
                 'claimEndTime': (this.claimEndTime ? new Date(this.claimEndTime).getTime() : ''),
                 'startFileTimes': (this.FileStartTimes ? new Date(this.FileStartTimes).getTime() : ''),
                 'endFileTimes': (this.FileEndTimes ? new Date(this.FileEndTimes).getTime() : ''),
+                'publishStartTime': this.publishStartTime ? new Date(this.publishStartTime).getFullYear() : '',
+                'publishEndTime': this.publishEndTime ? new Date(this.publishEndTime).getFullYear() : '',
                 'condition': this.condition.join(','),
                 'isPublish': this.isPublish,
                 'isPlace': this.isPlace,
@@ -182,6 +194,7 @@ export default {
                 'prop': this.prop,
                 'order': this.order,
                 'limit': 5000,
+                'GCOver': this.GCOver,
             });
             this.loading = false;
             if(data.status == 200){
@@ -202,8 +215,11 @@ export default {
             '&claimEndTime='+(this.claimEndTime ? new Date(this.claimEndTime).getTime() + 24*60*60*1000 - 1 : '')+
             '&startFileTimes='+(this.FileStartTimes ? new Date(this.FileStartTimes).getTime() : '')+
             '&endFileTimes='+(this.FileEndTimes ? new Date(this.FileEndTimes).getTime() + 24*60*60*1000 - 1 : '')+
+            '&publishStartTime='+ (this.publishStartTime ? new Date(this.publishStartTime).getFullYear() : '')+
+            '&publishEndTime='+ (this.publishEndTime ? new Date(this.publishEndTime).getFullYear() : '')+
             '&condition='+this.condition+
             '&isPublish='+this.isPublish+
+            '&userKey='+this.userId+
             '&isPlace='+this.isPlace+
             '&noPublishAD='+this.noPublishAD+
             '&NoIndex='+this.NoIndex+
@@ -222,10 +238,12 @@ export default {
             '&waitComplete='+this.waitComplete +
             '&keyWordObj='+JSON.stringify(this.keyWordObj)+
             '&prop='+this.prop+
+            '&GCOver='+this.GCOver+
             '&order='+this.order+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 this.list = data.result.list;
+                this.imageTotal = data.result.imageNumber;
                 this.list.map((item)=>{
                     if(this.role >= 1 && this.role <= 3){
 
@@ -283,14 +301,17 @@ export default {
             this.condition = data['condition'] || '';
             this.FileStartTimes = data['FileStartTimes'] || '';
             this.FileEndTimes = data['FileEndTimes'] || '';
+            this.publishStartTime = data['publishStartTime'] || '';
+            this.publishEndTime = data['publishEndTime'] || '';
             this.gcStatus = data['gcStatus'] || '';
             this.waitComplete = data['waitComplete'] ? data['waitComplete'] : '';
             this.claimStartTime = data['claimStartTime'] || '';
             this.claimEndTime = data['claimEndTime'] || '';
             this.type = data['type'] || '';
+            this.GCOver = data['GCOver'] || '';
 
             for(let key in data){
-                if(key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'publishStartTime' || key == 'publishEndTime' || key == 'GCOver' || key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -300,6 +321,9 @@ export default {
 
             this.page = 1;
             
+            this.getJiapuList();
+        },
+        handleSearchImages(){
             this.getJiapuList();
         },
         changeParameters(data){
@@ -314,14 +338,17 @@ export default {
             this.NoIndex = data['NoIndex'];
             this.FileStartTimes = data['FileStartTimes'] || '';
             this.FileEndTimes = data['FileEndTimes'] || '';
+            this.publishStartTime = data['publishStartTime'] || '';
+            this.publishEndTime = data['publishEndTime'] || '';
             this.gcStatus = data['gcStatus'] || '';
             this.waitComplete = data['waitComplete'] ? data['waitComplete'] : '';
             this.claimStartTime = data['claimStartTime'] || '';
             this.claimEndTime = data['claimEndTime'] || '';
             this.type = data['type'] || '';
+            this.GCOver = data['GCOver'] || '';
 
             for(let key in data){
-                if(key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'publishStartTime' || key == 'publishEndTime' || key == 'GCOver' || key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -521,6 +548,15 @@ export default {
 }
 .marginLeft20{
     margin-left: 20px;
+}
+
+.foot-wrap{
+    width: calc(100% - 40px);
+    padding:  0 20px;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 </style>
 

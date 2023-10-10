@@ -4,7 +4,7 @@
         <div class="content">
             <NavModal :title="'数据字段定义'">
                 <div class="toolbar">
-                    <vxe-button v-if="role >= 1 && role <= 2 && stationKey == '1379194999'" icon="fa fa-plus" content="新增" @click="insertEvent(-1)"></vxe-button>
+                    <vxe-button v-if="['9071165200'].indexOf(roleKey) > -1" icon="fa fa-plus" content="新增" @click="insertEvent(-1)"></vxe-button>
                     <vxe-button icon="fa fa-save" content="刷新" @click="refresh"></vxe-button>
                 </div>
             </NavModal>
@@ -91,7 +91,7 @@ export default {
     },
     methods:{
         activeCellMethod({row,column}){
-            if(((this.role < 1 || this.role > 2) && this.stationKey == '1379194999') || this.stationKey != '1379194999'){// || row.reserved == 1
+            if(['9071165200'].indexOf(this.roleKey) === -1){
                 return false;
             }
             return true;
@@ -201,6 +201,7 @@ export default {
             userId: state => state.nav.userId,
             role: state => state.nav.role,
             stationKey: state => state.nav.stationKey,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{

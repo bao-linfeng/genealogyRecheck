@@ -59,6 +59,7 @@
                     <vxe-table-column field="toBeDiscussedNumber" title="待议数"></vxe-table-column>
                     <vxe-table-column field="duplicateNumber" title="重复数"></vxe-table-column>
                     <vxe-table-column field="invalidNumber" title="无效数"></vxe-table-column>
+                    <vxe-table-column field="cancelNumber" title="作废数"></vxe-table-column>
                     <vxe-table-column field="libO" title="机构"></vxe-table-column>
                     <vxe-table-column field="createTime" title="导入时间" :formatter="['formatDate', '']" sort-by="createTime" sortable></vxe-table-column>
                     <vxe-table-column title="操作" width="300" :cell-render="{name:'AdaiActionButton',attr:{data:actionData},events:{'look':navTo,'download':downloadExcel, 'downloadNaturalExcel':downloadNaturalExcel, 'upload': uploadImage,'linkImage':linkImage}}"></vxe-table-column>

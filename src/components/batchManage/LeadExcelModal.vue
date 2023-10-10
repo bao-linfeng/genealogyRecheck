@@ -8,6 +8,7 @@
             </div>
             <div class="lead-excel-button">
                 <el-upload
+                    v-if="show"
                     :action="baseURL+'upload'"
                     :limit="1"
                     :accept="'.xlsx'"
@@ -44,6 +45,7 @@ export default {
             templateKey:'',
             aoa: '',
             APIURL: 'https://genealogydatatest.qingtime.cn/',
+            show: true,
         };
     },
     mounted:function(){
@@ -154,7 +156,11 @@ export default {
                 // });
                 this.close(true, data.errorArr || '');
             }else if(data.status == 301){
+                this.show = false;
                 this.$alert('<div>当前上传的新谱，存在规范化问题，请下载如下链接<a href="'+(this.APIURL+data.result)+'">'+data.result+'</a>查看详情，在excel最后一列是规范化的提示！</div>', '新谱查重规范化', {dangerouslyUseHTMLString: true});
+                this.$nextTick(() => {
+                    this.show = true;
+                });
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }

@@ -35,8 +35,17 @@
                         :value="item.value">
                     </el-option>
                 </el-select>
+                <el-select class="width100" v-model="isBill" placeholder="发票状态" size="mini">
+                    <el-option
+                        v-for="item in isBillList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
                 
                 <el-button type="primary" size="mini" @click="getDataList">检索</el-button>
+                <el-button v-if="roleType == 'host' && ['9071165200'].indexOf(roleKey) > -1" type="primary" size="mini" @click="billDuplicateGCVolumeDownload">下载</el-button>
                 <el-checkbox class="marginL10" size="mini" v-model="isShowSearch">展开</el-checkbox>
             </div>
             <div class="search-wrap" v-show="isShowSearch">
@@ -60,52 +69,62 @@
                     end-placeholder="审核结束时间"
                     size="mini"
                 />
+                <!-- <el-checkbox v-if="roleType == 'host' && ['9071165200'].indexOf(roleKey) > -1" class="marginL10" size="mini" v-model="isDuplicateBill">已开发票且标记重复</el-checkbox> -->
             </div>
             <div class="vex-table-box" :class="{active: isShowSearch}">
-                <vxe-table
-                    border
-                    resizable
-                    stripe
-                    keep-source
-                    highlight-hover-row
-                    :loading="loading"
-                    ref="xTable"
-                    :height="h"
-                    :align="'center'"
+                <el-table
+                    ref="table"
                     :data="tableData"
-                    :row-class-name="rowClassName"
+                    :height="h"
                     :cell-class-name="cellClassName"
-                    @checkbox-all="selectAllEvent"
-                    @checkbox-change="selectChangeEvent"
-                    :sort-config="{trigger: 'cell', orders: ['desc', 'asc', 'auto'], remote: true}"
                     @sort-change="sortChangeEvent"
-                    >
-                    <vxe-table-column field="gcKey" title="谱ID" width="100" fixed="left"></vxe-table-column>
-                    <vxe-table-column field="genealogyName" title="谱名" width="150" fixed="left"></vxe-table-column>
-                    <vxe-table-column field="surname" title="姓氏" width="50" fixed="left"></vxe-table-column>
-                    <vxe-table-column field="publish" title="出版年" width="100" sort-by="publish" sortable fixed="left"></vxe-table-column>
-                    <vxe-table-column field="hall" title="堂号" width="100" fixed="left"></vxe-table-column>
-                    <vxe-table-column field="firstAncestor" title="一世祖" width="100"></vxe-table-column>
-                    <vxe-table-column field="migrationAncestor" title="始迁祖"  width="100"></vxe-table-column>
-                    <vxe-table-column field="LocalityModern" title="谱籍地(原谱)" width="120"></vxe-table-column>
-                    <vxe-table-column field="place" title="谱籍地(现代)" width="120"></vxe-table-column>
-                    <vxe-table-column field="volume" title="卷(册)说明" width="100"></vxe-table-column>
-                    <vxe-table-column field="lostVolume" title="缺卷说明" width="100"></vxe-table-column>
-                    <vxe-table-column field="hasVolume" title="可拍册数" width="100"></vxe-table-column>
-                    <vxe-table-column field="volumeNumber" title="实拍册数" width="100"></vxe-table-column>
-                    <vxe-table-column field="authors" title="作者" width="100"></vxe-table-column>
-                    <vxe-table-column field="authorJob" title="作者职务" width="100"></vxe-table-column>
-                    <vxe-table-column field="Dupbookid" title="重复谱ID" width="100"></vxe-table-column>
-                    <vxe-table-column field="memo" title="备注" width="150" show-overflow="title"></vxe-table-column>
-                    <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
-
-                    <vxe-table-column field="hitTargetNumber" title="命中条数" width="100"></vxe-table-column>
-                    <vxe-table-column field="updaterName" title="操作人" width="100"></vxe-table-column>
-                    <vxe-table-column field="applyTimeO" title="操作时间" width="100" sort-by="applyTime" sortable></vxe-table-column>
-                    <vxe-table-column field="verifyUserName" title="审核人" width="100"></vxe-table-column>
-                    <vxe-table-column field="verifyTimeO" title="审核时间" width="100" sort-by="verifyTime" sortable></vxe-table-column>
-                    <vxe-table-column title="操作" fixed="right" width="200" :cell-render="{name:'AdaiActionButton',attr:{data: actionData},events:{'look': lookEvent, 'lookBook': lookBook, 'editBook': editBook, 'lookLog': lookLog, 'toExamine': toExamine,'singleQuick': singleQuick}}"></vxe-table-column>
-                </vxe-table>
+                    border
+                    style="width: 100%">
+                    <el-table-column fixed="left" prop="gcKey" label="谱ID" width="100" align="center"></el-table-column>
+                    <el-table-column fixed="left" prop="genealogyName" label="谱名" width="150" align="center"></el-table-column>
+                    <el-table-column fixed="left" prop="surname" label="姓氏" width="50" align="center"></el-table-column>
+                    <el-table-column fixed="left" prop="publish" label="出版年" width="100" align="center"></el-table-column>
+                    <el-table-column fixed="left" prop="hall" label="堂号" min-width="100" align="center"></el-table-column>
+                    <el-table-column prop="firstAncestor" label="一世祖" width="100" align="center"></el-table-column>
+                    <el-table-column prop="migrationAncestor" label="始迁祖" width="100" align="center"></el-table-column>
+                    <el-table-column prop="LocalityModern" label="谱籍地(原谱)" width="120" align="center"></el-table-column>
+                    <el-table-column prop="place" label="谱籍地(现代)" width="120" align="center"></el-table-column>
+                    <el-table-column prop="volume" label="卷(册)说明" width="100" align="center"></el-table-column>
+                    <el-table-column prop="lostVolume" label="缺卷说明" width="100" align="center"></el-table-column>
+                    <el-table-column prop="hasVolume" label="可拍册数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="volumeNumber" label="实拍册数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="authors" label="作者" width="100" align="center"></el-table-column>
+                    <el-table-column prop="authorJob" label="作者职务" width="100" align="center"></el-table-column>
+                    <el-table-column prop="Dupbookid" label="重复谱ID" width="100" align="center"></el-table-column>
+                    <el-table-column prop="memo" label="备注" width="150" align="center"></el-table-column>
+                    <el-table-column prop="explain" label="说明" width="150" align="center"></el-table-column>
+                    <el-table-column prop="orgName" label="上传机构" width="100" align="center"></el-table-column>
+                    <el-table-column prop="hitTargetNumber" label="命中条数" width="100" align="center"></el-table-column>
+                    <el-table-column prop="updaterName" label="操作人" width="100" align="center"></el-table-column>
+                    <el-table-column prop="applyTime" label="操作时间" width="120" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="verifyUserName" label="审核人" width="100" align="center"></el-table-column>
+                    <el-table-column prop="verifyTime" label="审核时间" width="120" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="condition" label="状态" width="120" align="center"></el-table-column>
+                    <el-table-column prop="isBillO" label="已开发票" width="120" align="center"></el-table-column>
+                    <!-- <el-table-column prop="isDuplicateO" label="标记重复" width="120" align="center"></el-table-column> -->
+                    <el-table-column
+                        fixed="right"
+                        label="操作"
+                        width="200"
+                        align="center">
+                        <template slot-scope="scope">
+                            <button class="AdaiActionButton" v-if="scope.row.hitTargetNumber && roleType == 'host' && ((scope.row.verifyUserKey && ['9071165200'].indexOf(roleKey) > -1 && scope.row.isDuplicate == 1) || (!scope.row.verifyUserKey && '9071165200' != roleKey))" @click="toExamine(scope.row)">审核</button>
+                            <!-- <button class="AdaiActionButton" v-if="scope.row.hitTargetNumber && roleType == 'host' && ((scope.row.isBill && scope.row.condition != 'd' && ['9071165200'].indexOf(roleKey) > -1) || (!scope.row.isBill))" @click="editBook(scope.row)">编辑</button> -->
+                            <!-- <button v-if="scope.row.hitTargetNumber && roleType == 'host' && scope.row.isBill && '9071165200' != roleKey && !scope.row.isDuplicate" class="AdaiActionButton" @click="handleMark(scope.row)">标记重复谱</button> -->
+                            <button class="AdaiActionButton" v-if="scope.row.imageLink || scope.row.volumeNumber" @click="lookImage(scope.row)">影像</button>
+                            <button class="AdaiActionButton" @click="lookBook(scope.row)">详情</button>
+                            <button class="AdaiActionButton" @click="lookLog(scope.row)">记录</button>
+                            <button v-if="scope.row.isBill && scope.row.hitTargetNumber" class="AdaiActionButton" @click="lookInvoice(scope.row)">发票</button>
+                            <button v-if="scope.row.hitTargetNumber" class="AdaiActionButton" @click="lookEvent(scope.row)">查重结果</button>
+                            <button class="AdaiActionButton" @click="singleQuick(scope.row)">快捷查询</button>
+                        </template>
+                    </el-table-column>
+                </el-table>
                 <div class="page-foot">
                     <vxe-pager
                         :loading="loading"
@@ -121,13 +140,17 @@
         <!-- <Loading v-show="loading" /> -->
         <RecheckList v-if="showRecheck" :id="checkTaskKey" v-on:close="showRecheck = false" />
         <!-- 查看谱目 -->
-        <CatalogView v-if="showDetail" :read="isRead" :dataKey="dataKey" :vid="''" v-on:close="showDetail = false" />
+        <Drag class="drag1">
+            <CatalogView v-if="showDetail" :read="isRead" :dataKey="dataKey" :vid="''" v-on:close="showDetail = false" />
+        </Drag>
         <!-- 编目审核 -->
         <ExamineCatalog v-if="showExamine" :dataKey="dataKey" :checkTaskKey="checkTaskKey" v-on:close="closeExamine" />
         <!-- 记录 -->
         <LogModule v-if="isLog == 1" :gid="dataKey" v-on:close="closeLog" />
         <!-- 谱目编辑 -->
         <EditCatalog v-if="isLog == 2" :read="false" :dataKey="dataKey" :conditionEdit="true" :vid="''" v-on:close="closeLog" />
+        <!-- 卷册发票列表 -->
+        <InvoiceList v-if="isLog == 3" :id="dataKey" v-on:close="isLog = 0" />
     </div>
 </template>
 
@@ -135,29 +158,24 @@
 import api from "../../api.js";
 import ADS from "../../ADS.js";
 import Sidebar from "../../components/sidebar/Sidebar.vue";
+import InvoiceList from '../../components/singleRecheck/InvoiceList.vue';
 import RecheckList from '../../components/singleRecheck/RecheckList.vue';
 import CatalogView from '../../components/takeCamera/CatalogView.vue';
 import ExamineCatalog from '../../components/singleRecheck/ExamineCatalog.vue';
 import LogModule from '../../components/discussed/LogModule.vue';
 import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
+import Drag from '../../components/Drag.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "singleRecheck",
     components: {
-        Sidebar, RecheckList, CatalogView, ExamineCatalog, LogModule, EditCatalog
+        Sidebar, RecheckList, CatalogView, ExamineCatalog, LogModule, EditCatalog, InvoiceList,
+        Drag,
     },
     data: () => {
         return {
             loading: false,
             tableData: [],
-            actionData: [
-                // {'label': '审核', 'value': 'toExamine'},
-                // {'label': '编辑', 'value': 'editBook'},
-                {'label': '详情', 'value': 'lookBook'},
-                {'label': '记录', 'value': 'lookLog'},
-                {'label': '查重结果', 'value': 'look'}, 
-                {'label': '快捷查询', 'value': 'singleQuick'},
-            ],
             page: 1,
             pages: 0,
             limit: 20,
@@ -178,8 +196,9 @@ export default {
             hasVerify: '',
             hasVerifyList: [
                 {'label': '审核状态', 'value': ''},
-                {'label': '已审核', 'value': '1'},
                 {'label': '未审核', 'value': '0'},
+                {'label': '确认不重复', 'value': '1'},
+                {'label': '确认重复', 'value': '2'},
             ],
             time: '',
             startTime: '',
@@ -203,6 +222,13 @@ export default {
             isLog: 0,
             checkTaskKey: '',
             isShowSearch: false,
+            isDuplicateBill: false,
+            isBill: '',
+            isBillList: [
+                {'label': '发票状态', 'value': ''},
+                {'label': '未开发票', 'value': '0'},
+                {'label': '已开发票', 'value': '1'},
+            ],
         };
     },
     created:function(){
@@ -210,15 +236,11 @@ export default {
     },
     mounted:function(){
         if(this.roleType == 'host'){
-            this.actionData = [
-                {'label': '审核', 'value': 'toExamine'},
-                {'label': '编辑', 'value': 'editBook'},
-                {'label': '详情', 'value': 'lookBook'},
-                {'label': '记录', 'value': 'lookLog'},
-                {'label': '查重结果', 'value': 'look'}, 
-                {'label': '快捷查询', 'value': 'singleQuick'},
-            ];
-            this.hasVerify = '0';
+            if(['9071165200'].indexOf(this.roleKey) > -1){
+                this.hasVerify = '2';
+            }else{
+                this.hasVerify = '0';
+            }
         }else{
             this.orgKey = this.orgId;
         }
@@ -226,41 +248,91 @@ export default {
         this.getDataList();
     },
     methods:{
+        handleMark(row){
+            this.$confirm('是否要把 '+row.genealogyName+' 谱目设置为重复谱，会影响已开发票?', '提示', {
+                confirmButtonText: '是',
+                cancelButtonText: '否',
+                type: 'warning',
+                distinguishCancelAndClose: true
+            }).then(() => {
+                this.isDuplicateGC(row._key, 1);
+            }).catch((e) => {
+                console.log(e);
+                if(e === 'cancel'){
+                    this.isDuplicateGC(row._key, 0);
+                }
+            });
+        },
+        async isDuplicateGC(checkTaskKey, isDuplicate){// 是否重复谱确认 isDuplicate 重复 1 是 0 否 baolf 2023.09.05 13:55
+            let result = await api.postAxios('data/isDuplicateGC', {
+                'checkTaskKey': checkTaskKey,
+                'isDuplicate': isDuplicate,
+                'userKey': this.userId, 
+                'siteKey': this.stationKey,
+            });
+
+            if(result.status == 200){
+                this.getDataList();
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' });
+            }
+        },
+        async billDuplicateGCVolumeDownload(){
+            this.loading = true;
+            let data = await api.getAxios('data/billDuplicateGCVolumeDownload?orgKey='+this.orgKey);
+            this.loading = false;
+            if(data.status == 200){
+                ADS.downliadLink(data.result);
+            }else{
+                this.$XModal.message({ message: data.msg, status: 'warning' });
+            }
+        },
         closeExamine(f){
             this.showExamine = false;
             f ? this.getDataList() : null;
         },
-        toExamine({row}){
-            console.log(row);
-            if(row.verifyUserKey){
-                return ADS.message('该编目已经审核，不允许重复审核！');
+        lookInvoice(row){
+            this.dataKey = row.gcKey;
+            this.isLog = 3;
+        },
+        lookImage(row){
+            if(row.imageLink){
+                window.open(row.imageLink);
+            }else{
+                window.open('/'+this.pathname+'/viewImage?gid='+row.gcKey+'&genealogyName='+row.genealogyName);
             }
+        },
+        toExamine(row){
+            console.log(row);
+            // if(row.verifyUserKey){
+            //     return ADS.message('该编目已经审核，不允许重复审核！');
+            // }
             this.showExamine = true;
             this.dataKey = row.gcKey;
             this.checkTaskKey = row._key;
         },
-        singleQuick({ row }){
+        singleQuick( row ){
             window.open('/'+this.pathname+'/singleQuickSearch?id='+row.gcKey, '_blank');
         },
-        lookBook({ row }){
+        lookBook( row ){
             this.dataKey = row.gcKey;
             this.showDetail = true;
         },
-        lookLog({row}){
+        lookLog(row){
             this.isLog = 1;
             this.dataKey = row.gcKey;
         },
-        editBook({row}){// 编辑谱目
+        editBook(row){// 编辑谱目
             this.dataKey = row.gcKey;
             this.isLog = 2;
         },
         closeLog(f){
             this.isLog = 0;
         },
-        sortChangeEvent({column, property, order, sortBy, sortList, $event}){
-            console.log(property, order, sortBy);
-            this.sortField = sortBy;
-            this.sortType = order;
+        sortChangeEvent({column, prop, order}){
+            console.log(column, prop, order);
+            this.sortField = prop || '';
+            this.sortType = order === 'ascending' ? 'asc' : order === 'descending' ? 'desc' : '';
             this.getDataList();
         },
         rowClassName ({ row, rowIndex }) {
@@ -297,12 +369,14 @@ export default {
         async getDataList(){
             this.loading = true;
             this.tableData = [];
-            let data = await api.getAxios('data/checkTaskList?gcKey='+this.gcKey+'&genealogyName='+this.genealogyName+'&sortField='+this.sortField+'&sortType='+this.sortType+'&hasVerify='+this.hasVerify+'&hitTarget='+this.hitTarget+'&applyStartTime='+this.startTime+'&applyEndTime='+(this.endTime ? this.endTime+24*60*60*1000 - 1 : this.endTime)+'&verifyStartTime='+this.verifyStartTime+'&verifyEndTime='+(this.verifyEndTime ? this.verifyEndTime+24*60*60*1000 - 1 : this.verifyEndTime)+'&orgKey='+this.orgKey+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('data/checkTaskList?gcKey='+this.gcKey+'&isBill='+this.isBill+'&genealogyName='+this.genealogyName+'&sortField='+this.sortField+'&sortType='+this.sortType+'&hasVerify='+this.hasVerify+'&hitTarget='+this.hitTarget+'&applyStartTime='+this.startTime+'&applyEndTime='+(this.endTime ? this.endTime+24*60*60*1000 - 1 : this.endTime)+'&verifyStartTime='+this.verifyStartTime+'&verifyEndTime='+(this.verifyEndTime ? this.verifyEndTime+24*60*60*1000 - 1 : this.verifyEndTime)+'&orgKey='+this.orgKey+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 this.tableData = data.result.list.map((ele) => {
-                    ele.applyTimeO = ele.applyTime ? ADS.getLocalTime(ele.applyTime) : '';
-                    ele.verifyTimeO = ele.verifyTime ? ADS.getLocalTime(ele.verifyTime) : '';
+                    ele.applyTime = ele.applyTime ? ADS.getLocalTime(ele.applyTime) : '';
+                    ele.verifyTime = ele.verifyTime ? ADS.getLocalTime(ele.verifyTime) : '';
+                    ele.isBillO = ele.isBill ? '是' : '否';
+                    ele.isDuplicateO = ele.isDuplicate ? '是' : '否';
 
                     return ele;
                 });
@@ -316,7 +390,7 @@ export default {
             this.page = currentPage;
             this.getDataList();
         },
-        lookEvent({row}){
+        lookEvent(row){
             this.checkTaskKey = row._key;
             this.showRecheck = true;
         },
@@ -333,6 +407,7 @@ export default {
             orgId: state => state.nav.orgId,
             isResize: state => state.nav.isResize,
             roleType: state => state.nav.roleType,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{
@@ -437,6 +512,9 @@ export default {
 }
 .marginL10{
     margin-left: 10px;
+}
+.marginB5{
+    margin-bottom: 5px;
 }
 .w230{
     width: 230px !important;

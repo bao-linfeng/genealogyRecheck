@@ -13,14 +13,14 @@
                         :value="item.value">
                     </el-option>
                 </el-select>
-                <el-select v-if="(imageList.length >= precentLimit) && (role >= 1 && role <= 3)" class="width80 marginL10" v-model="precent" placeholder="请选择审核影像比例" size="small">
+                <!-- <el-select v-if="(imageList.length >= precentLimit) && (role >= 1 && role <= 3)" class="width80 marginL10" v-model="precent" placeholder="请选择审核影像比例" size="small">
                     <el-option
                         v-for="item in precentList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
                     </el-option>
-                </el-select>
+                </el-select> -->
                 <el-select class="width80 marginL10" v-model="imageHref" placeholder="域名提速" size="small">
                     <el-option
                         v-for="item in speedList"
@@ -29,18 +29,23 @@
                         :value="item.value">
                     </el-option>
                 </el-select>
+                <el-button class="marginL10" v-if="(!detail.checkClaimUserKey && ((catalogDetail.checkClaimUserKey && catalogDetail.checkClaimUserKey == userId) || !catalogDetail.checkClaimUserKey) && (takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(this.roleKey) > -1) || (catalogDetail.checkClaimUserKey && ['9071165200'].indexOf(this.roleKey) > -1)" type="primary" size="medium" @click="handleReviewClaim">{{catalogDetail.checkClaimUserKey ? '放弃' : '认领'}}</el-button>
             </div>
             <h3 class="title" @click="isShow = 8">{{takeStatusO[takeStatus]}} ({{scale*100}}%)</h3>
             <div class="head-right">
+                <!-- <div v-if="(['24690171211', '657446338'].indexOf(userId) > -1 && (takeStatus == 5 || takeStatus == 13 || takeStatus == 14))" class="task-verify" @click="handleCatalogCheck">
+                    <img src="../../assets/shoot/pass.svg" alt="">
+                    <span class="span">整谱打回</span>
+                </div> -->
                 <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && ['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1)" class="task-verify" @click="isShow = 11">
                     <img src="../../assets/shoot/delete.svg" alt="">
                     <span class="span">影像恢复</span>
                 </div>
-                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1 || ['1526398266'].indexOf(userId) > -1))" class="task-verify" @click="isShow = 10">
+                <div v-if="((['9138241994'].indexOf(roleKey) > -1 && takeStatus == 6) || (takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 6 || takeStatus == 5 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1))" class="task-verify" @click="isShow = 10">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">影像移动</span>
                 </div>
-                <div v-if="((takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268'].indexOf(roleKey) > -1) || ['24690171211', '1546838797', '1526398266'].indexOf(userId) > -1)" class="task-verify" @click="isShow = 9">
+                <div v-if="((['9138241994'].indexOf(roleKey) > -1 && takeStatus == 6) || (takeStatus == 6 || takeStatus == 12) && orgAdmin == 'admin') || (roleType == 'host' && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && (['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1))" class="task-verify" @click="isShow = 9">
                     <img src="../../assets/shoot/leaveMsg.svg" alt="">
                     <span class="span">补拍影像</span>
                 </div>
@@ -65,7 +70,7 @@
                     <span class="span">申诉{{(role == 1 || role == 2 || role == 3) ? '回复' : ''}}</span>
                 </div> -->
                 <!-- ((orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14))) && !isRead -->
-                <div v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14) || (['9071165268', '9071165200'].indexOf(roleKey) > -1 && (takeStatus == 6 || takeStatus == 7 || takeStatus == 16)) || (['24690171211'].indexOf(userId) > -1 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14 || takeStatus == 16))" class="task-verify" @click="handleImagesCheck">
+                <div v-if="(((['9071165200'].indexOf(roleKey) > -1 && detail.isBill) || (['9071165200', '9071165268'].indexOf(roleKey) > -1 && !detail.isBill)) && takeStatus == 7) || (['9138241994'].indexOf(roleKey) > -1 && takeStatus == 6) || (orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14) || (['9071165268', '9071165200'].indexOf(roleKey) > -1 && (takeStatus == 6 || takeStatus == 16)) || (['24690171211'].indexOf(userId) > -1 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14 || takeStatus == 16))" class="task-verify" @click="handleImagesCheck">
                     <img src="../../assets/shoot/pass.svg" alt="">
                     <span class="span">影像审核</span>
                 </div>
@@ -77,33 +82,59 @@
                 <img class="large-image" :class="{active: isNatural}" :style="{transform: 'translate('+x+'px, '+y+'px) rotate('+rotate+'deg) scale('+scale+')'}" @load="loadImage" :src="imageURL+(imageURL.indexOf('gif') > -1 ? '' : '?v='+this.now)" alt="" />
                 <div class="img-hand" @mousedown="dragStart" @mousemove.prevent="mouseMove" @wheel.passive="handleWheel"></div>
             </div>
-            <div class="pass-wrap" v-show="isShowSideBar">
-                <div class="content-top style1">
+            <!-- pass-wrap  -->
+            <div class="audit-wrap" v-show="isShowSideBar">
+                <!-- <div class="content-top style1">
                     <div class="pass-box" v-if="lastReason.length">
                         <h3>审核结果:</h3>
-                        <!-- v-show="item.type !=2" -->
                         <div class="repulseRecord-box" v-for="(item,index) in lastReason" :key="index">
                             <span>{{item.userName || item.mobile}} {{item.createTimeO}}</span>
-                            <p :class="{active: imageIndex == item2.index}" v-for="(item2,index2) in item.returePageArray" :key="index2" @click="changeImage(item2.index)">{{item.type == 2 ? '第'+(item2.index+1)+'拍' : ''}} {{item2.returnReason}} {{item.action || ''}}</p>
+                            <p :class="{active: imageIndex == item2.index, FS: [1,2,3].indexOf(item.role) > -1}" v-for="(item2,index2) in item.returePageArray" :key="index2" >{{item.type == 2 ? '第'+(item2.index+1)+'拍' : ''}} {{item2.returnReason}} {{item.action || ''}}</p>
                         </div>
                     </div>
                     <div class="pass-box" v-if="singlePageReturnList.length || resionList.length">
                         <h3>单页标记:</h3>
-                        <p :class="{active: imageIndex == item.index}" v-for="(item, i) in singlePageReturnList" :key="i" @click="changeImage(item.index)">第{{item.index+1}}拍 {{item.returnReason ? item.returnReason.join() : ''}} {{item.userName}} {{item.updateTimeO}}</p>
+                        <p :class="{active: imageIndex == item.index}" v-for="(item, i) in singlePageReturnList" :key="i" @click="changeImage(item.index)">第{{item.index+1}}拍：{{item.returnReason ? item.returnReason.join() : ''}}；{{item.explain ? item.explain+'；' : ''}}{{item.userName}}-{{item.updateTimeO}}</p>
                         <p :class="{active: imageIndex == item.i}" v-for="(item, i) in resionList" :key="i" @click="changeImage(item.i)">第{{item.i+1}}拍 {{item.returnReason}} {{item.returnUserName}} {{item.returnPageTimeO}}</p>
                     </div>
                     <div v-if="leaveMsgList.length" class="leave-msg-list">
                         <h3 class="title">拍机备注</h3>
                         <p class="leave-msg-p" :class="{active: imageIndex === item.i}" @click="changeImage(item.i)" v-for="(item, index) in leaveMsgList" :key="index">第{{item.i+1}}拍 {{item.leaveMsg}}</p>
                     </div>
-                    <div v-if="complainVolumeList.length" class="leave-msg-list">
-                        <h3 class="title">申诉{{orgAdmin == 'admin' ? '回复' : ''}}列表</h3>
-                        <p class="leave-msg-p"  v-for="(item, index) in complainVolumeList" :key="index">{{item.log}} {{item.userName}} {{item.timeO}}</p>
-                    </div>
-                </div>
-                <div class="content-bottom style1">
+                </div> -->
+                <!-- <div v-if="complainVolumeList.length" class="leave-msg-list">
+                    <h3 class="title">申诉{{orgAdmin == 'admin' ? '回复' : ''}}列表</h3>
+                    <p class="leave-msg-p"  v-for="(item, index) in complainVolumeList" :key="index">{{item.log}} {{item.userName}} {{item.timeO}}</p>
+                </div> -->
+                <!-- <div class="content-bottom style1">
                     <span>卷册备注：{{detail.memo}}</span>
-                </div>
+                </div> -->
+                <h3 class="title">审核结果</h3>
+                <ul class="audit-list-wrap style1">
+                    <li class="list-wrap" :class="{active: item.role >= 1 && item.role <= 3}" v-for="(item, index) in checkResultList" :key="index">
+                        <p class="creator-info">{{item.role >= 1 && item.role <= 3 ? 'FS' : '供应商'}}-{{item.userName}} {{item.createTimeO}}</p>
+                        <span class="review-process">{{item.takeStatus ? takeStatusO[item.takeStatus] : item.stage}}-{{item.targetStatus ? takeStatusO[item.targetStatus] : item.action}}</span>
+                        <section class="explain-wrap" :class="{active: item.role >= 1 && item.role <= 3}">
+                            <p class="explain">说明：{{item.returePageArray && item.returePageArray[0].returnReason}}</p>
+                            <div class="camera-remarks marginT10" v-if="item.singlePages && item.singlePages.length">
+                                <i class="single-mark" :class="{active: imageIndex == item2.index}" v-for="(item2, index2) in item.singlePages" :key="'single'+index2" @click="changeSingle(item2)">第{{item2.index+1}}拍：{{item2.returnReason.join()}}；{{item2.explain ? item2.explain+'；' : ''}}{{item2.userName}}-{{item2.updateTimeO}}</i>
+                            </div>
+                            <div class="camera-remarks marginT10" v-if="(item.role < 1 || item.role > 3) && item.PaijiMemo && item.PaijiMemo.length">
+                                <h3 class="title">拍机备注</h3>
+                                <i class="single-mark" :class="{active: imageIndex == item2.index}" v-for="(item2, index2) in item.PaijiMemo" :key="'mark'+index2">第{{item2.index+1}}拍：{{item2.leaveMsg}}</i>
+                            </div>
+                        </section>
+                    </li>
+                    <!-- 其他单页标记 -->
+                    <div class="camera-remarks marginT10" v-if="otherPages.length">
+                        <i class="single-mark" :class="{active: imageIndex == item2.index}" v-for="(item2, index2) in otherPages" :key="'osingle'+index2" @click="changeSingle(item2)">第{{item2.index+1}}拍：{{item2.returnReason.join()}}；{{item2.explain ? item2.explain+'；' : ''}}{{item2.userName}}-{{item2.updateTimeO}}</i>
+                    </div>
+                    <!-- 其他拍机备注 -->
+                    <div class="camera-remarks marginT10" v-if="otherPaijiMemo.length">
+                        <h3 class="title">拍机备注</h3>
+                        <i class="single-mark" :class="{active: imageIndex == item2.index}" v-for="(item2, index2) in otherPaijiMemo" :key="'omark'+index2">第{{item2.index+1}}拍：{{item2.leaveMsg}}</i>
+                    </div>
+                </ul>
                 <img class="s-fold" src="../../assets/shoot/s-fold.svg" @click="isShowSideBar = false" alt="">
             </div>
             <!-- 工具栏 -->
@@ -121,9 +152,9 @@
                     <img class="icon" @click="handleZoom(false)" title="缩小" src="../../assets/shoot/zoomIn.svg" alt="">
                     <img class="icon" @click="handleZoom()" title="放大" src="../../assets/shoot/zoomOut.svg" alt="">
                     <img class="icon" @click="handleReset" title="重置" src="../../assets/shoot/reset.svg" alt="">
-                    <img v-if="((orgAdmin == 'admin' && takeStatus == 12) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14))) && !isRead" class="icon" @click="isPassModule = !isPassModule" title="标记原因" src="../../assets/shoot/mark.svg" alt="">
+                    <img v-if="((orgAdmin == 'admin' && takeStatus == 12) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14))" class="icon" @click="isPassModule = !isPassModule" title="标记原因" src="../../assets/shoot/mark.svg" alt="">
                     <!-- 标记打回 -->
-                    <PassModule v-if="isPassModule" :volumeKey="vid" :imageKey="pageKey" :submitCount="this.detail.submitCount" :imageDetail="imageDetail" :passReasonA="passReason" v-on:set-reason="patchPageReturn" v-on:save="handleSinglePageReturnList" />
+                    <PassModule v-if="isPassModule" :singleKey="singleKey" :volumeKey="vid" :imageKey="pageKey" :submitCount="this.detail.submitCount" :imageDetail="imageDetail" v-on:set-reason="patchPageReturn" v-on:save="handleSinglePageReturnList" />
                 </div>
             </div>
             <i class="el-icon-arrow-left prev" @click="changeImage(imageIndex - 1)"></i>
@@ -137,7 +168,7 @@
                     <i>{{index+1}}{{(precent == 1 ? '' : '('+(item.index+1)+')')}}</i>
                 </div>
                 <img class="attachedSheet" v-if="item.attachedSheet == 1" title="附页" src="../../assets/shoot/attachedSheetA.svg" alt="">
-                <i class="check" v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || ((takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && roleType == 'host' && (['9071165200', '9071165268'].indexOf(roleKey) > -1 || ['24690171211'].indexOf(userId) > -1))" :class="{active: checkImageList.indexOf(item._key) > -1}" @click.stop="checkImage(item._key)"></i>
+                <i class="check" v-if="(orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || ((takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14) && roleType == 'host' && (['9071165200', '9071165268', '9071165288'].indexOf(roleKey) > -1))" :class="{active: checkImageList.indexOf(item._key) > -1}" @click.stop="checkImage(item._key)"></i>
             </div>
         </div>
         <!-- 放大镜 -->
@@ -170,6 +201,8 @@
         <ImageMoveModule v-if="isShow == 10" :gcKey="gid" :volumeKey="vid" :page="page" v-on:close="isShow = 0" v-on:save="handleImageMoveSave" />
         <!-- 删除影像恢复 -->
         <DeleteImageRestoreModule v-if="isShow == 11" :gcKey="gid" :volumeKey="vid" :imageHref="imageHref" v-on:close="isShow = 0" v-on:restore="restoreImage" />
+        <!-- 谱目打回（初审、复审、待议） -->
+        <CatalogCheck v-if="isShow == 12" :gcKey="gid" :detail=detail v-on:close="isShow = 0" v-on:save="handleCatalogCheckSave" />
     </div>
 </template>
 
@@ -189,12 +222,13 @@ import ImageView from '../../components/takeCamera/ImageView.vue';
 import ReshootImages from '../../components/takeCamera/ReshootImages.vue';
 import ImageMoveModule from '../../components/takeCamera/ImageMoveModule.vue';
 import DeleteImageRestoreModule from '../../components/takeCamera/DeleteImageRestoreModule.vue';
+import CatalogCheck from '../../components/takeCamera/CatalogCheck.vue';
 
 export default {
     name: "cameraImage",
     components: {
         PassModule, VolumeReturnReason, ComplainVolumeModule, DORModule, EditVolume, CatalogView, ImagesCheck, EditCatalog, ImageView, ReshootImages, ImageMoveModule,
-        DeleteImageRestoreModule, 
+        DeleteImageRestoreModule, CatalogCheck, 
     },
     data: () => {
         return {
@@ -284,6 +318,11 @@ export default {
             device: '',
             imageDetail: {},
             singlePageReturnList: [],
+            catalogDetail: {},
+            checkResultList: [],
+            otherPages: [],
+            otherPaijiMemo: [],
+            singleKey: '',
         };
     },
     created:function(){
@@ -307,6 +346,7 @@ export default {
             document.addEventListener('keyup', this.enterKey);
         }
         enterKeyUp();
+        this.getGenealogyDetail();
     },
     beforeDestroy: function(){
         // 销毁enter事件
@@ -316,6 +356,42 @@ export default {
         enterKeyUpDestoryed();
     },
     methods:{
+        handleReviewClaim(){
+            // return;
+            if(this.catalogDetail.checkClaimUserKey){
+                this.$confirm('确定放弃审核该谱目的卷册吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.postCheckClaim();
+                }).catch(() => {});
+            }else{
+                this.postCheckClaim();
+            }
+        },
+        async postCheckClaim(){// FS认领谱目 审核
+            let result = await api.postAxios('v3/review/checkClaimGC', {'gcKey': this.gid, 'userKey': this.userId});
+            if(result.status == 200){
+                this.getGenealogyDetail();
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
+        async getGenealogyDetail(){
+            const result = await api.getAxios('catalog/detail?catalogKey='+this.gid);
+            if(result.status == 200){
+                this.catalogDetail = result.data;
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' });
+            }
+        },
+        handleCatalogCheck(){
+            this.isShow = 12;
+        },
+        handleCatalogCheckSave(){
+            this.isShow = 0;
+        },
         restoreImage(){
             this.isShow = 0;
             this.getImageList();
@@ -323,12 +399,14 @@ export default {
         handleImageMoveSave(data){
             this.isShow = 0;
             this.getImageList();
+            this.getCheckResultList();
             this.changeImage(data.fromPage <= data.toPage ? data.toPage - 1 : data.toPage);
         },
         closeReshoot(f){
             this.isShow = 0;
             if(f){
                 this.getImageList(this.dataKey);
+                this.getCheckResultList();
             }
         },
         handleSave(){
@@ -500,6 +578,34 @@ export default {
             });
         },
         handleImagesCheck(){
+            // || this.detail.takeStatus == 13
+            if(this.detail.takeStatus == 5){// 初审
+                if(['9071165339'].indexOf(this.roleKey) > -1){// 志工
+                    if(this.detail.checkClaimUserKey == this.userId){
+
+                    }else{
+                        return ADS.message('为避免重复审核，请志工先认领该卷册再进行影像审核操作!');
+                    }
+                }
+                if(['9071165200', '9071165268', '9071165288'].indexOf(this.roleKey) > -1){// 总管理员(管理员)、影像管理员、影像审核(职员A)
+                    if(this.catalogDetail.checkClaimUserKey == this.userId && !this.detail.checkClaimUserKey){
+
+                    }else{
+                        return ADS.message(this.detail.checkClaimUserKey ? '该卷册志工已认领，暂时无法审核' : '为避免重复审核，请先整谱认领再进行影像审核操作!');
+                    }
+                }
+            }
+
+            if(this.detail.takeStatus == 13 || this.detail.takeStatus == 14){
+                if(['9071165200', '9071165268', '9071165288'].indexOf(this.roleKey) > -1){// 总管理员(管理员)、影像管理员、影像审核(职员A)
+                    if(this.catalogDetail.checkClaimUserKey == this.userId){
+
+                    }else{
+                        return ADS.message('为避免重复审核，请先整谱认领再进行影像审核操作!');
+                    }
+                }
+            }
+            
             this.isShow = 5;
         },
         handleDeleteImages(){
@@ -695,7 +801,11 @@ export default {
                 }
             }
         },
-        changeImage(i){
+        changeSingle(e){
+            // this.singleKey = e._key;
+            this.changeImage(e.index);
+        },
+        async changeImage(i){
             if(i < 0){
                 return ADS.message('首一页了！');
             }
@@ -705,15 +815,24 @@ export default {
             this.imageIndex = i;
             this.page = i + 1;
             this.imageURL = this.imageHref + this.precentImages[this.imageIndex].name;
-            this.pageKey = this.precentImages[this.imageIndex]._key;
+            const imageKey = this.precentImages[this.imageIndex]._key;
+            this.pageKey = imageKey;
             this.passReason = [];
             if(this.precentImages[this.imageIndex].returnReason){
                 this.passReason = this.precentImages[this.imageIndex].returnReason.split(',');
             }
 
             this.imageDetail = this.precentImages[this.imageIndex];
+            console.log('---imageDetail---',this.imageDetail);
 
             this.handleScrollIntoView(this.imageIndex);
+
+            let result = await api.getAxios(`v3/review/imageToSinglePageReturnInfo?imageKey=${imageKey}&volumeKey=${this.vid}&index=${this.imageIndex}`);
+            if(result.status === 200){
+                this.singleKey = result.data;
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
         },
         Observer(){// 图片懒加载
             let timer = setTimeout(() => {
@@ -768,6 +887,7 @@ export default {
             if(result.status == 200){
                 this.lastReason = result.data.map((ele) => {
                     ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
+                    ele.explain = ele.returePageArray && ele.returePageArray[0].returnReason;
                     return ele;
                 });
             }else{
@@ -839,9 +959,10 @@ export default {
                 }
                 if(this.isFirst){
                     this.isFirst = false;
-                    this.getRepulseRecord();
+                    // this.getRepulseRecord();
                     this.getVolumeList(this.dataKey);
-                    this.getSinglePageReturnList();
+                    this.getCheckResultList();
+                    // this.getSinglePageReturnList();
                 }
             }else{
                 this.$XModal.message({message: result.msg, status: 'warning'})
@@ -853,7 +974,7 @@ export default {
         handleSinglePageReturnList(){
             this.isPassModule = false;
             ADS.message('设置成功', true);
-            this.getSinglePageReturnList();
+            this.getCheckResultList();
         },
         async getSinglePageReturnList(){// 单页打回列表
             // +this.detail.submitCount
@@ -862,6 +983,29 @@ export default {
                 this.singlePageReturnList = result.data.map((ele, i) => {
                     ele.i = i;
                     ele.updateTimeO = ele.updateTime ? ADS.getLocalTime(ele.updateTime, '/', 1) : '';
+                    return ele;
+                });
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
+        async getCheckResultList(){// 审核列表综合
+            let result = await api.getAxios('v3/review/checkResultList?volumeKey='+this.vid);
+            if(result.status == 200){
+                this.checkResultList = result.result.repulseRecord.map((ele, i) => {
+                    ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
+                    ele.singlePages.forEach((e) => {
+                        e.updateTimeO = e.updateTime ? ADS.getLocalTime(e.updateTime) : '';
+                    });
+
+                    return ele;
+                });
+                this.otherPages = result.result.otherPages.map((ele, i) => {
+                    ele.updateTimeO = ele.updateTime ? ADS.getLocalTime(ele.updateTime) : '';
+                    return ele;
+                });
+                this.otherPaijiMemo = result.result.otherPaijiMemo.map((ele, i) => {
+                    ele.updateTimeO = ele.updateTime ? ADS.getLocalTime(ele.updateTime) : '';
                     return ele;
                 });
             }else{
@@ -901,12 +1045,13 @@ export default {
             this.precentImages = [];
             this.page = 1;
             this.isFirst = true;
+            this.isShow = 0;
             // this.$router.push('/'+this.pathname+'/cameraImage?vid='+nv);
 
             this.handleReset();// 重置
             this.getImageList();// 影像列表
             this.getVolumeDetail();// 卷册详情
-            this.getComplainVolume();// 申诉
+            // this.getComplainVolume();// 申诉
         },
         'precent': function(nv, ov){
             this.loading = true;
@@ -948,6 +1093,12 @@ export default {
                 this.isShowSideBar= true;
             }
         },
+        'pageKey':async(newVal)=>{
+            console.log('---imageKey---',newVal);
+        },
+        'singleKey':(newVal)=>{
+            console.log('---singleKey---',newVal);
+        }
     },
 };
 </script>
@@ -1085,8 +1236,11 @@ export default {
             .repulseRecord-box{
                 margin-bottom: 10px;
                 span{
-                    opacity: 0.3;
+                    opacity: 0.8;
                     font-size: 12px;
+                }
+                .FS{
+                    color: #85b83e;
                 }
             }
             .content-top{
@@ -1285,6 +1439,103 @@ export default {
     width: 80px;
     height: 80px;
     transform: translate(-50%, -50%);
+}
+.marginT10{
+    margin-top: 10px;
+}
+.audit-wrap{
+    position: absolute;
+    top: 1px;
+    bottom: 0;
+    width: 300px;
+    left: 0;
+    background: #404040;
+    text-align: left;
+    padding: 10px 0 0 5px;
+    .title{
+        // font-family: 'kaiti';
+        font-size: 16px;
+    }
+    .audit-list-wrap{
+        position: relative;
+        height: calc(100% - 35px);
+        overflow-y: auto;
+        .list-wrap{
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+            padding-top: 10px;
+            &::before{
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background: #6699CC;
+                opacity: 0.2;
+            }
+            &.active::before{
+                background: #ddd;
+            }
+            .creator-info{
+                margin-bottom: 5px;
+                text-align: center;
+                font-size: 12px;
+            }
+            .review-process{
+                margin-bottom: 5px;
+                text-align: center;
+                display: block;
+                font-size: 12px;
+            }
+            .explain-wrap{
+                position: relative;
+                padding: 5px;
+                margin: 0 5px 0 0;
+                // border-radius: 3px;
+                // overflow: hidden;
+                // &::before{
+                //     content: '';
+                //     position: absolute;
+                //     top: 0;
+                //     right: 0;
+                //     bottom: 0;
+                //     left: 0;
+                //     background: #6699CC;
+                //     opacity: 0.3;
+                // }
+                // &.active::before{
+                //     background: #ddd;
+                // }
+                .explain{
+                    position: relative;
+                    z-index: 10;
+                }
+                .camera-remarks{
+                    position: relative;
+                    z-index: 10;
+                    .single-mark{
+                        font-style: normal;
+                        display: block;
+                        cursor: pointer;
+                        &.active{
+                            color: #85b83e;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+.single-mark{
+    font-style: normal;
+    display: block;
+    cursor: pointer;
+    &.active{
+        color: #358acd;
+    }
 }
 </style>
 

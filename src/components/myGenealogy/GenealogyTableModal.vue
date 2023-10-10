@@ -54,7 +54,9 @@
         <!-- 记录 -->
         <LogModule v-if="isLog == 1" :gid="gid" v-on:close="closeLog" />
         <!-- 谱目编辑 -->
-        <EditCatalog v-if="(isLog == 2)" :read="isRead" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeLog" />
+        <Drag class="drag1">
+            <EditCatalog class="edit-jiapu" v-if="(isLog == 2)" :read="isRead" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeLog" />
+        </Drag>
         <!-- 查看谱目 -->
         <CatalogView v-if="isLog == 3" :read="isRead" :dataKey="gid" :vid="''" v-on:close="closeLog" v-on:save="handleSave" />
         <!-- 谱目完结 -->
@@ -67,8 +69,10 @@ import api from "../../api.js";
 import LogModule from '../../components/discussed/LogModule.vue';
 import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
 import CatalogView from '../../components/takeCamera/CatalogView.vue';
+import Drag from '../Drag.vue';
 import CatalogFinish from './CatalogFinish.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
+import ADS from "../../ADS";
 export default {
     name: "genealogyTableModal",
     props:{
@@ -78,12 +82,9 @@ export default {
         total:{
             type: Number,
         },
-        fieldFilters:{
-            type: Array
-        },
     },
     components: {
-        LogModule, EditCatalog, CatalogView, CatalogFinish, 
+        LogModule, EditCatalog, CatalogView, CatalogFinish, Drag, 
     },
     data: () => {
         return {
@@ -100,7 +101,6 @@ export default {
             isEdit: false,
             pumu:'',
             isShow: true,
-            fieldFilterList: [],
             field_main: [],
             field_branch: [],
             isLog: 0,
@@ -136,6 +136,8 @@ export default {
             {'fieldMeans': '作者职务', 'fieldName': 'authorJob'},
             {'fieldMeans': '版本类型', 'fieldName': 'version'},
             {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid'},
+            {'fieldMeans': '谱籍地(现代)2', 'fieldName': 'place2'},
+            {'fieldMeans': '谱籍地(现代)3', 'fieldName': 'place3'},
         ];
     },
     mounted:function(){
@@ -145,9 +147,10 @@ export default {
                 this.w = 240;
                 this.actionButton = [
                     {'label': '详情', 'value': 'lookBook'}, 
+                    {'label': '编辑', 'value': 'editBook'},
                     {'label': '记录', 'value': 'lookLog'},
                     {'label': '影像', 'value': 'readBook'},
-                    {'label': '完结', 'value': 'catalogPass'},
+                    // {'label': '完结', 'value': 'catalogPass'},
                 ];
             }else{
                 this.w = 180;
@@ -171,7 +174,6 @@ export default {
             }
         }
         
-        this.initData();
     },
     methods:{
         toggleFull(){
@@ -217,17 +219,6 @@ export default {
             this.isLog = 1;
             this.gid = row._key;
         },
-        initData(){
-            let fieldFilterList = [], fieldFilter = ['genealogyName', 'publish', 'surname', 'place'];
-            this.fieldFilters.forEach((ele) => {
-                if(fieldFilter.indexOf(ele.value) > -1){
-
-                }else{
-                    fieldFilterList.push(ele);
-                }
-            });
-            this.fieldFilterList = fieldFilterList;
-        },
         closeEdit(flag){
             this.isEdit = false;
             this.isShow = true;
@@ -240,12 +231,16 @@ export default {
             this.$emit('checkbox-change',records);
         },
         editBook({row}){// 编辑谱目
-            this.gid = row._key;
-            this.pumu = row;
-            this.isEdit = true;
-            this.isShow = false;
-            this.isLog = 2;
-            this.isRead = false;
+            if((this.role >= 1 && this.role <= 3) || (this.orgAdmin == 'admin' && row.claimOrgKey == this.orgId)){
+                this.gid = row._key;
+                this.pumu = row;
+                this.isEdit = true;
+                this.isShow = false;
+                this.isLog = 2;
+                this.isRead = false;
+            }else{
+                ADS.message('您无权编辑!');
+            }
         },
         lookBook({row}){// 查看谱目
             this.gid = row._key;
@@ -296,8 +291,9 @@ export default {
         readBook({row}){// 阅读影像
             if(row.imageLink){
                 window.open(row.imageLink);
-            }else if(row.hasImage){
-                window.open('/'+this.pathname+'/view?gid='+row._key+'&volume=1&page=1');
+            }else if(row.hasImageNew){
+                window.open('/'+this.pathname+'/viewImage?gid='+row._key+'&genealogyName='+row.genealogyName);
+                // window.open('/'+this.pathname+'/view?gid='+row._key+'&volume=1&page=1');
             }else{
                 this.$XModal.message({ message: '暂时无法查看影像', status: 'warning' });
             }
@@ -379,6 +375,13 @@ export default {
 .row-blue{
     color: #358acd;
     font-weight: bold;
+}
+.edit-jiapu{
+    top: 10px;
+    bottom: 10px;
+}
+.drag1{
+    height: 100% !important;
 }
 </style>
 

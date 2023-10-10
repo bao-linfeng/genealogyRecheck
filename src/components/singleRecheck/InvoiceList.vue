@@ -1,8 +1,8 @@
 <template>
-    <DragModule class="w1200">
-        <div class="log-box">
+    <DragModule class="w800">
+        <div class="invoice-box">
             <div class="head-box">
-                <h3 class="title">命中规则谱目列表</h3>
+                <h3 class="title">已开发票卷册列表</h3>
                 <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
             </div>
             <div class="content-box" @mousedown.stop="">
@@ -11,21 +11,11 @@
                     :height="h"
                     border
                     style="width: 100%">
-                    <el-table-column prop="rules" label="命中规则" align="center"></el-table-column>
-                    <el-table-column prop="repeatOSBN" label="谱ID" width="100" align="center"></el-table-column>
-                    <el-table-column prop="genealogyName" label="谱名" align="center"></el-table-column>
-                    <el-table-column prop="surname" label="姓氏" width="100" align="center"></el-table-column>
-                    <el-table-column prop="publish" label="出版年" width="100" align="center"></el-table-column>
-                    <el-table-column prop="hall" label="堂号" width="100" align="center"></el-table-column>
-                    <el-table-column prop="authors" label="作者" width="100" align="center"></el-table-column>
-                    <el-table-column prop="place" label="谱籍地(现代)" align="center"></el-table-column>
-                    <el-table-column prop="volume" label="卷册说明" align="center"></el-table-column>
-                    <el-table-column prop="lostVolume" label="缺卷说明" align="center"></el-table-column>
-                    <el-table-column prop="bookId" label="谱书编号" width="100" align="center"></el-table-column>
-                    <el-table-column prop="condition" label="状态" width="100" align="center"></el-table-column>
-                    <el-table-column prop="orgName" label="上传机构" width="100" align="center"></el-table-column>
-                    
-                    <el-table-column
+                    <el-table-column prop="volumeKey" label="卷ID" align="center"></el-table-column>
+                    <el-table-column prop="volumeNumber" label="卷名" align="center"></el-table-column>
+                    <el-table-column prop="billKey" label="发票ID" align="center"></el-table-column>
+                    <el-table-column prop="billNo" label="发票编号" align="center"></el-table-column>
+                    <!-- <el-table-column
                         fixed="right"
                         label="操作"
                         width="120"
@@ -34,20 +24,10 @@
                             <el-button @click="lookBook(scope.row)" type="text" size="small">详情</el-button>
                             <el-button v-if="scope.row.imageLink || scope.row.volumeNumber" @click="lookImage(scope.row)" type="text" size="small">影像</el-button>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                 </el-table>
-                <vxe-pager
-                    align="right"
-                    @page-change = "changePage"
-                    :current-page.sync="page"
-                    :page-size.sync="limit"
-                    :total="total"
-                    :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'FullJump', 'Total']">
-                </vxe-pager>
             </div>
         </div>
-        <!-- 查看谱目 -->
-        <CatalogView v-if="isShow == 2" :read="isRead" :dataKey="dataKey" :vid="''" v-on:close="isShow = 0" />
     </DragModule>
 </template>
 
@@ -56,21 +36,20 @@ import api from "../../api.js";
 import ADS from "../../ADS.js";
 import { mapState, mapActions, mapGetters } from "vuex";
 import DragModule from '../../components/dragModule/DragModule.vue';
-import CatalogView from '../../components/takeCamera/CatalogView.vue';
 export default {
-    name: "recheckList",
+    name: "invoiceList",
     props:{
         id:{
             type: String
         },
     },
     components: {
-        DragModule, CatalogView,
+        DragModule, 
     },
     data: () => {
         return {
             tableData: [],
-            h: 300,
+            h:300,
             page: 1,
             pages: 0,
             limit: 20,
@@ -83,10 +62,8 @@ export default {
             dataKey: '',
         };
     },
-    created:function(){
-        // this.h = window.innerHeight - 100 - 60 - 50;
-    },
     mounted:function(){
+        this.h = window.innerHeight - 100 - 60 - 50;
         this.getDataList();
     },
     methods:{
@@ -106,21 +83,12 @@ export default {
             this.$emit('close', flag);
         },
         async getDataList(){
-            let result = await api.getAxios('data/editGCCheckLog?checkTaskKey='+this.id+'&page='+this.page+'&limit='+this.limit);
+            let result = await api.getAxios('data/gcVolumeBillInfo?gcKey='+this.id);
             if(result.status == 200){
-                this.tableData = result.result.list.map((ele)=>{
-                    ele.timeO = ADS.getLocalTime(ele.time);
-                    if(ele.rule && ele.rule.length){
-                        let rule = ele.rule,rules='';
-                        rule.map((item2)=>{
-                            rules = rules + item2.rule+'('+item2.repeatPercent+'%);';
-                        });
-                        ele.rules = rules;
-                    }
+                this.tableData = result.result.map((ele)=>{
+                    
                     return ele;
                 });
-                this.pages = 1;
-                this.total = result.result.list.length;
             }else{
                 this.$XModal.message({ message: result.msg, status: 'warning' });
             }
@@ -143,10 +111,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.w1200{
-    height: 410px !important;
-}
-.log-box{
+.invoice-box{
     position: absolute;
     top: 0;
     right: 0;
@@ -173,10 +138,6 @@ export default {
 }
 .content-box{
     position: relative;
-    height: calc(100% - 60px);
-    // display: flex;
-    // flex-wrap: wrap;
-    // justify-content: space-between;
     .input-box{
         position: relative;
         display: flex;
@@ -199,6 +160,9 @@ export default {
 }
 .marginL10{
     margin-right: 10px;
+}
+.w800{
+    width: 800px;
 }
 </style>
 

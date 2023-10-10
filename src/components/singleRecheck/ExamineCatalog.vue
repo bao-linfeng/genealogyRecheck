@@ -1,41 +1,59 @@
 <template>
-    <!-- <DragModule class="examine-drag">
-        
-    </DragModule> -->
-    <div class="examine-wrap">
-        <div class="head-box">
-            <h3 class="title">编目待议审核</h3>
-            <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
+    <DragModule class="w400">
+        <div class="examine-wrap">
+            <div class="head-box">
+                <h3 class="title">编目待议审核</h3>
+                <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
+            </div>
+            <div class="content-box" @mousedown.stop="">
+                <h3 class="title">{{detail.genealogyName}}({{dataKey}})</h3>
+                <div class="box" v-if="roleType == 'host' && '9071165200' != roleKey">
+                    <p class="title">重复标记</p>
+                    <el-radio-group v-model="isDuplicate">
+                        <el-radio :label="0">确认不重复</el-radio>
+                        <el-radio :label="1">确认重复</el-radio>
+                    </el-radio-group>
+                </div>
+                <div class="box" v-if="roleType == 'host'">
+                    <!-- <i class="red">*</i> -->
+                    <p class="title">谱状态更新</p>
+                    <el-select v-model="condition" placeholder="谱目状态" size="small" :disabled="'9071165200' != roleKey">
+                        <el-option
+                            v-for="item in conditionList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div class="box" v-if="roleType == 'host'">
+                    <p class="title">重复谱ID</p>
+                    <el-input
+                        placeholder="重复谱ID"
+                        v-model="Dupbookid"
+                        :disabled="'9071165200' == roleKey">
+                    </el-input>
+                </div>
+                <div class="box" v-if="roleType == 'host'">
+                    <p class="title">说明</p>
+                    <el-input
+                        type="textarea"
+                        :rows="3"
+                        placeholder="此处填写谱状态更改说明信息"
+                        v-model="explain">
+                    </el-input>
+                    <!-- :disabled="'9071165200' == roleKey" -->
+                </div>
+                <!-- <div class="box" v-if="roleType == 'host' && '9071165200' == roleKey">
+                    <p class="title">确认处理</p>
+                    <el-switch v-model="isDeduction" />
+                </div> -->
+            </div>
+            <div class="foot-box" @mousedown.stop="">
+                <el-button type="primary" size="medium" @click="save">保存</el-button>
+            </div>
         </div>
-        <div class="content-box">
-            <h3 class="title">{{detail.genealogyName}}({{dataKey}})</h3>
-            <p class="title">谱状态更新<i class="red">*</i></p>
-            <el-select v-model="condition" placeholder="谱目状态" size="small">
-                <el-option
-                    v-for="item in conditionList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <p class="title" v-if="condition == 'd'">重复谱ID<i class="red">*</i></p>
-            <el-input
-                v-if="condition == 'd'"
-                placeholder="重复谱ID"
-                v-model="Dupbookid">
-            </el-input>
-            <p class="title">审核说明<i class="red">*</i></p>
-            <el-input
-                type="textarea"
-                :rows="3"
-                placeholder="此处填写谱状态更改说明信息"
-                v-model="verifyExplain">
-            </el-input>
-        </div>
-        <div class="foot-box">
-            <el-button type="primary" size="medium" @click="save">保存</el-button>
-        </div>
-    </div>
+    </DragModule>
 </template>
 
 <script>
@@ -65,9 +83,11 @@ export default {
                 // {'label': 'c|作废', 'value': 'c'}
             ],
             condition: '',
-            verifyExplain: '',
+            explain: '',
             detail: {},
             Dupbookid: '',
+            isDuplicate: 1,
+            isDeduction: false,
         };
     },
     mounted:function(){
@@ -82,6 +102,9 @@ export default {
             if(result.status == 200){
                 this.detail = result.data;
                 this.condition = this.detail.condition || '';
+                this.Dupbookid = result.data.Dupbookid;
+                this.explain = result.data.explain;
+                this.isDeduction = result.data.isDeduction == 1 ? true : false;
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' });
             }
@@ -92,8 +115,7 @@ export default {
                 'userKey': this.userId,
                 'checkTaskKey': this.checkTaskKey,
                 'condition': this.condition,
-                'Dupbookid': this.Dupbookid,
-                'verifyExplain': this.verifyExplain
+                'explain': this.explain,
             });
             if(result.status == 200){
                 ADS.message('编目待议审核成功！', true);
@@ -102,15 +124,35 @@ export default {
                 this.$XModal.message({message: result.msg, status: 'warning'})
             }
         },
+        async isDuplicateGC(){// 是否重复谱确认 isDuplicate 重复 1 是 0 否 baolf 2023.09.05 13:55
+            let result = await api.postAxios('data/isDuplicateGC', {
+                'checkTaskKey': this.checkTaskKey,
+                'isDuplicate': this.isDuplicate,
+                'userKey': this.userId, 
+                'siteKey': this.stationKey,
+                'Dupbookid': this.Dupbookid,
+                'explain': this.explain,
+            });
+
+            if(result.status == 200){
+                ADS.message('编目待议审核成功！', true);
+                this.close(true);
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' });
+            }
+        },
         save(){
-            if(this.condition == 'd' && !this.Dupbookid){
-                return ADS.message('重复谱目，必填 重复谱ID');
+            if(['9071165200'].indexOf(this.roleKey) > -1){
+                this.verifyToBeDiscussedGC();
+            }else{
+                if(this.isDuplicate == 1 && !this.Dupbookid){
+                    return ADS.message('重复谱目，必填 重复谱ID');
+                }
+                if(this.isDuplicate == 1 && !this.explain){
+                    return ADS.message('重复谱目，必填 说明！');
+                }
+                this.isDuplicateGC();
             }
-            if(!this.verifyExplain){
-                return ADS.message('请输入审核说明！');
-            }
-            
-            this.verifyToBeDiscussedGC();
         },
     },
     computed: {
@@ -119,12 +161,18 @@ export default {
             stationName: state => state.nav.stationName,
             stationlogo: state => state.nav.stationlogo,
             userId: state => state.nav.userId,
+            roleType: state => state.nav.roleType,
+            roleKey: state => state.nav.roleKey,
         })
     },
 };
 </script>
 
 <style scoped lang="scss">
+.w400{
+    height: auto !important;
+    width: 100px !important;
+}
 .examine-wrap{
     position: fixed;
     top: 50%;

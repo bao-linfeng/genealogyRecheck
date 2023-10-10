@@ -4,152 +4,7 @@
             <h3 class="search-modal-title">家谱资源</h3>
             <span class="btn" @click="isShow = !isShow">{{isShow ? '收起' : '展开'}}</span>
         </div>
-        <div class="search-modal-box" v-show="isShow">
-            <div class="search-input-modal" v-for="(item,index) in fieldFilterList" :key="'fieldFilters'+index">
-                <input type="text" :placeholder="'请输入'+item.label" v-model.trim="parameters[item.value]" @keyup.enter="handleKeyUp" @blur="changeParameters" />
-                <div class="tag_close" v-show="parameters[item.value]" @click="clear(item.value)"><i class="el-icon-close"></i></div>
-            </div>
-            <div class="search-input-modal">
-                <input type="text" :placeholder="'请输入文件标题'" v-model.trim="parameters['fileName']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
-                <div class="tag_close" v-show="parameters.fileName" @click="clear('fileName')"><i class="el-icon-close"></i></div>
-            </div>
-            <el-select v-model="parameters.gcStatus" placeholder="谱书状态" class="w15 marginB10">
-                <el-option
-                    v-for="(item,index) in gcStatusList"
-                    :key="index"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <!-- <el-select v-model="parameters.batchKey" placeholder="请选择批次" class="w15 marginB10">
-                <el-option
-                    v-for="(item,index) in batchArr"
-                    :key="index"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select> -->
-            <el-select v-model="parameters.hasImage" placeholder="请选择影像" class="w15 marginB10">
-                <el-option
-                    v-for="item in imageList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-date-picker
-                class="w15 marginB10"
-                v-model="parameters.begYear"
-                type="year"
-                value-format="yyyy"
-                placeholder="出版年开始年">
-            </el-date-picker>
-            <el-date-picker
-                class="w15 marginB10"
-                v-model="parameters.endYear"
-                type="year"
-                value-format="yyyy"
-                placeholder="出版年结束年">
-            </el-date-picker>
-            <el-select v-model="parameters.type" placeholder="类型" class="w15 marginB10">
-                <el-option
-                    v-for="item in typeList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-select v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
-                <el-option
-                    v-for="item in orgList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-select v-model="parameters.createOrgKey" multiple placeholder="上传机构" class="w15 marginB10">
-                <el-option
-                    v-for="item in orgList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-select v-model="parameters.condition" multiple placeholder="谱状态" class="w15 marginB10">
-                <el-option
-                    v-for="item in conditionList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-select v-model="parameters.NoIndex" placeholder="索引(NoIndex)" class="w15 marginB10">
-                <el-option
-                    v-for="item in NoIndexList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-select v-model="parameters.waitComplete" placeholder="完结状态" class="w15 marginB10">
-                <el-option
-                    v-for="item in waitCompleteList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
-            <el-date-picker
-                v-model="time"
-                type="daterange"
-                unlink-panels
-                start-placeholder="导入开始时间"
-                end-placeholder="导入结束时间"
-            />
-            <el-date-picker
-                class="w15 marginB10"
-                v-model="parameters.FileStartTimes"
-                type="date"
-                placeholder="档案开始时间">
-            </el-date-picker>
-            <el-date-picker
-                class="w15 marginB10"
-                v-model="parameters.FileEndTimes"
-                type="date"
-                placeholder="档案结束时间">
-            </el-date-picker>
-            <el-date-picker
-                class="w15 marginB10"
-                v-model="parameters.claimStartTime"
-                type="date"
-                placeholder="认领开始时间">
-            </el-date-picker>
-            <el-date-picker
-                class="w15 marginB10"
-                v-model="parameters.claimEndTime"
-                type="date"
-                placeholder="认领结束时间">
-            </el-date-picker>
-            <div class="w15 marginB10 noPublishAD">
-                <el-checkbox v-model="parameters.noPublishAD">无公元年</el-checkbox>
-            </div>
-            <div class="w15 marginB10 noPublishAD">
-                <el-checkbox v-model="parameters.isPublish">无出版时间</el-checkbox>
-            </div>
-            <div class="w15 marginB10 noPublishAD">
-                <el-checkbox v-model="parameters.isPlace">无谱籍地</el-checkbox>
-            </div>
-            <!-- <div class="w15 marginB10 noPublishAD">
-                <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
-            </div> -->
-            <div class="search-input-modal">
-                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
-                <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
-            </div>
-            <div class="search-input-modal" v-for="item in (6-((fieldFilterList.length+(role >= 1 && role <= 3 ? 20 : 17))%6 || 6))" :key="'kon'+item"></div>
-            <div class="search-input-modal"></div>
-        </div>
-        <div class="search-modal-box" v-if="!isShow">
+        <div class="search-modal-box">
             <div class="search-input-modal">
                 <input type="text" :placeholder="'谱ID'" v-model.trim="parameters['_key']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters._key" @click="clear('_key')"><i class="el-icon-close"></i></div>
@@ -159,10 +14,6 @@
                 <div class="tag_close" v-show="parameters.genealogyName" @click="clear('genealogyName')"><i class="el-icon-close"></i></div>
             </div>
             <div class="search-input-modal">
-                <input type="text" :placeholder="'文件标题'" v-model.trim="parameters['fileName']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
-                <div class="tag_close" v-show="parameters.fileName" @click="clear('fileName')"><i class="el-icon-close"></i></div>
-            </div>
-            <div class="search-input-modal">
                 <input type="text" :placeholder="'姓氏'" v-model.trim="parameters['surname']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.surname" @click="clear('surname')"><i class="el-icon-close"></i></div>
             </div>
@@ -170,14 +21,55 @@
                 <input type="text" :placeholder="'堂号'" v-model.trim="parameters['hall']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
                 <div class="tag_close" v-show="parameters.hall" @click="clear('hall')"><i class="el-icon-close"></i></div>
             </div>
-            <el-select v-model="parameters.condition" multiple placeholder="谱状态" class="w15 marginB10">
-                <el-option
-                    v-for="item in conditionList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-            </el-select>
+            <div class="search-input-modal">
+                <input type="text" :placeholder="'出版年'" v-model.trim="parameters['publish']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.publish" @click="clear('publish')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal">
+                <input type="text" :placeholder="'作者'" v-model.trim="parameters['authors']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.authors" @click="clear('authors')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal">
+                <input type="text" :placeholder="'谱籍地(现代)'" v-model.trim="parameters['place']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.place" @click="clear('place')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal" v-show="isShow">
+                <input type="text" :placeholder="'谱籍地(原谱)'" v-model.trim="parameters['LocalityModern']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.LocalityModern" @click="clear('LocalityModern')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal" v-show="isShow">
+                <input type="text" :placeholder="'一世祖'" v-model.trim="parameters['firstAncestor']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.firstAncestor" @click="clear('firstAncestor')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal" v-show="isShow">
+                <input type="text" :placeholder="'始迁祖'" v-model.trim="parameters['migrationAncestor']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.migrationAncestor" @click="clear('migrationAncestor')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal">
+                <input type="text" :placeholder="'文件标题'" v-model.trim="parameters['fileName']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.fileName" @click="clear('fileName')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal" v-show="isShow">
+                <input type="text" :placeholder="'重复谱ID'" v-model.trim="parameters['Dupbookid']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.Dupbookid" @click="clear('Dupbookid')"><i class="el-icon-close"></i></div>
+            </div>
+            <div class="search-input-modal" v-show="isShow">
+                <input type="text" :placeholder="'谱书编号'" v-model.trim="parameters['bookId']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.bookId" @click="clear('bookId')"><i class="el-icon-close"></i></div>
+            </div>
+            <el-date-picker
+                v-show="isShow"
+                class="w15 marginB10"
+                v-model="FileTimes"
+                type="daterange"
+                unlink-panels
+                start-placeholder="档案开始时间"
+                end-placeholder="档案结束时间"
+            />
+            <div class="search-input-modal">
+                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
+                <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
+            </div>
             <el-select v-model="parameters.orgKey" multiple placeholder="认领机构" class="w15 marginB10">
                 <el-option
                     v-for="item in orgList"
@@ -186,18 +78,14 @@
                     :value="item.value">
                 </el-option>
             </el-select>
-            <el-select v-model="parameters.createOrgKey" multiple placeholder="上传机构" class="w15 marginB10">
+            <el-select v-model="parameters.condition" multiple placeholder="谱状态" class="w15 marginB10">
                 <el-option
-                    v-for="item in orgList"
+                    v-for="item in conditionList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
                 </el-option>
             </el-select>
-            <div class="search-input-modal">
-                <input type="text" :placeholder="'作者、谱籍地、始迁祖、一世祖、备注、说明'" v-model.trim="parameters['keyWord']" @keyup.enter="handleKeyUp" @blur="changeParameters" />
-                <div class="tag_close" v-show="parameters.keyWord" @click="clear('keyWord')"><i class="el-icon-close"></i></div>
-            </div>
             <el-select v-model="parameters.waitComplete" placeholder="完结状态" class="w15 marginB10">
                 <el-option
                     v-for="item in waitCompleteList"
@@ -206,10 +94,62 @@
                     :value="item.value">
                 </el-option>
             </el-select>
-            <!-- <div class="w15 marginB10 noPublishAD">
-                <el-checkbox v-model="parameters.waitComplete">待完结</el-checkbox>
-            </div> -->
-            <div class="search-input-modal" v-for="(item, index) in 3" :key="index"></div>
+            <!-- <el-date-picker
+                v-show="isShow"
+                class="w15 marginB10"
+                v-model="publishTime"
+                type="monthrange"
+                unlink-panels
+                start-placeholder="出版年开始年"
+                end-placeholder="出版年结束年"
+            /> -->
+            <el-select v-show="isShow" v-model="parameters.type" placeholder="类型" class="w15 marginB10">
+                <el-option
+                    v-for="item in typeList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-select v-show="isShow" v-model="parameters.hasImage" placeholder="影像资料" class="w15 marginB10">
+                <el-option
+                    v-for="item in imageList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-select v-show="isShow" v-model="parameters.GCOver" placeholder="编目完结" class="w15 marginB10">
+                <el-option
+                    v-for="item in GCOverList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-select v-show="isShow" v-model="parameters.NoIndex" placeholder="索引情况" class="w15 marginB10">
+                <el-option
+                    v-for="item in NoIndexList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-date-picker
+                v-show="isShow"
+                class="w15 marginB10"
+                v-model="parameters.publishStartTime"
+                type="year"
+                placeholder="出版年开始年">
+            </el-date-picker>
+            <el-date-picker
+                v-show="isShow"
+                class="w15 marginB10"
+                v-model="parameters.publishEndTime"
+                type="year"
+                placeholder="出版年结束年">
+            </el-date-picker>
+            <!-- <div v-show="isShow" class="search-input-modal" v-for="item in 1" :key="'kon'+item"></div> -->
         </div>
         <div class="search-modal-box">
             <div class="search-input-modal"></div>
@@ -237,31 +177,51 @@ export default {
     data: () => {
         return {
             parameters:{
-                batchKey:'',
-                creator:'',
-                hasImage:2,
-                libKey: '',
-                equal: 1,
                 _key:'',
-                orgKey: [],
-                createOrgKey: [],
-                begYear: '',
-                endYear: '',
-                noPublishAD: false,
-                NoIndex: '',
-                startTime: '',
-                endTime: '',
+                place: '',
+                surname: '',
+                hall: '',
+                publish: '',
+                authors: '',
+                place: '',
+                LocalityModern: '',
+                firstAncestor: '',
+                migrationAncestor: '',
                 fileName: '',
-                isPublish: '',
-                isPlace: '',
-                condition: [],
+                Dupbookid: '',
+                hasImage: 2,
+                GCOver: '',
+                NoIndex: '',
+                orgKey: [],
                 keyWord: '',
+                condition: [],
+                waitComplete: '',
                 FileStartTimes: '',
                 FileEndTimes: '',
-                gcStatus: '',
-                claimStartTime: '',
-                claimEndTime: '',
+                publishStartTime: '',
+                publishEndTime: '',
+                bookId: '',
                 type: '家谱',
+
+                // batchKey:'',
+                // creator:'',
+                // hasImage:2,
+                libKey: '',
+                equal: 1,
+                createOrgKey: [],
+                // begYear: '',
+                // endYear: '',
+                // noPublishAD: false,
+                // startTime: '',
+                // endTime: '',
+                // isPublish: '',
+                // isPlace: '',
+                // FileStartTimes: '',
+                // FileEndTimes: '',
+                // gcStatus: '',
+                // claimStartTime: '',
+                // claimEndTime: '',
+                // type: '家谱',
             },
             gcStatusList: [
                 {'label': '全部谱书状态', 'value': ''},
@@ -281,6 +241,11 @@ export default {
                 {'label': '全部类型', 'value': ''},
                 {'label': '家谱', 'value': '家谱'},
                 {'label': '方志', 'value': '方志'},
+            ],
+            GCOverList: [
+                {'label': '编目完结', 'value': ''},
+                {'label': '已完结', 'value': '1'},
+                {'label': '未完结', 'value': '0'},
             ],
             batchArr: [],
             sourcelist: [],
@@ -315,18 +280,30 @@ export default {
             orgList: [],
             fieldFilterList: [{label:'家谱编码',value:'_key'}],
             time: '',
+            FileTimes: '',
+            publishTime: '',
             isShow: false,
         };
     },
     created:function(){
-        this.getBatchList();
-        this.getLib();
+        // this.getBatchList();
+        // this.getLib();
         this.getOrgList();
     },
     mounted:function(){
         if(this.role >= 1 && this.role <= 3){
 
         }else{
+            this.conditionList = [
+                {'label': '全部谱状态', 'value': ''}, 
+                {'label': 'f', 'value': 'f'}, 
+                {'label': 'nf', 'value': 'nf'}, 
+                // {'label': 'd', 'value': 'd'}, 
+                {'label': 'r', 'value': 'r'}, 
+                {'label': 'm', 'value': 'm'},
+                // {'label': 'c', 'value': 'c'},
+                {'label': 'fs', 'value': 'other'}
+            ];
             this.parameters.orgKey = [this.orgId];
             this.$emit('change-parameters',this.parameters);
         }
@@ -418,6 +395,24 @@ export default {
             }else{
                 this.parameters.startTime = '';
                 this.parameters.endTime = '';
+            }
+        },
+        'FileTimes': function(nv, ov){
+            if(nv){
+                this.parameters.FileStartTimes = new Date(nv[0]).getTime();
+                this.parameters.FileEndTimes = new Date(nv[1]).getTime();
+            }else{
+                this.parameters.FileStartTimes = '';
+                this.parameters.FileEndTimes = '';
+            }
+        },
+        'publishTime': function(nv, ov){
+            if(nv){
+                this.parameters.publishStartTime = new Date(nv[0]).getTime();
+                this.parameters.publishEndTime = new Date(nv[1]).getTime();
+            }else{
+                this.parameters.publishStartTime = '';
+                this.parameters.publishEndTime = '';
             }
         },
         'fieldFilters': function(nv, ov){

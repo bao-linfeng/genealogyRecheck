@@ -56,7 +56,9 @@
                     @checkbox-change = "checkboxChange"
                     @checkbox-all = "checkboxChange"
                     :edit-config="{trigger: 'click', mode: 'row',showStatus: true, activeMethod:activeCellMethod}"
-                    @cell-click="cellClickEvent">
+                    @cell-click="cellClickEvent"
+                    :sort-config="{trigger: 'cell', orders: ['desc', 'asc', 'auto'], remote: true}"
+                    @sort-change="sortChangeEvent">
                     <vxe-table-column type="checkbox" field="checkbox" width="60" fixed="left"></vxe-table-column>
                     <vxe-table-column v-for="(item,index) in field_main" :key="'field_main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" fixed="left"></vxe-table-column>
                     <vxe-table-column v-for="(item,index) in field_branch" :key="'field_branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
@@ -64,15 +66,13 @@
                     <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
                     <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
                     <vxe-table-column field="Filetimes" width="100" title="档案时间"></vxe-table-column>
-                    <vxe-table-column field="countdown" width="100" title="倒计时"></vxe-table-column>
+                    <vxe-table-column field="countdown" width="100" title="倒计时" sort-by="countdown" :sortable="['0', '1', '2'].indexOf(isOverTime) > -1"></vxe-table-column>
                     <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
                     <vxe-table-column field="createTimeO" width="100" title="上传时间"></vxe-table-column>
                     <vxe-table-column field="updateTimeO" width="100" title="打回时间"></vxe-table-column>
                     <vxe-table-column field="updateUserName" title="打回人" width="100"></vxe-table-column>
                     <vxe-table-column field="orgUpdateTimeO" title="复审提交时间" width="100"></vxe-table-column>
                     <vxe-table-column field="orgUpdateUserName" title="复审提交人" width="100"></vxe-table-column>
-                    <!-- <vxe-table-column field="updateUserName" title="处理人员" width="100"></vxe-table-column>
-                    <vxe-table-column field="updateTimeO" title="处理时间" width="100"></vxe-table-column> -->
                     <vxe-table-column fixed="right" title="操作" width="180" :cell-render="{name: 'AdaiActionButton', attr: {data: actionData}, events:{'detail': openDetail, 'attachment': openAttachment, 'log': openLog, 'check': openCheck, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
                 <div class="page-wrap">
@@ -87,11 +87,15 @@
                     </vxe-pager>
                 </div>
             </div>
-            <div v-if="isCatalog || isAttachment" class="adai-wrap" :class="{active: isCatalog && isAttachment, isSimplePath: simplePath && !isCatalog && isAttachment}">
-                <CatalogModule v-if="isCatalog" :gid="gid" v-on:close="closeCatalog1" />
-                <AttachmentModule v-if="isAttachment" :gid="gid" v-on:close="closeCatalog" v-on:prev="prev" />
-            </div>
         </div>
+        <!-- 谱目编辑 -->
+        <Drag class="drag2">
+            <CatalogModule v-if="isCatalog" :dataKey="gid" v-on:close="closeCatalog1" />
+        </Drag>
+        <!-- 审核 -->
+        <Drag class="drag1">
+            <AttachmentModule v-if="isAttachment" :gid="gid" v-on:close="closeCatalog" v-on:prev="prev" />
+        </Drag>
         <!-- 记录 -->
         <LogModule v-if="isShow == 3" :gid="gid" v-on:close="closeCatalog" />
         <OverTimeCatalog v-if="isShow == 4" :gid="gid" :list="catalogKeyArr" v-on:close="closeCatalog" />
@@ -108,11 +112,13 @@ import AttachmentModule from '../../components/discussed/AttachmentModule.vue';
 import LogModule from '../../components/discussed/LogModule.vue';
 import OverTimeCatalog from '../../components/discussed/OverTimeCatalog.vue';
 import CatalogCondition from '../../components/discussed/CatalogCondition.vue';
+import Drag from '../../components/Drag.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "toBeDiscussedGC",
     components: {
         CatalogModule, AttachmentModule, LogModule, OverTimeCatalog, CatalogCondition, Sidebar, 
+        Drag, 
     },
     data: () => {
         return {
@@ -156,6 +162,8 @@ export default {
             isAttachment: false,
             simplePath: '',
             taskdays: 90,
+            sortField: '', 
+            sortType: 'asc',
         };
     },
     created:function(){
@@ -183,10 +191,12 @@ export default {
             {'fieldMeans': '版本类型', 'fieldName': 'version'},
             {'fieldMeans': '重复谱ID', 'fieldName': 'Dupbookid'},
         ];
+        
     },
     mounted:function(){
         if(this.role >= 1 && this.role <= 3){
             this.isOverTime = '2';
+            this.sortField = 'orgUpdateTime';
             this.actionData = [
                 {'label': '审核','value': 'attachment'},
                 {'label': '编辑','value': 'detail'}, 
@@ -197,6 +207,7 @@ export default {
             this.getOrgList();
         }else{
             this.isOverTime = '0';
+            this.sortField = 'Filetimes';
             this.type = 1;
             this.orgKey = this.orgId;
         }
@@ -204,6 +215,18 @@ export default {
         this.getDataList();
     },
     methods:{
+        sortChangeEvent({column, property, order, sortBy, sortList, $event}){
+            console.log(property, order, sortBy);
+            console.log(this.isOverTime);
+            if(sortBy == 'countdown'){
+                this.sortField = this.isOverTime === '2' ? 'orgUpdateTime' : (this.isOverTime === '0' || this.isOverTime === '1') ? 'Filetimes' : '';
+            }else{
+                this.sortField = sortBy;
+            }
+            
+            this.sortType = order;
+            this.getDataList();
+        },
         singleQuick({ row }){
             window.open('/'+this.pathname+'/singleQuickSearch?id='+row._key, '_blank');
         },
@@ -261,7 +284,7 @@ export default {
             this.tableData = [];
             this.pages = 0;
             this.total = 0;
-            let result = await api.getAxios('catalog/toBeDiscussedGC?siteKey='+this.stationKey+'&orgKey='+this.orgKey+'&type='+this.type+'&gcKey='+this.gcKey+'&surname='+this.surname+'&genealogyName='+this.genealogyName+'&publish='+this.publish+'&fileName='+this.fileName+'&Filenames='+this.Filenames+'&isOverTime='+this.isOverTime+'&page='+this.page+'&limit='+this.limit);
+            let result = await api.getAxios('catalog/toBeDiscussedGC?siteKey='+this.stationKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&orgKey='+this.orgKey+'&type='+this.type+'&gcKey='+this.gcKey+'&surname='+this.surname+'&genealogyName='+this.genealogyName+'&publish='+this.publish+'&fileName='+this.fileName+'&Filenames='+this.Filenames+'&isOverTime='+this.isOverTime+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(result.status == 200){
                 result.result.list.map((item)=>{
@@ -389,6 +412,39 @@ export default {
                     {'label': '快捷查询', 'value': 'singleQuick'},
                 ];
             }
+            if(this.role >= 1 && this.role <= 3){
+                if(nv == '2'){
+                    this.actionData = [
+                        {'label': '审核','value': 'attachment'},
+                        {'label': '编辑','value': 'detail'}, 
+                        {'label': '记录','value': 'log'}, 
+                        {'label': '快捷查询', 'value': 'singleQuick'},
+                    ];
+                }else{
+                    this.actionData = [
+                        // {'label': '审核','value': 'attachment'},
+                        // {'label': '编辑','value': 'detail'}, 
+                        {'label': '记录','value': 'log'}, 
+                        {'label': '快捷查询', 'value': 'singleQuick'},
+                    ];
+                }
+            }else{
+                if(nv == '0'){
+                    this.actionData = [
+                        {'label': '补充','value': 'attachment'},
+                        {'label': '编辑','value': 'detail'}, 
+                        {'label': '记录','value': 'log'}, 
+                        {'label': '快捷查询', 'value': 'singleQuick'},
+                    ];
+                }else{
+                    this.actionData = [
+                        // {'label': '补充','value': 'attachment'},
+                        // {'label': '编辑','value': 'detail'}, 
+                        {'label': '记录','value': 'log'}, 
+                        {'label': '快捷查询', 'value': 'singleQuick'},
+                    ];
+                }
+            }
         }
     },
 };
@@ -469,6 +525,13 @@ export default {
     &.isSimplePath{
         z-index: 100;
     }
+}
+.drag1{
+    left: 50px;
+    transform: translate(0, -50%);
+}
+.drag2{
+    transform: translate(0, -50%);
 }
 </style>
 

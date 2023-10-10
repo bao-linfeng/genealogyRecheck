@@ -17,7 +17,7 @@
                 <li title="查重待议谱" v-if="['9071544233', '9071165279', '9071165255', '9071165200', '9071693613'].indexOf(roleKey) > -1">
                     <router-link :to="'/'+pathname+'/toBeDiscussedGC'">查重待议谱</router-link>
                 </li>
-                <li title="影像审核" v-if="['9071693612', '9071544233', '9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1"><router-link :to="'/'+pathname+'/takeCamera'">影像审核</router-link></li>
+                <li title="影像审核" v-if="['9071693612', '9071544233', '9071165339', '9071165330', '9071165288', '9071165268', '9071165200', '9138241994'].indexOf(roleKey) > -1"><router-link :to="'/'+pathname+'/takeCamera'">影像审核</router-link></li>
                 <li @click="gotoLink('/'+pathname+'/genealogySearch')"><span class="search">家谱检索</span></li>
                 <li title="家谱总目录" v-if="['9071693612', '9071544233', '9071165279', '9071165255', '9071165200', '9071693613'].indexOf(roleKey) > -1"><router-link :to="'/'+pathname+'/myGenealogy'"><span class="menu">家谱总目录</span></router-link></li>
                 <li @click="logout()" title="退出"><span>退出</span></li>

@@ -7,6 +7,7 @@
                 <div class="head-right">
                     <el-button v-if="stage == 13 && orgAdmin == 'admin' && hasRoot" type="primary" size="medium" @click="handleUpdateVolumeProperty">批量修改卷册信息</el-button>
                     <el-button v-if="stage == 13 && orgAdmin == 'admin' && hasRoot" type="primary" size="medium" @click="patchTaskVerify">批量审核通过</el-button>
+                    <el-button v-if="stage == 4 && orgAdmin == 'admin'" type="primary" size="medium" @click="handleOpenAllocation">打回谱目分配</el-button>
                 </div>
             </div>
             <div class="search-wrap">
@@ -30,6 +31,14 @@
                     </el-option>
                 </el-select>
                 <el-input class="width100" v-model="checker" placeholder="审核人" @change="getTaskListAll"></el-input>
+                <el-select class="width100" v-if="stage == 3 || stage == 14 || stage == 15" v-model="checkClaim">
+                    <el-option
+                        v-for="item in claimList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
                 <el-button type="primary" size="medium" @click="getTaskListAll">检索</el-button>
                 <el-checkbox class="marginL10" v-model="isShowSearch">展开</el-checkbox>
             </div>
@@ -45,6 +54,14 @@
                 <el-select v-if="stage >= 2" class="width100" v-model="isLeadImages" placeholder="影像类型">
                     <el-option
                         v-for="item in isLeadImagesList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-select v-if="stage >= 2" class="width100" v-model="imageSource">
+                    <el-option
+                        v-for="item in imageSourceList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -112,9 +129,9 @@
                     <vxe-table-column v-if="stage >= 2" field="volumeNumber" title="卷名"></vxe-table-column>
                     <!-- <vxe-table-column v-if="stage >= 2" field="takePages" title="实拍页数"></vxe-table-column> -->
                     <vxe-table-column v-if="stage >= 2" field="syncPages" title="同步页数"></vxe-table-column>
-                    <vxe-table-column field="organizationNo" title="来源" sort-by="organizationNo" sortable></vxe-table-column>
-                    <!-- <vxe-table-column v-if="stage >= 3" field="singleOrTwoO" title="单双页"></vxe-table-column>
-                    <vxe-table-column v-if="stage >= 3" field="isLeadImagesO" title="电子谱"></vxe-table-column> -->
+                    <vxe-table-column field="claimOrgName" title="认领机构" sort-by="claimOrgName" sortable></vxe-table-column>
+                    <!-- <vxe-table-column v-if="stage >= 3" field="singleOrTwoO" title="单双页"></vxe-table-column> -->
+                    <vxe-table-column v-if="stage >= 3" field="isLeadImagesO" title="电子谱"></vxe-table-column>
 
                     <vxe-table-column v-if="stage == 1" field="checkDoneTimeL" title="查重完成日"></vxe-table-column>
                     <vxe-table-column v-if="stage == 1" field="countdown" title="倒计时"></vxe-table-column>
@@ -127,19 +144,23 @@
                     <!-- <vxe-table-column v-if="stage >= 3" field="clientUser" title="提交人"></vxe-table-column> -->
                     <vxe-table-column v-if="stage == 3 || stage == 5 || stage == 14 || stage == 15" field="passUserName" title="审核人"></vxe-table-column>
                     <vxe-table-column v-if="stage == 4" field="returnReason" title="打回原因"></vxe-table-column>
-                    <vxe-table-column v-if="stage == 14" field="returnReason" title="原因说明"></vxe-table-column>
-                    <vxe-table-column v-if="stage == 15 || stage == 17" field="repulseRecordO" title="原因说明"></vxe-table-column>
+                    <!-- <vxe-table-column v-if="stage == 14" field="returnReason" title="原因说明"></vxe-table-column> -->
+                    <vxe-table-column v-if="stage == 14 || stage == 15 || stage == 17" field="repulseRecordO" title="原因说明"></vxe-table-column>
                     <vxe-table-column v-if="stage == 4" field="passUserName" title="打回人"></vxe-table-column>
                     <vxe-table-column v-if="stage == 17" field="toVoidUserName" title="作废人"></vxe-table-column>
 
                     <!-- <vxe-table-column v-if="stage == 13" field="submitTimeO" title="拍机提交时间" sort-by="passTime" sortable></vxe-table-column> -->
-                    <vxe-table-column v-if="stage == 3" field="passTimeOrgAdminO" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
-                    <vxe-table-column v-if="stage == 5 || stage == 14 || stage == 15" field="passTimeL" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
-                    <vxe-table-column v-if="stage == 4" field="returnTimeO" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
-                    <vxe-table-column v-if="stage == 17" field="toVoidTimeO" title="审核时间" sort-by="passTime" sortable></vxe-table-column>
+                    <vxe-table-column v-if="stage == 3" field="passTimeOrgAdminO" title="审核时间" sort-by="passTime" sortable width="100"></vxe-table-column>
+                    <vxe-table-column v-if="stage == 5 || stage == 14 || stage == 15" field="passTimeL" title="审核时间" sort-by="passTime" sortable width="100"></vxe-table-column>
+                    <vxe-table-column v-if="stage == 4" field="returnTimeO" title="审核时间" sort-by="passTime" sortable width="100"></vxe-table-column>
+                    <vxe-table-column v-if="stage == 17" field="toVoidTimeO" title="审核时间" sort-by="passTime" sortable width="100"></vxe-table-column>
                     <vxe-table-column v-if="stage >= 3" field="firstSubmitTimeO" title="初次上传时间" sort-by="firstSubmitTime" sortable width="100"></vxe-table-column>
                     <vxe-table-column v-if="stage >= 3" field="submitTimeO" title="最新上传时间" sort-by="submitTime" sortable width="100"></vxe-table-column>
-                    <vxe-table-column v-if="stage >= 3" title="操作" width="200" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label': stage == 4 || stage == 5 || stage == 17 ? '影像' : '影像', 'value': 'look'}, {'label': '家谱', 'value': 'jiapu'}, {'label': '记录', 'value': 'log'}]},events:{'look': lookEvent, 'jiapu': getCatalogStatisticsData, 'log': handleLog}}"></vxe-table-column>
+                    <vxe-table-column v-if="stage == 3 || stage == 14 || stage == 15" field="checkClaimUserInfo" title="审核认领人" width="100"></vxe-table-column>
+
+                    <vxe-table-column v-if="stage >= 3" field="imageSourceAll" title="影像来源" width="100"></vxe-table-column>
+                    <vxe-table-column v-if="stage >= 3" field="uploadType" title="上传来源" width="100"></vxe-table-column>
+                    <vxe-table-column v-if="stage >= 3" title="操作" width="200" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'reviewClaim': handleReviewClaim,'look': lookEvent, 'jiapu': getCatalogStatisticsData, 'log': handleLog}}"></vxe-table-column>
                 </vxe-table>
                 <div class="page-foot">
                     <div class="page-foot-left" v-show="stage >= 3">
@@ -166,6 +187,8 @@
         <!-- <Loading v-show="loading" /> -->
         <!-- 记录 -->
         <LogModule v-if="isShow == 3" :id="vid" v-on:close="isShow = 0" />
+        <!-- 机构管理员针对打回谱目分配(9138241994  供应商(影像审核员)) -->
+        <AllocationCatalog v-if="isShow == 4" v-on:close="isShow = 0" />
     </div>
 </template>
 
@@ -179,11 +202,12 @@ import CatalogCount from '../../components/takeCamera/CatalogCount.vue';
 import CatalogView from '../../components/takeCamera/CatalogView.vue';
 import UpdateVolumeProperty from '../../components/takeCamera/UpdateVolumeProperty.vue';
 import LogModule from '../../components/takeCamera/logModule.vue';
+import AllocationCatalog from '../../components/takeCamera/AllocationCatalog.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "takeCamera",
     components: {
-        Sidebar,NavModal, BillModule, CatalogCount, CatalogView, UpdateVolumeProperty, LogModule,
+        Sidebar,NavModal, BillModule, CatalogCount, CatalogView, UpdateVolumeProperty, LogModule, AllocationCatalog,
     },
     data: () => {
         return {
@@ -264,6 +288,25 @@ export default {
             sortField: '', 
             sortType: 'auto',
             openStatistics: 0,
+            attrData: [
+                {'label': '影像', 'value': 'look'}, 
+                {'label': '家谱', 'value': 'jiapu'}, 
+                {'label': '记录', 'value': 'log'}
+            ],
+            checkClaim: '',
+            claimList: [
+                {'label': '认领状态', 'value': ''},
+                {'label': '已认领', 'value': '1'},
+                {'label': '未认领', 'value': '2'}
+            ],
+            imageSource: '',
+            imageSourceList: [
+                {'label': '影像来源', 'value': ''},
+                {'label': '拍摄上传', 'value': '1'},
+                {'label': 'DCam导入', 'value': '5'},
+                {'label': '其他影像导入', 'value': '10'},
+                // {'label': '电子谱', 'value': 'isLeadImages'}
+            ],
         };
     },
     created:function(){
@@ -292,8 +335,9 @@ export default {
             
         }else{
             if(this.role >= 1 && this.role <= 3){
+                this.stage = 14;
                 // ['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1
-                if(['9071165330', '9071165288', '9071165268', '9071165200', '9071165255'].indexOf(this.roleKey) > -1){
+                if(['9071165330', '9071165288', '9071165268', '9071165200', '9071165255', '9071165279'].indexOf(this.roleKey) > -1){
                     this.stage = 14;
                 }
                 if(['9071165339'].indexOf(this.roleKey) > -1){
@@ -305,10 +349,15 @@ export default {
                 //     this.stage = 14;
                 // }
             }else{
+                this.stage = 1;
                 if(this.orgAdmin == 'admin'){
                     this.stage = 13;
                 }else{
-                    this.stage = 1;
+                    if(['9138241994'].indexOf(this.roleKey) > -1){
+                        this.stage = 4;
+                    }else{
+                        this.stage = 1;
+                    }
                 }
             }
         }
@@ -321,6 +370,36 @@ export default {
         this.getStatisticsData();
     },
     methods:{
+        handleOpenAllocation(){
+            this.isShow = 4;
+        },
+        handleReviewClaim({ row }){
+            console.log(row);
+            if(row.checkClaimUserKey){
+                this.$confirm('确定'+(row.checkClaimUserKey ? '放弃' : '认领')+'审核该卷册?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.postCheckClaim(row);
+                }).catch(() => {});
+            }else{
+                this.postCheckClaim(row);
+            }
+        },
+        async postCheckClaim(row){// FS认领卷册 审核
+            let result = await api.postAxios('v3/review/checkClaim', {'volumeKey': row.volumeKey, 'userKey': this.userId});
+            if(result.status == 200){
+                // this.getTaskList();
+                this.tableData.map((ele) => {
+                    if(row.volumeKey == ele.volumeKey){
+                        ele.checkClaimUserKey = ele.checkClaimUserKey ? '' : this.userId;
+                    }
+                });
+            }else{
+                this.$XModal.message({message: result.msg, status: 'warning'})
+            }
+        },
         handleLog({ row }){
             this.isShow = 3;
             this.vid = row.volumeKey;
@@ -447,7 +526,7 @@ export default {
             }
         },
         async imagePagesTotal(){
-            let result = await api.getAxios('v3/review/task/imagePagesTotal?siteKey='+this.stationKey+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&uploadStartTime='+this.uploadStartTime+'&uploadEndTime='+(this.uploadEndTime ? this.uploadEndTime+24*60*60*1000 : this.uploadEndTime)+'&firstSubmitStartTime='+this.firstSubmitStartTime+'&firstSubmitEndTime='+(this.firstSubmitEndTime ? this.firstSubmitEndTime+24*60*60*1000 : this.firstSubmitEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
+            let result = await api.getAxios('v3/review/task/imagePagesTotal?siteKey='+this.stationKey+'&imageSource='+this.imageSource+'&checkClaim='+this.checkClaim+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&uploadStartTime='+this.uploadStartTime+'&uploadEndTime='+(this.uploadEndTime ? this.uploadEndTime+24*60*60*1000 : this.uploadEndTime)+'&firstSubmitStartTime='+this.firstSubmitStartTime+'&firstSubmitEndTime='+(this.firstSubmitEndTime ? this.firstSubmitEndTime+24*60*60*1000 : this.firstSubmitEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
             if(result.status == 200){
                 this.allTotal = result.data;
             }else{
@@ -465,7 +544,7 @@ export default {
                 }
             });
 
-            let data = await api.getAxios('v3/review/task/listNew?siteKey='+this.stationKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&uploadStartTime='+this.uploadStartTime+'&uploadEndTime='+(this.uploadEndTime ? this.uploadEndTime+24*60*60*1000 : this.uploadEndTime)+'&firstSubmitStartTime='+this.firstSubmitStartTime+'&firstSubmitEndTime='+(this.firstSubmitEndTime ? this.firstSubmitEndTime+24*60*60*1000 : this.firstSubmitEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+(this.genealogyName).trim()+'&gcKey='+(this.gcKey).trim()+'&place='+(this.place).trim()+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
+            let data = await api.getAxios('v3/review/task/listNew?siteKey='+this.stationKey+'&imageSource='+this.imageSource+'&checkClaim='+this.checkClaim+'&sortField='+this.sortField+'&sortType='+this.sortType+'&orgListCheck='+this.orgListCheck.join()+'&startTime='+this.startTime+'&endTime='+(this.endTime ? this.endTime+24*60*60*1000 : this.endTime)+'&volumeKey='+this.volumeKey+'&checker='+this.checker+'&uploadStartTime='+this.uploadStartTime+'&uploadEndTime='+(this.uploadEndTime ? this.uploadEndTime+24*60*60*1000 : this.uploadEndTime)+'&firstSubmitStartTime='+this.firstSubmitStartTime+'&firstSubmitEndTime='+(this.firstSubmitEndTime ? this.firstSubmitEndTime+24*60*60*1000 : this.firstSubmitEndTime)+'&userKey='+this.userId+'&stage='+this.stage+'&genealogyName='+(this.genealogyName).trim()+'&gcKey='+(this.gcKey).trim()+'&place='+(this.place).trim()+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&GCOver='+this.GCOver+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
                 let pageTotal = 0;
@@ -494,6 +573,12 @@ export default {
                     ele.singleOrTwoO = ele.singleOrTwo == 1 ? '单页' : ele.singleOrTwo == 2 ? '双页' : '';
                     ele.organizationNo = ele.organizationNo+'('+ele.orgName+')';
                     ele.repulseRecordO = ele.repulseRecord ? ele.repulseRecord[0].returnReason : '';
+                    if(this.stage == 3){
+                        ele.checkClaimUserInfo = ele.cvCheckClaimUserInfo || ele.gcCheckClaimUserInfo || '';
+                    }else{
+                        ele.checkClaimUserInfo = ele.gcCheckClaimUserInfo || '';
+                    }
+                    
                     return ele;
                 });
         
@@ -533,14 +618,6 @@ export default {
             // this.$router.push('/'+this.pathname+'/cameraImage?vid='+row.volumeKey);, '_blank'
             window.open('/'+this.pathname+'/cameraImage?device='+row.deviceInfo.device+'&vid='+row.volumeKey+'&gid='+row._key+'&genealogyName='+row.genealogyName);
         },
-        async deleteGenealogy(checkList){//删除
-            let data = await api.deleteAxios('catalog',{'catalogKeyArr':checkList,'userKey':this.userId,'siteKey':this.stationKey});
-            if(data.status == 200){
-                this.getTaskList();
-            }else{
-                this.$message({message: '删除家谱出错，请重新删除',type: 'warning'});
-            }
-        },
         handlePageChange({ currentPage, pageSize }){
             this.page = currentPage;
             this.$router.push('/'+this.pathname+'/takeCamera?i='+this.stage+'&hasRoot='+this.hasRoot+'&genealogyName='+this.genealogyName+'&gcKey='+this.gcKey+'&place='+this.place+'&singleOrTwo='+this.singleOrTwo+'&isLeadImages='+this.isLeadImages+'&startTime='+this.startTime+'&endTime='+this.endTime+'&orgListCheck='+this.orgListCheck.join(',')+'&page='+this.page);
@@ -567,9 +644,29 @@ export default {
             orgId: state => state.nav.orgId,
             roleName: state => state.nav.roleName,
             roleKey: state => state.nav.roleKey,
+            roleType: state => state.nav.roleType,
         })
     },
     watch:{
+        'stage': function(nv, ov){
+            console.log(nv);
+            // || nv == 14 || nv == 15
+            // && ['9071165339'].indexOf(this.roleKey) > -1
+            if((nv == 3) && this.roleType == 'host' && ['9071165339'].indexOf(this.roleKey) > -1){
+                this.attrData = [
+                    {'label': '认领', 'value': 'reviewClaim'}, 
+                    {'label': '影像', 'value': 'look'}, 
+                    {'label': '家谱', 'value': 'jiapu'}, 
+                    {'label': '记录', 'value': 'log'}
+                ];
+            }else{
+                this.attrData = [
+                    {'label': '影像', 'value': 'look'}, 
+                    {'label': '家谱', 'value': 'jiapu'}, 
+                    {'label': '记录', 'value': 'log'}
+                ];
+            }
+        },
         'selectRecords': (nv, ov) => {
             
         },

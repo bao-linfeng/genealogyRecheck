@@ -8,10 +8,10 @@
                 <li>
                     <!-- <el-checkbox v-if="active == 4" v-model="showAll">显示全部</el-checkbox> -->
                     <!-- <vxe-button content="一键可拍" v-if="active == 4" @click="setCanTakeBatch"></vxe-button> -->
-                    <vxe-button content="查看影像" @click="isShow = 1"></vxe-button>
+                    <!-- <vxe-button content="查看影像" @click="isShow = 1"></vxe-button> -->
                     <!-- <vxe-button content="批量审核通过" v-if="role >= 1 && role <= 3" @click="batchInBase"></vxe-button> -->
-                    <vxe-button content="打回" v-if="active == 4" @click="dataVertifyHnadle('return')"></vxe-button>
-                    <vxe-button content="通过" v-if="active == 4" @click="dataVertifyHnadle('past')"></vxe-button>
+                    <!-- <vxe-button content="打回" v-if="active == 4" @click="dataVertifyHnadle('return')"></vxe-button> -->
+                    <vxe-button content="批次确认" v-if="active == 4" @click="dataVertifyHnadle('past')"></vxe-button>
                     <i v-if="stationKey != '1528234980'" class="el-icon-delete refresh" title="删除批次" @click="removeBatchAll"></i>
                 </li>
             </ul>
@@ -34,11 +34,11 @@
                     <vxe-table-column fixed="left" v-if="active == 4" field="canTake" title="审核" width="160" :cell-render="{name:'AdaiTabButton', events:{'click':changeCanTake}}"></vxe-table-column>
                     <!-- <vxe-table-column fixed="left" width="100" field="_key" title="谱ID"></vxe-table-column> -->
                     <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
-                    <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充字段" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
+                    <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充说明" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
                     <vxe-table-column fixed="left" v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
                     <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     
-                    <vxe-table-column fixed="right" field="action" title="操作" width="160" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'catalogCheck': catalogCheck,'editBook': editBook, 'annex': annex, 'singleQuick': singleQuick}}"></vxe-table-column>
+                    <vxe-table-column fixed="right" field="action" title="操作" width="160" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'catalogCheck': catalogCheck,'editBook': editBook, 'annex': annex, 'singleQuick': singleQuick, 'submit': handleSubmit}}"></vxe-table-column>
                 </vxe-table>
             </div>
             <RepeatJiapuModal v-if="active >= 2" :row="row" :h="h" :pumuThead="pumuThead" :isF="true" />
@@ -136,6 +136,7 @@ export default {
             this.attrData = [
                 // {'label': '审核', 'value': 'catalogCheck'},
                 // {'label': '编辑', 'value': 'editBook'},
+                {'label': '确认', 'value': 'submit'},
                 {'label':'附件','value':'annex'}, 
                 {'label':'快捷查询','value':'singleQuick'}
             ];
@@ -169,6 +170,8 @@ export default {
             {'fieldMeans': '档案名称', 'fieldName': 'Filenames', 'disabled': true},
             {'fieldMeans': '姓氏2', 'fieldName': 'surname2'},
             {'fieldMeans': '姓氏3', 'fieldName': 'surname3'},
+            {'fieldMeans': '谱籍地(现代)2', 'fieldName': 'place2'},
+            {'fieldMeans': '谱籍地(现代)3', 'fieldName': 'place3'},
         ];
     },
     mounted:function(){
@@ -176,6 +179,34 @@ export default {
         this.getDataCheckLog();
     },
     methods:{
+        handleSubmit({row}){
+            console.log(row);
+            if(row.checkConfirm){
+                return ADS.message('已经确认！');
+            }
+            this.$confirm('确认标记该谱目吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.GCCheckConfirm(row._key);
+            }).catch(() => {});
+        },
+        async GCCheckConfirm(gcKey){// 标记谱目已处理
+            let result = await api.postAxios('data/GCCheckConfirm', {
+                'gcKey': gcKey,
+                'userKey': this.userId,
+            });
+            if(result.status == 200){
+                this.tableData.forEach((ele) => {
+                    if(ele._key == gcKey){
+                        ele.checkConfirm = 1;
+                    }
+                });
+            }else{
+                this.$XModal.message({ message: result.msg, status: 'warning' })
+            }
+        },
         closeExamine(f){
             this.isCheck = false;
             f ? this.getDataCheckLog() : null;
@@ -286,22 +317,22 @@ export default {
         },
         dataVertifyHnadle(operate){
             let isF = false, toBeRediscussed;
-            if(operate == 'past'){
-                this.tableData.forEach((ele) => {
-                    if(ele.canTake == 1){
-                        isF = true;
-                    }
-                    if(ele.canTake == 3){
-                        toBeRediscussed = 3;
-                    }
-                });
-                // if(!isF){
-                //     return ADS.message('请选择可拍，在通过');
-                // }
-                if(toBeRediscussed == 3){
-                    return ADS.message('有打回谱目，暂时无法审核通过！');
-                }
-            }
+            // if(operate == 'past'){
+            //     this.tableData.forEach((ele) => {
+            //         if(ele.canTake == 1){
+            //             isF = true;
+            //         }
+            //         if(ele.canTake == 3){
+            //             toBeRediscussed = 3;
+            //         }
+            //     });
+            //     // if(!isF){
+            //     //     return ADS.message('请选择可拍，在通过');
+            //     // }
+            //     if(toBeRediscussed == 3){
+            //         return ADS.message('有打回谱目，暂时无法审核通过！');
+            //     }
+            // }
             this.$confirm('此操作将永久改变该批次谱目数据, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -371,7 +402,7 @@ export default {
             this.dataStatus = data;
             if(data.property === 'needFill' && !data.row.needFill && data.row.canTake == 3){
                 this.isNeedFill = true;
-                this.getDataCheckLog();
+                // this.getDataCheckLog();
             }else{
                 this.changeDataStatus(data, [], '');
             }
@@ -388,6 +419,8 @@ export default {
                     this.tableData.map((item)=>{
                         if(item._key == data.row._key){
                             item[data.property] = item[data.property] ? '' : 1;
+                            item.remark = remark;
+                            item.needFillFields = needFillFields;
                         }
                     });
                     this.getVertifyOption();
@@ -428,15 +461,6 @@ export default {
                 }
             });
             this.field_branch.map((item)=>{
-                // if(item.fieldName == 'condition'){
-                //     if(this.role >= 1 && this.role <= 3){
-                //         dataObj[item.fieldName] = row[item.fieldName];
-                //     }else{
-                        
-                //     }
-                // }else{
-                //     dataObj[item.fieldName] = row[item.fieldName];
-                // }
                 if(item.disabled){
 
                 }else{

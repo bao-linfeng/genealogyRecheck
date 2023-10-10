@@ -4,7 +4,7 @@
         <div class="box">
             <div class="head-box">
                 <div class="head-left">
-                    <h3 class="title">影像审核工作量统计表</h3>
+                    <h3 class="title">人员工作量统计表-谱目编辑</h3>
                 </div>
                 <div class="head-right">
                     
@@ -12,15 +12,7 @@
             </div>
             <div class="search-wrap">
                 <div class="search-left">
-                    <label class="label" for="">汇总类型</label>
-                    <el-select class="width150" v-model="accountType" placeholder="请选择汇总类型" size="medium">
-                        <el-option
-                            v-for="item in accountTypeList"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                        </el-option>
-                    </el-select>
+                    
                 </div>
                 <div class="search-right">
                     <el-select class="width130" v-model="userKeyArr" multiple placeholder="审核人员">
@@ -71,18 +63,14 @@
                     :height="h"
                     :loading="loading"
                     :align="'center'"
-                    @cell-click="cellClickEvent"
                     :data="tableData">
                     <vxe-table-column field="time" width="150" title="日期" fixed="left" sortable></vxe-table-column>
-                    <vxe-table-column field="inDatabase" width="100" :title="accountType == 1 ? '入库卷册' : '入库影像页'"></vxe-table-column>
-                    <vxe-table-column field="check" width="100" :title="accountType == 1 ? '审核卷册' : '审核影像页'"></vxe-table-column>
-                    <vxe-table-column v-for="(item,index) in branch_main" :key="'main'+index" width="100" :field="item.value" :title="item.label"></vxe-table-column>
-                    <vxe-table-column field="other" width="100" title="其他"></vxe-table-column>
-                    <vxe-table-column field="allUserNumber" min-width="110" title="合计总量"></vxe-table-column>
+                    <vxe-table-column field="inDatabase" title="已导入数"></vxe-table-column>
+                    <vxe-table-column field="allUserNumber" title="查重谱数"></vxe-table-column>
+                    <vxe-table-column v-for="(item,index) in branch_main" :key="'main'+index" :field="item.value" :title="item.label"></vxe-table-column>
                 </vxe-table>
             </div>
         </div>
-        <AccountDetail v-if="isShow == 1" :row="cellData" v-on:close="isShow = 0" />
     </div>
 </template>
 
@@ -91,22 +79,16 @@ import api from "../../api.js";
 import ADS from "../../ADS.js";
 import Sidebar from "../../components/sidebar/Sidebar.vue";
 import NavModal from "../../components/dictionary/NavModal.vue";
-import AccountDetail from '../../components/workload/AccountDetail.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
-    name: "workloadAccount",
+    name: "CatalogEditStatistics",
     components: {
-        Sidebar, NavModal, AccountDetail,
+        Sidebar, NavModal,
     },
     data: () => {
         return {
             h: 0,
             tableData: [],
-            accountType: '1',
-            accountTypeList: [
-                {'label': '按卷汇总', 'value': '1'},
-                {'label': '按影像页汇总', 'value': '2'},
-            ],
             accountTime: '1',
             accountTimeList: [
                 {'label': '每日', 'value': '1'},
@@ -117,10 +99,6 @@ export default {
             endTime: '',
             field_main: [],
             branch_main: [],
-            isShow: 0,
-            orgKey: '',
-            orgList: [],
-            cellData: {},
             userKeyArr: [],
             userList: [],
             loading: false,
@@ -132,61 +110,35 @@ export default {
         this.startTime = this.endTime - 30*24*60*60*1000;
     },
     mounted:function(){
-        this.getSiteUser();
+        this.getNewGCCheckUserList();
     },
     methods:{
-        async getOrgList(){// 机构列表
-            let data = await api.getAxios('org?siteKey='+this.stationKey+'&name=');
-            if(data.status == 200){
-                this.orgList = data.data.map((ele, index)=>{
-                    return {'label': ele.organizationNo+'('+ele.name+')', 'value': ele._key};
-                });
-                this.orgList.unshift({'label': '全部机构序号', 'value': ''});
-            }else{
-                this.$XModal.message({ message: data.msg, status: 'warning' });
-            }
-        },
-        cellClickEvent({row,column}){
-            console.log(row, column);
-            // this.cellData = {
-            //     'statisticsType': this.accountTime,
-            //     'startTime': row.sTime || '',
-            //     'endTime': row.eTime || '',
-            //     'takeStatus': column.property,
-            //     'orgKey': this.orgKey,
-            // };
-            // this.isShow = 1;
-        },
         handleSearch(){
-            this.getWorkRecordStatistics();
+            this.getWorkRecordStatisticsNewGCCheck();
         },
-        async getSiteUser(){// 用户管理
-            let result = await api.getAxios('site/user?siteKey='+this.stationKey+'&orgKey=&userKey='+this.userId+'&userRole=&page=1&limit=1000');
+        async getNewGCCheckUserList(){// 用户管理
+            let result = await api.getAxios('v3/review/newGCCheckUserList');
             if(result.status == 200){
                 let field_main = [], userList = [];
-                result.data.list.forEach(ele => {
-                    if(ele.rootStr && ele.rootStr.indexOf('统计审核工作量') > -1){
-                        field_main.push({'label': ele.userName, 'value': ele.userName, '_key': ele._key});
-                        userList.push({'label': ele.userName, 'value': ele._key});
-                    }
+                result.data.forEach(ele => {
+                    field_main.push({'label': ele.userName, 'value': ele.userName, '_key': ele.userKey});
+                    userList.push({'label': ele.userName, 'value': ele.userKey});
                 });
                 this.userList = userList;
                 this.branch_main = this.field_main = field_main;
 
-                this.getWorkRecordStatistics();
+                this.getWorkRecordStatisticsNewGCCheck();
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        async getWorkRecordStatistics(){// 工作量统计
+        async getWorkRecordStatisticsNewGCCheck(){// 工作量统计
             this.loading = true;
             this.tableData = [];
-            let result = await api.getAxios('site/workRecordStatistics?startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1)+'&userKeyArr='+this.userKeyArr.join(',')+'&type='+this.accountType+'&accountTime='+this.accountTime);
+            let result = await api.getAxios('v3/review/workRecordStatisticsNewGCCheck?startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1)+'&userKeyArr='+this.userKeyArr.join(',')+'&accountTime='+this.accountTime);
             this.loading = false;
             if(result.status == 200){
                 this.tableData = result.data.map((ele)=>{
-                    ele['other'] = ele['其他'];
-
                     if(ele.sTime){
                         if(this.accountTime == 1){
                             ele.time = ele.sTime ? ADS.getLocalTime(ele.sTime, '-', 1) : '';
@@ -209,28 +161,19 @@ export default {
         },
         initDownloadExcel(){
             let aoa = [];
-            let arr = [];
-            arr.push('日期');
-            arr.push(this.accountType == 1 ? '入库卷册' : '入库影像页');
-            arr.push(this.accountType == 1 ? '审核卷册' : '审核影像页');
+            let arr = ['日期', '已导入数', '查重谱数'];
             this.branch_main.forEach((ele, i) => {
                 arr.push(ele.value);
             });
-            arr.push('其他');
-            arr.push('合计总量');
             arr = [arr];
 
             let aoaTable = [], aoaBody = [];
             this.tableData.forEach((ele)=>{
-                aoaTable = [];
-                aoaTable.push(ele.time);
-                aoaTable.push(ele.inDatabase);
-                aoaTable.push(ele.check);
+                aoaTable = [ele.time, ele.inDatabase, ele.allUserNumber];
+
                 this.branch_main.forEach((item) => {
                     aoaTable.push(ele[item.value]);
                 });
-                aoaTable.push(ele['其他']);
-                aoaTable.push(ele.allUserNumber);
                 
                 aoaBody.push(aoaTable);
             });
@@ -291,7 +234,7 @@ export default {
             (function aoa_to_sheet(aoa){
                 let XLSX = window.XLSX;
                 var sheet = XLSX.utils.aoa_to_sheet(aoa);
-                openDownloadDialog(sheet2blob(sheet), '工作量统计报表.xlsx');
+                openDownloadDialog(sheet2blob(sheet), '新谱查重工作量统计表'+Date.now()+'.xlsx');
             })(aoa)
         },
     },
@@ -315,9 +258,6 @@ export default {
                 this.endTime = new Date(new Date().setHours(0, 0, 0, 0)).getTime();
                 this.startTime = this.endTime - 12*30*24*60*60*1000;
             }
-            this.handleSearch();
-        },
-        'accountType': function(nv ,ov){
             this.handleSearch();
         },
         'userKeyArr': function(nv, ov){

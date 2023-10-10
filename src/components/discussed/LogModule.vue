@@ -1,11 +1,11 @@
 <template>
-    <div class="catalog-wrap">
-        <div class="catalog-box">
-            <div class="head-box">
+    <Drag>
+        <section class="catalog-box">
+            <header class="head-box">
                 <h3 class="title">记录列表</h3>
                 <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
-            </div>
-            <div class="content-box">
+            </header>
+            <main class="content-box" @mousedown.stop="">
                 <vxe-table
                     border
                     resizable
@@ -22,25 +22,25 @@
                     <vxe-table-column field="userName" title="操作者"></vxe-table-column>
                     <vxe-table-column field="timeO" title="操作时间"></vxe-table-column>
                 </vxe-table>
+            </main>
+            <footer class="foot-box" @mousedown.stop="">
                 <vxe-pager
                     align="right"
                     @page-change = "changePage"
                     :current-page.sync="page"
                     :page-size.sync="limit"
                     :total="total"
-                    :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
+                    :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'FullJump', 'Total']">
                 </vxe-pager>
-            </div>
-            <div class="foot-box">
-                
-            </div>
-        </div>
-    </div>
+            </footer>
+        </section>
+    </Drag>
 </template>
 
 <script>
 import api from "../../api.js";
 import ADS from "../../ADS.js";
+import Drag from '../Drag.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "logModule",
@@ -50,7 +50,7 @@ export default {
         },
     },
     components: {
-
+        Drag, 
     },
     data: () => {
         return {
@@ -63,7 +63,7 @@ export default {
         };
     },
     mounted:function(){
-        this.h = window.innerHeight - 100 - 60 - 50;
+        this.h = window.innerHeight - 100 - 60 - 70;
         this.getDataList();
     },
     methods:{
@@ -101,67 +101,42 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.catalog-wrap{
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0,0,0,0.3);
+.catalog-box{
+    position: relative;
+    width: 1000px;
+    height: calc(100% - 100px);
+    padding: 0 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 1px 2px #ddd;
+}
+.head-box{
+    position: relative;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .close{
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+}
+.content-box{
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    height: calc(100% - 120px);
+}
+.foot-box{
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
-    .catalog-box{
-        position: relative;
-        width: 1000px;
-        height: calc(100% - 100px);
-        padding: 0 20px;
-        background: #fff;
-        border-radius: 5px;
-        .head-box{
-            position: relative;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            .close{
-                position: absolute;
-                top: 50%;
-                right: 0;
-                transform: translateY(-50%);
-                cursor: pointer;
-            }
-        }
-    }
-    .content-box{
-        position: relative;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        .input-box{
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            .label{
-                width: 100px;
-            }
-        }
-    }
-    .foot-box{
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 60px;
-    }
-}
-.width200{
-    width: 200px;
-}
-.marginL10{
-    margin-right: 10px;
+    height: 60px;
 }
 </style>
 

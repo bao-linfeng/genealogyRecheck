@@ -5,25 +5,24 @@
                 <h3 class="title">{{role >= 1 && role <= 3 ? '审核' : '补充'}}</h3>
                 <img class="close" @click="close(false)" src="../../assets/close.svg" alt="">
             </div>
-            <div class="content-box">
-                <div class="memo-box">
-                    <h3 class="title">{{role >= 1 && role <= 3 ? '补充说明资料' : '补充说明'}}</h3>
+            <div class="content-box" @mousedown.stop="">
+                <!-- <div class="memo-box">
+                    <h3 class="title">补充说明</h3>
                     <p>{{needFillFields.join()}}</p>
-                </div>
-                <div class="memo-box">
+                </div> -->
+                <div class="memo-box" v-if="orgAdmin == 'admin'">
                     <div class="memo-left">
-                        <h3 class="title marginR20">备注</h3>
-                        <el-button v-if="role < 1 || role > 3" type="primary" size="medium" @click="saveRemark">保存</el-button>
+                        <h3 class="title marginR20">补充说明</h3>
+                        <!-- <el-button v-if="role < 1 || role > 3" type="primary" size="medium" @click="saveRemark">保存</el-button> -->
                     </div>
-                    <textarea class="memo" v-model="remark" :disabled="role >= 1 && role <= 3"></textarea>
+                    <textarea class="memo" v-model="gcStatusRemark" :disabled="role >= 1 && role <= 3"></textarea>
                 </div>
                 <div class="content-head">
-                    <h3 class="title">{{role >= 1 && role <= 3 ? '补充影像列表' : '补充影像'}} ({{imageList.length}})</h3>
+                    <h3 class="title">补充影像({{imageList.length}})</h3>
                     <div class="head-left" v-if="role < 1 || role > 3">
                         <div class="upload-input">
                             <input type="file" accept="image/*" multiple @change="upload" />
                         </div>
-                        <!-- <vxe-button v-if="imageList.length" content="关联影像" @click="linkSource"></vxe-button> -->
                     </div>
                 </div>
                 <div class="img-wrap style1" :class="{active: needFillFields.length}">
@@ -33,6 +32,12 @@
                         <i class="el-icon-delete" v-if="role < 1 || role > 3" @click.stop="deleteSource(index, item)"></i>
                         <p class="name">{{item.fileName}}</p>
                     </div>
+                </div>
+                <div class="remark-wrap">
+                    <h3 class="title">查重记录</h3>
+                    <ul class="remark-box style1">
+                        <li v-for="(item, index) in remarkList" :key="index">{{item.time}} {{item.time ? item.userRole >= 1 && item.userRole <= 3 ? 'FS-' : '供应商-' : ''}}{{item.userName}} {{item.gcStatusRemark}}</li>
+                    </ul>
                 </div>
                 <div class="condition-wrap" v-if="role >= 1 && role <= 3 && detail.gcStatus == '23'">
                     <div class="condition-left">
@@ -47,15 +52,18 @@
                         </el-select>
                         <el-input class="width200 marginT10" placeholder="重复谱ID" v-model="Dupbookid" size="small"></el-input>
                     </div>
-                    <textarea class="memo" v-model="gcStatusRemark" placeholder="此处填写谱状态更改说明信息"></textarea>
+                    <div class="condition-left">
+                        <h3 class="title">谱状态更改说明</h3>
+                        <textarea class="memo" v-model="gcStatusRemark" placeholder="此处填写谱状态更改说明信息"></textarea>
+                    </div>
                 </div>
             </div>
-            <div class="foot-box" v-if="(role >= 1 && role <= 3 && detail.gcStatus == '23') || ((role < 1 || role > 3) && (detail.gcStatus == '20' || detail.gcStatus == '25'))">
+            <div class="foot-box" @mousedown.stop="" v-if="(role >= 1 && role <= 3 && detail.gcStatus == '23') || ((role < 1 || role > 3) && (detail.gcStatus == '20' || detail.gcStatus == '25'))">
                 <el-button size="medium" @click="close(false)">取消</el-button>
                 <el-button type="primary" size="medium" @click="saveData">{{role >= 1 && role <= 3 ? '审核' : '提交审核'}}</el-button>
             </div>
         </div>
-        <div class="preview-images-wrap" v-if="simplePath">
+        <div class="preview-images-wrap" v-if="simplePath" @mousedown.stop="">
             <div class="large-image-box">
                 <div v-if="currentIndex >= 1" class="prev-box" @click="prevImage">
                     <i class="prev el-icon-arrow-left"></i>
@@ -72,6 +80,7 @@
 
 <script>
 import api from "../../api.js";
+import ADS from "../../ADS.js";
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "attachmentModule",
@@ -115,7 +124,8 @@ export default {
                 'm': '20',
                 'nf': '30',
                 'c': '60'
-            }
+            },
+            remarkList: [],
         };
     },
     mounted:function(){
@@ -129,7 +139,6 @@ export default {
                     window.open(data.gcFile);
                 }
                 if(data.gcFile.indexOf('.doc') > -1 || data.gcFile.indexOf('.docx') > -1){
-                    // window.open(data.gcFile);
                     window.open('https://view.officeapps.live.com/op/view.aspx?src='+data.gcFile);
                 }
             }else{
@@ -137,7 +146,6 @@ export default {
                     window.open(this.baseURL+data.filePath);
                 }
                 if(data.filePath.indexOf('.doc') > -1 || data.filePath.indexOf('.docx') > -1){
-                    // window.open(this.baseURL+data.filePath);
                     window.open('https://view.officeapps.live.com/op/view.aspx?src='+(this.baseURL+data.filePath));
                 }
             }
@@ -197,6 +205,23 @@ export default {
                 this.detail = result.data;
                 this.needFillFields = result.data.needFillFields || [];
                 this.remark = result.data.remark;
+                if(this.remark || this.needFillFields.length){
+                    this.remarkList.push({'gcStatusRemark': '补充字段: '+(this.needFillFields.length ? this.needFillFields.join()+',' : '')+(this.remark ? this.remark+';' : ';')});
+                }
+                this.getGCStatusRemarkList();
+            }else{
+                this.$XModal.message({ message: data.msg, status: 'warning' });
+            }
+        },
+        async getGCStatusRemarkList(){
+            const result = await api.getAxios('review/gcStatusRemarkList?gcKey='+this.gid);
+            if(result.status == 200){
+                let remarkList = result.data.map((ele) => {
+                    ele.time = ADS.getLocalTime(ele.time);
+
+                    return ele;
+                });
+                this.remarkList = this.remarkList.concat(remarkList);
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' });
             }
@@ -281,12 +306,18 @@ export default {
             baseURL: state => state.nav.baseURL,
             role: state => state.nav.role,
             orgId: state => state.nav.orgId,
+            orgAdmin: state => state.nav.orgAdmin,
         })
     },
     watch: {
         'simplePath': function(nv, ov){
             this.$emit('prev', nv);
-        }
+        },
+        'gid': function(nv, ov){
+            this.remarkList = [];
+            this.getGenealogyDetail();
+            this.getImage();
+        },
     },
 };
 </script>
@@ -298,12 +329,10 @@ export default {
     .attachment-box{
         position: relative;
         width: 600px;
-        // max-height: calc(100% - 40px);
-        height: calc(100% - 40px);
+        height: 100%;
         padding: 0 20px;
         background: #fff;
         border-radius: 5px;
-        margin-top: 20px;
         .head-box{
             position: relative;
             height: 60px;
@@ -397,14 +426,15 @@ export default {
             display: flex;
             margin-top: 10px;
             .condition-left{
+                width: 50%;
                 .title{
-                    margin-bottom: 20px;
+                    margin-bottom: 10px;
                 }
             }
             .memo{
                 position: relative;
-                width: calc(100% - 232px);
-                height: 100px;
+                width: calc(100% - 20px);
+                height: 54px;
                 outline: none;
                 padding: 10px;
                 border: 1px solid #ddd;
@@ -473,6 +503,21 @@ export default {
         font-size: 40px;
         cursor: pointer;
         color: #f00;
+    }
+}
+.remark-wrap{
+    position: relative;
+    width: 100%;
+    height: 160px;
+    .title{
+        text-align: left;
+    }
+    .remark-box{
+        height: 130px;
+        overflow-y: auto;
+        li{
+            margin-bottom: 5px;
+        }
     }
 }
 .width200{

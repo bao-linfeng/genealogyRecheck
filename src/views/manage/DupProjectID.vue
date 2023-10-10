@@ -113,12 +113,12 @@
                     <el-table-column
                         fixed="right"
                         label="操作"
-                        width="120"
+                        width="150"
                         align="center">
                         <template slot-scope="scope">
-                            <el-button @click="showDetail(scope.row)" type="text" size="small">详情</el-button>
-                            <el-button @click="showLog(scope.row)" type="text" size="small">记录</el-button>
-                            <el-button v-if="orgAdmin == 'admin' && scope.row.publicTask && scope.row.takeStatus == '未认领'" @click="handleCkaim(scope.row)" type="text" size="small">认领</el-button>
+                            <button class="AdaiActionButton" @click="showDetail(scope.row)">详情</button>
+                            <button class="AdaiActionButton" @click="showLog(scope.row)">记录</button>
+                            <button class="AdaiActionButton" v-if="orgAdmin == 'admin' && scope.row.publicTask && scope.row.takeStatus == '未认领'" @click="handleCkaim(scope.row)">认领</button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -286,6 +286,11 @@ export default {
         }else{
             // this.openStatus = '';
             // this.orgKey = this.orgId;
+            this.conditionList = [
+                {'label': '谱状态', 'value': ''},
+                {'label': 'nf|可拍', 'value': 'nf'},
+                {'label': 'f|已完结', 'value': 'f'},
+            ];
         }
 
         this.openStatus = '1';
@@ -631,6 +636,9 @@ export default {
 }
 .marginL10{
     margin-left: 10px;
+}
+.marginB5{
+    margin-bottom: 5px;
 }
 </style>
 

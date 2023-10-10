@@ -78,11 +78,11 @@ export default {
             fileName: '',
             index: 1,
             url: '',
-            uploadFileURL: 'https://sync.qingtime.cn',
+            uploadFileURL: 'https://genealogyimagestest.qingtime.cn',
         };
     },
     mounted: function(){
-        this.uploadFileURL = 'https://sync.qingtime.cn';
+        this.uploadFileURL = 'https://genealogyimagestest.qingtime.cn';
         if(window.location.origin.indexOf('genealogy.1jiapu.com') > -1){
             this.uploadFileURL = 'http://223.111.180.111:8085';
         }
@@ -229,6 +229,7 @@ export default {
             }
         }
     }
+    z-index: 999;
 }
 .foot-box{
     text-align: center;

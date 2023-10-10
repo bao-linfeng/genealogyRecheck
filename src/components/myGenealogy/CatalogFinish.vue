@@ -14,6 +14,7 @@
             <el-button type="primary" size="mini" @click="saveData">确认</el-button>
             <el-button size="mini" @click="close">取消</el-button>
         </div>
+        <Loading v-show="loading" />
     </div>
 </template>
 
@@ -29,6 +30,7 @@ export default {
     data: () => {
         return {
             catalog: {},
+            loading: false,
         };
     },
     mounted: function(){
@@ -36,7 +38,9 @@ export default {
     },
     methods:{
         async getGenealogyDetail(){
+            this.loading = true;
             const result = await api.getAxios('catalog/detail?catalogKey='+this.dataKey);
+            this.loading = false;
             if(result.status == 200){
                 this.catalog = result.data;
             }else{

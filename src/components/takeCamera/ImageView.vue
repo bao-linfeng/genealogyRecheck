@@ -59,7 +59,7 @@ export default {
     },
     data: () => {
         return {
-            imageHref: 'https://sync.qingtime.cn/photo',
+            imageHref: 'https://genealogyimagestest.qingtime.cn/photo',
             imageList: [],
             imageGif: 'data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs',
             h: 300,
