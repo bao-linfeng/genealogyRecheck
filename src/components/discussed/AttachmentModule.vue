@@ -63,16 +63,22 @@
                 <el-button type="primary" size="medium" @click="saveData">{{role >= 1 && role <= 3 ? '审核' : '提交审核'}}</el-button>
             </div>
         </div>
-        <div class="preview-images-wrap" v-if="simplePath" @mousedown.stop="">
+        <div class="preview-images-wrap" v-if="simplePath">
             <div class="large-image-box">
                 <div v-if="currentIndex >= 1" class="prev-box" @click="prevImage">
                     <i class="prev el-icon-arrow-left"></i>
                 </div>
-                <img class="large-image" :src="imageList[currentIndex].gcFile && imageList[currentIndex].gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? imageList[currentIndex].gcFile : baseURL+simplePath" alt="" />
+                <img class="large-image" :style="{transform: 'rotate('+rotate+'deg) scale('+scale+')'}" :src="imageList[currentIndex].gcFile && imageList[currentIndex].gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? imageList[currentIndex].gcFile : baseURL+simplePath" alt="" />
                 <div v-if="currentIndex <= imageList.length - 2" class="prev-box next-box" @click="nextImage">
                     <i class="prev el-icon-arrow-right"></i>
                 </div>
                 <i class="close el-icon-close" @click="closePreview"></i>
+                <div class="zoom">
+                    <img class="icon" @click="handleRotate(1)" title="右旋90°" src="../../assets/shoot/spinR.svg" alt="">
+                    <img class="icon" @click="handleRotate(-1)" title="左旋90°" src="../../assets/shoot/spinL.svg" alt="">
+                    <i class="el-icon-zoom-out" @click="handleZoom(-1)"></i>
+                    <i class="el-icon-zoom-in" @click="handleZoom(1)"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -126,6 +132,8 @@ export default {
                 'c': '60'
             },
             remarkList: [],
+            scale: 1,
+            rotate: 0,
         };
     },
     mounted:function(){
@@ -133,6 +141,22 @@ export default {
         this.getImage();
     },
     methods:{
+        handleZoom(z){
+            if(z > 0){
+                this.scale = this.scale + 0.2;
+            }else{
+                if(this.scale >= 1.2){
+                    this.scale = this.scale - 0.2;
+                }
+            }
+        },
+        handleRotate(r){
+            if(r > 0){
+                this.rotate = this.rotate + 90;
+            }else{
+                this.rotate = this.rotate - 90;
+            }
+        },
         openURL(data){
             if(data.gcFile && data.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1){
                 if(data.gcFile.indexOf('.pdf') > -1){
@@ -205,9 +229,12 @@ export default {
                 this.detail = result.data;
                 this.needFillFields = result.data.needFillFields || [];
                 this.remark = result.data.remark;
-                if(this.remark || this.needFillFields.length){
-                    this.remarkList.push({'gcStatusRemark': '补充字段: '+(this.needFillFields.length ? this.needFillFields.join()+',' : '')+(this.remark ? this.remark+';' : ';')});
+                if(this.remark || this.needFillFields.length || this.detail.needImage){
+                    this.remarkList.push({'gcStatusRemark': (this.detail.needImage ? '补充影像；' : '')+(this.remark || this.needFillFields.length ? '补充说明：'+(this.needFillFields.length ? this.needFillFields.join()+'，' : '')+(this.remark ? ''+this.remark+'；' : '；') : '')});
                 }
+                // if(this.remark || this.needFillFields.length){
+                //     this.remarkList.push({'gcStatusRemark': '补充字段: '+(this.needFillFields.length ? this.needFillFields.join()+',' : '')+(this.remark ? this.remark+';' : ';')});
+                // }
                 this.getGCStatusRemarkList();
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' });
@@ -452,12 +479,11 @@ export default {
 }
 .preview-images-wrap{
     position: fixed;
-    top: 0;
-    right: 0;
-    // bottom: 0;
-    // left: 0;
-    height: calc(100% - 10px);
-    background: rgba(0,0,0,0.3);
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 60%;
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -537,6 +563,19 @@ export default {
 }
 .red{
     color: #f00;
+}
+.zoom{
+    position: relative;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 30px;
+    color: #358acd;
+    width: 160px;
+    cursor: pointer;
 }
 </style>
 

@@ -82,9 +82,9 @@ export default {
         };
     },
     mounted: function(){
-        this.uploadFileURL = 'https://genealogyimagestest.qingtime.cn';
         if(window.location.origin.indexOf('genealogy.1jiapu.com') > -1){
-            this.uploadFileURL = 'http://223.111.180.111:8085';
+            // this.uploadFileURL = 'http://223.111.180.111:8085';
+            this.uploadFileURL = 'https://photo.1jiapu.com';
         }
         this.index = this.page;
     },

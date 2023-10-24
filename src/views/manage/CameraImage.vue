@@ -70,6 +70,7 @@
                     <span class="span">申诉{{(role == 1 || role == 2 || role == 3) ? '回复' : ''}}</span>
                 </div> -->
                 <!-- ((orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (role >= 1 && role <= 3 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 7 || takeStatus == 13 || takeStatus == 14))) && !isRead -->
+                <!-- 2023.10.24 baolf 已付款的卷册，总管理员可以审核；未结算的卷册，总管理员和影像管理员可审核 7 -->
                 <div v-if="(((['9071165200'].indexOf(roleKey) > -1 && detail.isBill) || (['9071165200', '9071165268'].indexOf(roleKey) > -1 && !detail.isBill)) && takeStatus == 7) || (['9138241994'].indexOf(roleKey) > -1 && takeStatus == 6) || (orgAdmin == 'admin' && (takeStatus == 12 || takeStatus == 6)) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14) || (['9071165268', '9071165200'].indexOf(roleKey) > -1 && (takeStatus == 6 || takeStatus == 16)) || (['24690171211'].indexOf(userId) > -1 && (takeStatus == 5 || takeStatus == 6 || takeStatus == 13 || takeStatus == 14 || takeStatus == 16))" class="task-verify" @click="handleImagesCheck">
                     <img src="../../assets/shoot/pass.svg" alt="">
                     <span class="span">影像审核</span>
@@ -140,6 +141,8 @@
             <!-- 工具栏 -->
             <div class="tool-wrap" @mousedown="mouseLStart">
                 <div class="tool-box" @mousedown.stop="" @keyup.stop="">
+                    <i class="el-icon-caret-left marginR30" @click="changeImage(imageIndex - 1)"></i>
+
                     <input class="page-input w50" type="Number" title="原图缩放比例设置" v-model="zoomLevel" step="0.1" placeholder="原图缩放比例" />
                     <img class="icon" @click="handleNatural" title="原图查看" :src="require('../../assets/shoot/'+(isNatural ? 'naturalOpen' : 'naturalClose')+'.svg')" alt="">
                     <img class="icon" @click="handleOpenNewView" title="查看单页" :src="require('../../assets/shoot/magnifierOpen.svg')" alt="">
@@ -152,13 +155,14 @@
                     <img class="icon" @click="handleZoom(false)" title="缩小" src="../../assets/shoot/zoomIn.svg" alt="">
                     <img class="icon" @click="handleZoom()" title="放大" src="../../assets/shoot/zoomOut.svg" alt="">
                     <img class="icon" @click="handleReset" title="重置" src="../../assets/shoot/reset.svg" alt="">
-                    <img v-if="((orgAdmin == 'admin' && takeStatus == 12) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14))" class="icon" @click="isPassModule = !isPassModule" title="标记原因" src="../../assets/shoot/mark.svg" alt="">
+                    <img v-if="((orgAdmin == 'admin' && takeStatus == 12) || (['9071165339', '9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 5) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 6) || (['9071165330', '9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 13) || (['9071165288', '9071165268', '9071165200'].indexOf(roleKey) > -1 && takeStatus == 14))" class="icon" @click="isPassModule = !isPassModule" title="标记原因" src="../../assets/shoot/mark.svg" alt="">
+                    <i class="el-icon-caret-right marginL30" @click="changeImage(imageIndex + 1)"></i>
                     <!-- 标记打回 -->
                     <PassModule v-if="isPassModule" :singleKey="singleKey" :volumeKey="vid" :imageKey="pageKey" :submitCount="this.detail.submitCount" :imageDetail="imageDetail" v-on:set-reason="patchPageReturn" v-on:save="handleSinglePageReturnList" />
                 </div>
             </div>
-            <i class="el-icon-arrow-left prev" @click="changeImage(imageIndex - 1)"></i>
-            <i class="el-icon-arrow-right next" @click="changeImage(imageIndex + 1)"></i>
+            <!-- <i class="el-icon-arrow-left prev" @click="changeImage(imageIndex - 1)"></i>
+            <i class="el-icon-arrow-right next" @click="changeImage(imageIndex + 1)"></i> -->
         </div>
         <div class="foot style3" :style="{height: TH+'px'}">
             <!-- 缩略图 -->
@@ -190,7 +194,7 @@
         <!-- 谱目编辑 -->
         <EditCatalog v-if="(isShow == 6)" :read="false" :dataKey="dataKey" :vid="vid" :isGCOver="false" v-on:close="isShow = 0" />
         <!-- 影像审核 -->
-        <ImagesCheck v-if="isShow == 5" :detail="detail" :returnReasonL="resionList.length" v-on:close="closeCheck" />
+        <ImagesCheck v-if="isShow == 5" :detail="detail" :catalogDetail="catalogDetail" :returnReasonL="resionList.length" v-on:close="closeCheck" />
         <!-- loading -->
         <Loading class="image-loading" v-show="loading" />
         <!-- 影像预览 -->
@@ -1536,6 +1540,14 @@ export default {
     &.active{
         color: #358acd;
     }
+}
+.marginR30{
+    margin-right: 30px;
+    font-size: 26px;
+}
+.marginL30{
+    margin-left: 30px;
+    font-size: 26px;
 }
 </style>
 

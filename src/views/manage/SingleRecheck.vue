@@ -299,7 +299,8 @@ export default {
             if(row.imageLink){
                 window.open(row.imageLink);
             }else{
-                window.open('/'+this.pathname+'/viewImage?gid='+row.gcKey+'&genealogyName='+row.genealogyName);
+                window.open('/'+this.pathname+'/cameraImage?device='+row.device+'&vid='+row.volumeKey+'&gid='+row.gcKey+'&genealogyName='+row.genealogyName);
+                // window.open('/'+this.pathname+'/viewImage?gid='+row.gcKey+'&genealogyName='+row.genealogyName);
             }
         },
         toExamine(row){
@@ -343,6 +344,9 @@ export default {
         cellClassName({ row, rowIndex, $rowIndex, column, columnIndex, $columnIndex }){
             if(row.GCOver == '1' && column.property == 'gcKey') {
                 return 'row-blue'
+            }
+            if(row.changeFieldArr && row.changeFieldArr.indexOf(column.property) > -1){
+                return 'row-red';
             }
         },
         selectAllEvent ({ checked, records }) {

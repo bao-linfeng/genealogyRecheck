@@ -616,6 +616,9 @@ export default {
                     if(item._key === row._key){
                         item.willIn = data.data;
                         item.willIns = data.data == 1 ? '是' : '否';
+                        if(setInReason){
+                            item.hasFileOrRemark = 1;
+                        }
                     }
                 });
             }else{

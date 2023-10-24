@@ -16,7 +16,7 @@
                     </el-option>
                 </el-select>
             </div>
-            <div class="condition-box">
+            <div class="condition-box" @mousedown.stop="">
                 <label class="label">修改原因</label>
                 <el-input
                     class="w200"
@@ -147,6 +147,7 @@ export default {
     .label{
         text-align: right;
         margin-right: 10px;
+        width: 100px;
     }
 }
 .w200{

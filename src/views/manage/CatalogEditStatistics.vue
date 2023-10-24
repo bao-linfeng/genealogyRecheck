@@ -4,7 +4,7 @@
         <div class="box">
             <div class="head-box">
                 <div class="head-left">
-                    <h3 class="title">人员工作量统计表-谱目编辑</h3>
+                    <h3 class="title">编目审核工作量统计表</h3>
                 </div>
                 <div class="head-right">
                     
@@ -65,8 +65,8 @@
                     :align="'center'"
                     :data="tableData">
                     <vxe-table-column field="time" width="150" title="日期" fixed="left" sortable></vxe-table-column>
-                    <vxe-table-column field="inDatabase" title="已导入数"></vxe-table-column>
-                    <vxe-table-column field="allUserNumber" title="查重谱数"></vxe-table-column>
+                    <vxe-table-column field="inDatabase" title="谱目数(有影像)"></vxe-table-column>
+                    <vxe-table-column field="allUserNumber" title="编目完结"></vxe-table-column>
                     <vxe-table-column v-for="(item,index) in branch_main" :key="'main'+index" :field="item.value" :title="item.label"></vxe-table-column>
                 </vxe-table>
             </div>
@@ -117,7 +117,7 @@ export default {
             this.getWorkRecordStatisticsNewGCCheck();
         },
         async getNewGCCheckUserList(){// 用户管理
-            let result = await api.getAxios('v3/review/newGCCheckUserList');
+            let result = await api.getAxios('v3/review/GCOverUserList');
             if(result.status == 200){
                 let field_main = [], userList = [];
                 result.data.forEach(ele => {
@@ -135,7 +135,7 @@ export default {
         async getWorkRecordStatisticsNewGCCheck(){// 工作量统计
             this.loading = true;
             this.tableData = [];
-            let result = await api.getAxios('v3/review/workRecordStatisticsNewGCCheck?startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1)+'&userKeyArr='+this.userKeyArr.join(',')+'&accountTime='+this.accountTime);
+            let result = await api.getAxios('v3/review/workRecordStatisticsGCOver?startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1)+'&userKeyArr='+this.userKeyArr.join(',')+'&accountTime='+this.accountTime);
             this.loading = false;
             if(result.status == 200){
                 this.tableData = result.data.map((ele)=>{
@@ -161,7 +161,7 @@ export default {
         },
         initDownloadExcel(){
             let aoa = [];
-            let arr = ['日期', '已导入数', '查重谱数'];
+            let arr = ['日期', '谱目数(有影像)', '编目完结'];
             this.branch_main.forEach((ele, i) => {
                 arr.push(ele.value);
             });
@@ -234,7 +234,7 @@ export default {
             (function aoa_to_sheet(aoa){
                 let XLSX = window.XLSX;
                 var sheet = XLSX.utils.aoa_to_sheet(aoa);
-                openDownloadDialog(sheet2blob(sheet), '新谱查重工作量统计表'+Date.now()+'.xlsx');
+                openDownloadDialog(sheet2blob(sheet), '编目审核工作量统计表'+Date.now()+'.xlsx');
             })(aoa)
         },
     },

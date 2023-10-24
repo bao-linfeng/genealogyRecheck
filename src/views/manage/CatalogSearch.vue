@@ -149,10 +149,7 @@
                     <vxe-table-column field="condition" title="谱状态" width="100" :visible="visible2"></vxe-table-column>
                     <vxe-table-column field="GCOverO" title="编目状态" width="100" :visible="visible2"></vxe-table-column>
                     <vxe-table-column field="NoIndexO" title="索引状态" width="100" :visible="visible2"></vxe-table-column>
-
-                    <!-- <vxe-table-column field="updateTimeO" title="更新日期" width="100" sort-by="updateTime" sortable :visible="visible2"></vxe-table-column>
-                    <vxe-table-column field="createTimeO" title="上传日期" width="100" sort-by="createTime" sortable :visible="visible2"></vxe-table-column> -->
-                    <vxe-table-column title="操作" :visible="visible" fixed="right" width="180" :cell-render="{name:'AdaiActionButton',attr:{data: attrData}, events: {'detail': getDetail, 'edit': getEdit, 'log': getLog}}"></vxe-table-column>
+                    <vxe-table-column title="操作" :visible="visible" fixed="right" width="180" :cell-render="{name:'AdaiActionButton',attr:{data: attrData}, events: {'detail': getDetail, 'readBook':readBook, 'edit': getEdit, 'log': getLog}}"></vxe-table-column>
                 </vxe-table>
                 <!-- 分页 -->
                 <div class="page-foot">
@@ -263,6 +260,7 @@ export default {
             attrData: [
                 {'label': '详情', 'value': 'detail'},
                 // {'label': '编辑', 'value': 'edit'},
+                {'label': '影像', 'value': 'readBook'},
                 {'label': '记录', 'value': 'log'},
             ],
             volumePages: 0,
@@ -289,6 +287,16 @@ export default {
         this.getDataList();
     },
     methods:{
+        readBook({row}){// 阅读影像
+            if(row.imageLink){
+                window.open(row.imageLink);
+            }else if(row.hasImageNew){
+                window.open('/'+this.pathname+'/cameraImage?device='+row.device+'&vid='+row.volumeKey+'&gid='+row._key+'&genealogyName='+row.genealogyName);
+                // window.open('/'+this.pathname+'/viewImage?gid='+row._key+'&genealogyName='+row.genealogyName);
+            }else{
+                this.$XModal.message({ message: '暂时无法查看影像', status: 'warning' });
+            }
+        },
         async downloadExcel(){// 下载检索结果
             this.Loading = true;
             let data = await api.getAxios('catalog/catalogListFSDownload?gcKey='+this.gcKey+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&limit=5000');

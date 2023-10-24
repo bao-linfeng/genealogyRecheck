@@ -6,13 +6,56 @@
             </div>
             <div>
                 <el-button class="marginL10" type="primary" size="mini" @click="toggleFull">{{isFull ? '隐藏' : '显示'}}全屏</el-button>
-                <el-button class="marginL10" type="primary" size="mini" @click="toggleColumn">{{visible ? '隐藏' : '显示'}} 操作列</el-button>
+                <!-- <el-button class="marginL10" type="primary" size="mini" @click="toggleColumn">{{visible ? '隐藏' : '显示'}} 操作列</el-button> -->
                 <span>共检索出<i>{{total}}</i>部家谱</span>
             </div>
         </div>
         <div class="jiapu-vxe-wrap style3">
             <div class="jiapu-vxe-box">
-                <vxe-table
+                <el-table
+                    :data="list"
+                    :height="h"
+                    border
+                    style="width: 100%"
+                    :cell-class-name="cellClassName"
+                    @sort-change="sortChangeEvent"
+                    @selection-change="handleSelectionChange">
+                    <el-table-column fixed="left" type="selection" width="55" align="center" />
+                    <el-table-column fixed="left" v-for="(item,index) in field_main" :prop="item.fieldName" :label="item.fieldMeans" :key="'main'+index" width="100" align="center"></el-table-column>
+                    <el-table-column v-for="(item,index) in field_branch" :prop="item.fieldName" :label="item.fieldMeans" :key="'branch'+index" width="100" align="center"></el-table-column>
+                    <el-table-column prop="memo" label="备注" width="150" align="center"></el-table-column>
+                    <el-table-column prop="explain" label="说明" width="150" align="center"></el-table-column>
+                    <el-table-column prop="claimOrgName" label="认领机构" width="100" align="center"></el-table-column>
+                    <el-table-column prop="claimTimeO" label="认领时间" width="100" align="center"></el-table-column>
+                    <el-table-column prop="condition" label="谱状态" width="130" align="center"></el-table-column>
+                    <el-table-column prop="createTime" label="导入时间" width="120" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="Filetimes" label="档案时间" width="120" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="Filenames" label="档名" width="100" align="center"></el-table-column>
+                    <el-table-column prop="bookId" label="谱书编号" width="100" align="center"></el-table-column>
+                    <el-table-column prop="DGS" label="DGS号码" width="100" align="center"></el-table-column>
+                    <el-table-column prop="genealogyGroupID" label="家谱群组ID" width="100" align="center"></el-table-column>
+                    <el-table-column prop="updateUserName" label="更新人员" width="100" align="center"></el-table-column>
+                    <el-table-column prop="GCOverO" label="编目状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="NoIndexO" label="索引状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="gcStatusO" label="谱书状态" width="100" align="center"></el-table-column>
+                    <el-table-column
+                        fixed="right"
+                        label="操作"
+                        width="200"
+                        align="center">
+                        <template slot-scope="scope">
+                            <button class="AdaiActionButton" @click="lookBook(scope.row)">详情</button>
+                            <button class="AdaiActionButton" v-if="orgAdmin == 'admin' || (role >= 1 && role <= 3)" @click="editBook(scope.row)">编辑</button>
+                            <button class="AdaiActionButton" v-if="scope.row.imageLink" @click="readBook(scope.row)">FS影像</button>
+                            <button class="AdaiActionButton" v-if="scope.row.imageOriginal == 'pipeline'" @click="readBook(scope.row)">影像</button>
+                            <button class="AdaiActionButton" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && (scope.row.hasFileOrRemark || scope.row.remark || scope.row.needFillFields)" @click="showAnnex(scope.row)">附件</button>
+                            <button class="AdaiActionButton disabled" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && !scope.row.hasFileOrRemark && !scope.row.remark && !scope.row.needFillFields">影像</button>
+                            <button class="AdaiActionButton" @click="lookLog(scope.row)">记录</button>
+                            <button class="AdaiActionButton" v-if="scope.row.condition == 'nf' || scope.row.condition == 'f'" @click="catalogPass(scope.row)">{{scope.row.condition == 'f' ? '反' : ''}}完结</button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!-- <vxe-table
                     border
                     resizable
                     stripe
@@ -48,7 +91,7 @@
                     <vxe-table-column field="NoIndexO" title="索引状态" width="100"></vxe-table-column>
                     <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
                     <vxe-table-column title="操作" :visible="visible" fixed="right" :width="w" :cell-render="{name:'AdaiActionButton',attr:{data:actionButton},events:{'editBook':editBook, 'removeBook':removeBook,'readBook':readBook, 'lookBook': lookBook, 'catalogPass': catalogPass, 'lookLog': lookLog}}"></vxe-table-column>
-                </vxe-table>
+                </vxe-table> -->
             </div>
         </div>
         <!-- 记录 -->
@@ -61,6 +104,8 @@
         <CatalogView v-if="isLog == 3" :read="isRead" :dataKey="gid" :vid="''" v-on:close="closeLog" v-on:save="handleSave" />
         <!-- 谱目完结 -->
         <CatalogFinish v-if="isLog == 4" :dataKey="gid" v-on:close="isLog = 0" v-on:save="catalogFinishSave" />
+        <!-- 附件 -->
+        <AnnexModal v-if="isShowAnnex" :gid="gid" :row="annexRow" v-on:close-annex="isShowAnnex = false" />
     </div>
 </template>
 
@@ -73,6 +118,7 @@ import Drag from '../Drag.vue';
 import CatalogFinish from './CatalogFinish.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 import ADS from "../../ADS";
+import AnnexModal from "../QingTimeGenealogy/AnnexModal.vue";
 export default {
     name: "genealogyTableModal",
     props:{
@@ -84,7 +130,7 @@ export default {
         },
     },
     components: {
-        LogModule, EditCatalog, CatalogView, CatalogFinish, Drag, 
+        LogModule, EditCatalog, CatalogView, CatalogFinish, Drag, AnnexModal,
     },
     data: () => {
         return {
@@ -109,9 +155,12 @@ export default {
             h: 500,
             row: {},
             isFull: false,
+            isShowAnnex: false,
+            annexRow: {},
         };
     },
     created:function(){
+        this.h = window.innerHeight - 60 - 195 - 50- 40 - 50;
         this.field_main = [
             {'fieldMeans': '文件标题', 'fieldName': 'fileName'},
             {'fieldMeans': '谱ID', 'fieldName': '_key'},
@@ -141,7 +190,6 @@ export default {
         ];
     },
     mounted:function(){
-        this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40;
         if(this.role < 1 || this.role > 3){
             if(this.orgAdmin == 'admin'){
                 this.w = 240;
@@ -161,21 +209,26 @@ export default {
                 ];
             }
         }else{
-            if(this.stationKey == '1379194999'){// 时光站
-                this.w = 330;
-                this.actionButton = [
-                    {'label': '详情', 'value': 'lookBook'}, 
-                    {'label': '编辑', 'value': 'editBook'},
-                    {'label': '影像', 'value': 'readBook'},
-                    {'label': '记录', 'value': 'lookLog'},
-                    {'label': '删除', 'value': 'removeBook'},
-                    {'label': '完结', 'value': 'catalogPass'},
-                ];
-            }
+            // if(this.stationKey == '1379194999'){// 时光站
+            //     this.w = 330;
+            //     this.actionButton = [
+            //         {'label': '详情', 'value': 'lookBook'}, 
+            //         {'label': '编辑', 'value': 'editBook'},
+            //         {'label': '影像', 'value': 'readBook'},
+            //         {'label': '记录', 'value': 'lookLog'},
+            //         {'label': '删除', 'value': 'removeBook'},
+            //         {'label': '完结', 'value': 'catalogPass'},
+            //     ];
+            // }
         }
         
     },
     methods:{
+        showAnnex(row){
+            this.annexRow = row;
+            this.gid = row._key;
+            this.isShowAnnex = true;
+        },
         toggleFull(){
             this.isFull = !this.isFull;
             if(this.isFull){
@@ -185,11 +238,15 @@ export default {
             }
             this.$emit('toggle-full', this.isFull);
         },
-        sortChangeEvent({column, property, order, sortBy, sortList, $event}){
-            console.log(property, order, sortBy);
-            this.$emit('get-genealogy', {'prop': sortBy, 'order': order});
+        // sortChangeEvent({column, property, order, sortBy, sortList, $event}){
+        //     console.log(property, order, sortBy);
+        //     this.$emit('get-genealogy', {'prop': sortBy, 'order': order});
+        // },
+        sortChangeEvent({column, prop, order}){
+            console.log(column, prop, order);
+            this.$emit('get-genealogy', {'prop': prop || '', 'order': order === 'ascending' ? 'asc' : order === 'descending' ? 'desc' : ''});
         },
-        cellClassName({ row, rowIndex, $rowIndex, column, columnIndex, $columnIndex }){
+        cellClassName({ row, column, rowIndex, columnIndex }){
             if(row.changeFieldArr && row.changeFieldArr.indexOf(column.property) > -1){
                 return 'row-blue';
             }
@@ -215,7 +272,7 @@ export default {
             this.isRead = false;
             f ? this.$emit('get-genealogy','') : null;
         },
-        lookLog({row}){
+        lookLog(row){
             this.isLog = 1;
             this.gid = row._key;
         },
@@ -224,13 +281,20 @@ export default {
             this.isShow = true;
             flag ? this.$emit('get-genealogy','') : null;
         },
+        handleSelectionChange(records){
+            console.log(records);
+            records.map((item)=>{
+                item.select = true;
+            });
+            this.$emit('checkbox-change',records);
+        },
         checkboxChange({records}){
             records.map((item)=>{
                 item.select = true;
             });
             this.$emit('checkbox-change',records);
         },
-        editBook({row}){// 编辑谱目
+        editBook(row){// 编辑谱目
             if((this.role >= 1 && this.role <= 3) || (this.orgAdmin == 'admin' && row.claimOrgKey == this.orgId)){
                 this.gid = row._key;
                 this.pumu = row;
@@ -242,7 +306,7 @@ export default {
                 ADS.message('您无权编辑!');
             }
         },
-        lookBook({row}){// 查看谱目
+        lookBook(row){// 查看谱目
             this.gid = row._key;
             this.pumu = row;
             this.isEdit = true;
@@ -250,7 +314,7 @@ export default {
             this.isLog = 3;
             this.isRead = true;
         },
-        catalogPass({row}){
+        catalogPass(row){
             if(row.condition == 'nf' || row.condition == 'f'){
                 this.gid = row._key;
                 this.isLog = 4;
@@ -288,7 +352,7 @@ export default {
                 this.$message({message: '退出共享出错，请重新退出',type: 'warning'});
             }
         },
-        readBook({row}){// 阅读影像
+        readBook(row){// 阅读影像
             if(row.imageLink){
                 window.open(row.imageLink);
             }else if(row.hasImageNew){
@@ -318,9 +382,9 @@ export default {
         },
         'isResize': function(nv, ov){
             if(this.isFull){
-                this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40 + 240;
+                this.h = window.innerHeight - 60 - 195 - 50- 40 - 50 + 240;
             }else{
-                this.h = window.innerHeight - 50 - 50 - 60 - 195 - 40;
+                this.h = window.innerHeight - 60 - 195 - 50- 40 - 50;
             }
         },
     },
@@ -382,6 +446,9 @@ export default {
 }
 .drag1{
     height: 100% !important;
+}
+.disabled{
+    background-color: #ddd;
 }
 </style>
 

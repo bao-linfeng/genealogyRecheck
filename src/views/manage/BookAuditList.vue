@@ -8,7 +8,7 @@
                 <li>
                     <!-- <el-checkbox v-if="active == 4" v-model="showAll">显示全部</el-checkbox> -->
                     <!-- <vxe-button content="一键可拍" v-if="active == 4" @click="setCanTakeBatch"></vxe-button> -->
-                    <!-- <vxe-button content="查看影像" @click="isShow = 1"></vxe-button> -->
+                    <vxe-button v-if="batchLinkImage == 1" content="查看影像" @click="isShow = 1"></vxe-button>
                     <!-- <vxe-button content="批量审核通过" v-if="role >= 1 && role <= 3" @click="batchInBase"></vxe-button> -->
                     <!-- <vxe-button content="打回" v-if="active == 4" @click="dataVertifyHnadle('return')"></vxe-button> -->
                     <vxe-button content="批次确认" v-if="active == 4" @click="dataVertifyHnadle('past')"></vxe-button>
@@ -34,7 +34,9 @@
                     <vxe-table-column fixed="left" v-if="active == 4" field="canTake" title="审核" width="160" :cell-render="{name:'AdaiTabButton', events:{'click':changeCanTake}}"></vxe-table-column>
                     <!-- <vxe-table-column fixed="left" width="100" field="_key" title="谱ID"></vxe-table-column> -->
                     <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
+                    <!-- <vxe-table-column fixed="left" v-if="active == 4" field="annex" title="补充" width="80" :cell-render="{name: 'AdaiActionButton', attr: {data: [{'label': '补充','value':'annexEdit'}, ]}, events: {'annexEdit': annexEdit}}"></vxe-table-column> -->
                     <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充说明" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
+                    <!-- <vxe-table-column fixed="left" v-if="active == 4" width="120" field="needFillFieldsO" title="补充说明"></vxe-table-column> -->
                     <vxe-table-column fixed="left" v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
                     <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     
@@ -123,6 +125,7 @@ export default {
             isEdit: false,
             isCheck: false,
             detail: {},
+            batchLinkImage: '',
         };
     },
     created:function(){
@@ -179,6 +182,15 @@ export default {
         this.getDataCheckLog();
     },
     methods:{
+        annexEdit({row}){
+            console.log(row);
+            if(row.canTake == 3){
+                this.needFillList = row.needFillFields;
+                this.remark = row.remark;
+                this.dataStatus = {'row': row, 'property': 'needFill'};
+                this.isNeedFill = true;
+            }
+        },
         handleSubmit({row}){
             console.log(row);
             if(row.checkConfirm){
@@ -317,22 +329,6 @@ export default {
         },
         dataVertifyHnadle(operate){
             let isF = false, toBeRediscussed;
-            // if(operate == 'past'){
-            //     this.tableData.forEach((ele) => {
-            //         if(ele.canTake == 1){
-            //             isF = true;
-            //         }
-            //         if(ele.canTake == 3){
-            //             toBeRediscussed = 3;
-            //         }
-            //     });
-            //     // if(!isF){
-            //     //     return ADS.message('请选择可拍，在通过');
-            //     // }
-            //     if(toBeRediscussed == 3){
-            //         return ADS.message('有打回谱目，暂时无法审核通过！');
-            //     }
-            // }
             this.$confirm('此操作将永久改变该批次谱目数据, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -372,9 +368,12 @@ export default {
             }
         },
         annex({row}){   
-            this.annexRow = row;
-            this.gid = row._key;
-            this.isShowAnnex = true;
+            if(row.hasFileOrRemark){
+                this.annexRow = row;
+                this.gid = row._key;
+                this.isShowAnnex = true;
+            }
+            
         },
         changeCanTake:async function(data){// 谱目状态标记
             console.log(data);
@@ -389,7 +388,11 @@ export default {
                             item.condition = data.status == 3 ? 'm' : data.status == 2 ? 'r' : data.status == 1 ? 'nf' : 'd';
                         }
                     });
-                    this.getVertifyOption();
+                    // 待议 补充影像自动 2023.10.12
+                    if(data.status == 3){
+                        data.property = 'needImage';
+                        this.changeDataStatus(data, [], '');
+                    }
                 }else{
                     this.$XModal.message({ message: result.msg, status: 'warning' });
                 }
@@ -402,28 +405,42 @@ export default {
             this.dataStatus = data;
             if(data.property === 'needFill' && !data.row.needFill && data.row.canTake == 3){
                 this.isNeedFill = true;
-                // this.getDataCheckLog();
             }else{
                 this.changeDataStatus(data, [], '');
             }
         },
-        changeDataStatus:async function(data, needFillFields = '', remark = ''){//改变状态
+        async changeDataStatus(data, needFillFields = '', remark = ''){//改变状态
             if(data.row.hasIn == '否'){
                 if(data.row.canTake != 3){
                     return false;
                 }
                 this.changeLoading();
-                let result = await api.patchAxios('data/status',{'dataKey':data.row._key,[data.property]:data.row[data.property] ? '' : 1,'needFillFields': needFillFields, 'remark': remark, 'userKey': this.userId, 'siteKey': this.stationKey});
+                let result = await api.patchAxios('data/status', {
+                    'dataKey':data.row._key,
+                    // data.property == 'needFill' ? 1 : 
+                    [data.property]: data.row[data.property] ? '' : 1,
+                    'needFillFields': needFillFields, 
+                    'remark': remark, 
+                    'userKey': this.userId, 
+                    'siteKey': this.stationKey
+                });
                 this.changeLoading(false);
                 if(result.status == 200){
                     this.tableData.map((item)=>{
                         if(item._key == data.row._key){
+                            // item[data.property] = data.property == 'needFill' ? 1 : item[data.property] ? '' : 1;
+                            // if(data.property == 'needFill'){
+                            //     item.remark = remark;
+                            //     item.needFillFields = needFillFields;
+                            //     item.needFillFieldsO = (item.needFillFields ? item.needFillFields.join() : '') + (item.remark ? ' '+(item.remark || '') : '');
+                            // }
+
                             item[data.property] = item[data.property] ? '' : 1;
                             item.remark = remark;
                             item.needFillFields = needFillFields;
+                            item.needFillFieldsO = (item.needFillFields ? item.needFillFields.join() : '') + (item.remark ? ' '+(item.remark || '') : '');
                         }
                     });
-                    this.getVertifyOption();
                 }else{
                     this.$XModal.message({ message: result.msg, status: 'warning' });
                 }
@@ -477,7 +494,7 @@ export default {
             }
         },
         cellClickEvent({row,column}){
-            if(column.property == 'toggle' || column.property == 'action'){
+            if(column.property == 'toggle' || column.property == 'action' || column.property == 'annex'){
                 this.collapsableEvent();
                 return false;
             }
@@ -521,11 +538,16 @@ export default {
                     if(item.suggIn == '否'){
                         repeatNum = repeatNum + 1;
                     }
+                    if(item.needFillFields || item.remark){
+                        item.hasFileOrRemark = 1;
+                    }
+                    item.needFillFieldsO = (item.needFillFields ? item.needFillFields.join() : '') + (item.remark ? ' '+item.remark : '');
                 });
                 this.repeatNum = repeatNum;
                 console.log(this.repeatNum);
                 this.tableData = data.data;
                 this.total = data.total;
+                this.batchLinkImage = data.batchLinkImage;
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
@@ -572,7 +594,7 @@ export default {
                 this.getWillInOption();
             }
             if(nv >= 3){
-                this.getVertifyOption();
+                // this.getVertifyOption();
             }
         },
         'showAll': function(){

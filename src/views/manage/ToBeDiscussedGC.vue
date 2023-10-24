@@ -422,7 +422,7 @@ export default {
                     ];
                 }else{
                     this.actionData = [
-                        // {'label': '审核','value': 'attachment'},
+                        {'label': '补充','value': 'attachment'},
                         // {'label': '编辑','value': 'detail'}, 
                         {'label': '记录','value': 'log'}, 
                         {'label': '快捷查询', 'value': 'singleQuick'},
@@ -445,6 +445,7 @@ export default {
                     ];
                 }
             }
+            this.getDataList();
         }
     },
 };

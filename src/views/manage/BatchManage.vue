@@ -51,7 +51,7 @@
                     :data="tableData">
                     <vxe-table-column field="fileName" title="文件标题" width="200"></vxe-table-column>
                     <vxe-table-column field="hasSubmitO" title="提交审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
-                    <vxe-table-column field="needReviewO" title="打回" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
+                    <!-- <vxe-table-column field="needReviewO" title="打回" :edit-render="{name: '$select', options: stageState}"></vxe-table-column> -->
                     <vxe-table-column field="hasPast" title="通过审核" :edit-render="{name: '$select', options: stageState}"></vxe-table-column>
                     <!-- <vxe-table-column field="excelDataNum" title="表格总数"></vxe-table-column> -->
                     <vxe-table-column field="dataNum" title="已导入数"></vxe-table-column>
@@ -115,7 +115,7 @@ export default {
             // {'label':'大库查重','value':'hasCheckInISGN'},
             {'label':'待提交','value': 'unSubmit'},
             {'label':'提交审核','value':'hasSubmit'},
-            {'label':'打回','value':'needReview'},
+            // {'label':'打回','value':'needReview'},
             {'label':'审核通过','value':'hasPast'}],
             batchId:'',
             batchArr:[],
@@ -125,7 +125,7 @@ export default {
                 {'label':'查看','value':'look'},
                 {'label':'修正Excel','value':'download'}, 
                 {'label':'原始Excel','value':'downloadNaturalExcel'}, 
-                {'label':'上传', 'value':'upload'}
+                // {'label':'上传', 'value':'upload'}
             ],
             total:0,
             errorList:[],

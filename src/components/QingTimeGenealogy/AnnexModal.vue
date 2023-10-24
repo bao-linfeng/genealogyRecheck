@@ -1,65 +1,62 @@
 <template>
-    <div class="annex-modal-wrap">
-        <div class="annex-modal-box">
-            <div class="annex-modal-title">
-                <h3>附件({{gid}})</h3>
-                <i class="el-icon-close" @click="close"></i>
-            </div>
-            <div class="memo-box" v-if="orgAdmin == 'admin' && active == 3">
-                <div class="memo-left">
-                    <h3 class="title marginR20">补充说明</h3>
+    <Drag class="w640">
+        <div class="annex-modal-wrap">
+            <div class="annex-modal-box">
+                <div class="annex-modal-title">
+                    <h3>附件({{gid}})</h3>
+                    <i class="el-icon-close" @click="close"></i>
                 </div>
-                <textarea class="memo" v-model="gcStatusRemark"></textarea>
-            </div>
-            <div class="content-head">
-                <h3 class="title">补充影像({{sourceList.length}})</h3>
-                <div class="head-left" v-if="active == 3" >
-                    <div class="upload-input">
-                        <input type="file" accept="image/*" multiple @change="uploadImg" />
+                <div class="memo-box" @mousedown.stop="" v-if="orgAdmin == 'admin' && active == 3">
+                    <div class="memo-left">
+                        <h3 class="title marginR20">补充说明</h3>
+                    </div>
+                    <textarea class="memo" v-model="gcStatusRemark"></textarea>
+                </div>
+                <div class="content-head">
+                    <h3 class="title">补充影像({{sourceList.length}})</h3>
+                    <div class="head-left" v-if="active == 3" >
+                        <div class="upload-input">
+                            <input type="file" accept="image/*" multiple @change="uploadImg" />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="image_wrap style1">
-                <div class="image_box" v-for="(item,index) in sourceList" :key="'sourceList'+index">
-                    <img @click="previewImages(index)" :src="item.gcFile && item.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? item.gcFile : (baseURL+item.filePath)" alt="影像资料" />
+                <div class="image_wrap style1">
+                    <div class="image_box" v-for="(item,index) in sourceList" :key="'sourceList'+index">
+                        <img @click="previewImages(index)" :src="item.gcFile && item.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? item.gcFile : (baseURL+item.filePath)" alt="影像资料" />
+                    </div>
+                </div>
+                <div class="remark-wrap">
+                    <h3 class="title">查重记录</h3>
+                    <ul class="remark-box style1">
+                        <li v-for="(item, index) in remarkList" :key="index">{{item.time}} {{item.time ? item.userRole >= 1 && item.userRole <= 3 ? 'FS-' : '供应商-' : ''}}{{item.userName}} {{item.gcStatusRemark}}</li>
+                    </ul>
+                </div>
+                <div class="foot-box" v-if="orgAdmin == 'admin' && active == 3">
+                    <el-button size="medium" @click="close">取消</el-button>
+                    <el-button type="primary" size="medium" @click="saveData">提交</el-button>
                 </div>
             </div>
-            <div class="remark-wrap">
-                <h3 class="title">查重记录</h3>
-                <ul class="remark-box style1">
-                    <li v-for="(item, index) in remarkList" :key="index">{{item.time}} {{item.time ? item.userRole >= 1 && item.userRole <= 3 ? 'FS-' : '供应商-' : ''}}{{item.userName}} {{item.gcStatusRemark}}</li>
-                </ul>
-            </div>
-            <!-- <div v-if="row && row.needFillFields && row.needFill">
-                <h3 class="title">补充字段</h3>
-                <p>{{row && row.needFillFields && row.needFillFields.join(',')}}</p>
-            </div>
-            <div v-if="row && row.remark && row.needFill">
-                <h3 class="title">打回备注</h3>
-                <p>{{row && row.remark}}</p>
-            </div>
-            <div v-if="row && row.setInReason">
-                <h3 class="title">待提交原因</h3>
-                <p>{{row && row.setInReason}}</p>
-            </div> -->
-            <div class="foot-box" v-if="orgAdmin == 'admin' && active == 3">
-                <el-button size="medium" @click="close">取消</el-button>
-                <el-button type="primary" size="medium" @click="saveData">提交</el-button>
+            <div class="preview-images-wrap" v-if="simplePath">
+                <img class="large-image" :style="{transform: 'rotate('+rotate+'deg) scale('+scale+')'}" :src="simplePath" alt="" />
+                <i class="close el-icon-close" @click="closePreview"></i>
+                <i class="left el-icon-arrow-left" :class="{active: currentIndex === 0}" @click="previewImages(currentIndex - 1)"></i>
+                <i class="left right el-icon-arrow-right" :class="{active: currentIndex === sourceList.length - 1}" @click="previewImages(currentIndex + 1)"></i>
+                <div class="zoom">
+                    <img class="icon" @click="handleRotate(1)" title="右旋90°" src="../../assets/shoot/spinR.svg" alt="">
+                    <img class="icon" @click="handleRotate(-1)" title="左旋90°" src="../../assets/shoot/spinL.svg" alt="">
+                    <i class="el-icon-zoom-out" @click="handleZoom(-1)"></i>
+                    <i class="el-icon-zoom-in" @click="handleZoom(1)"></i>
+                </div>
             </div>
         </div>
-        <div class="preview-images-wrap" v-if="simplePath">
-            <i class="left el-icon-arrow-left" :class="{active: currentIndex === 0}" @click="previewImages(currentIndex - 1)"></i>
-            <img class="large-image" :src="simplePath" alt="" />
-            <i class="close el-icon-close" @click="closePreview"></i>
-            <i class="left right el-icon-arrow-right" :class="{active: currentIndex === sourceList.length - 1}" @click="previewImages(currentIndex + 1)"></i>
-        </div>
-    </div>
+    </Drag>
 </template>
 
 <script>
 import api from "../../api.js";
 import ADS from "../../ADS.js";
 import uploadFile from "../upload/upload.js";
+import Drag from '../Drag.vue';
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     name: "annexModal",
@@ -69,6 +66,7 @@ export default {
         },
         active:{
             type: Number,
+            default: 0,
         },
         createUser:{
             type: String,
@@ -76,6 +74,9 @@ export default {
         row: {
             type: Object,
         }
+    },
+    components: {
+        Drag
     },
     data: () => {
         return {
@@ -88,6 +89,8 @@ export default {
             remarkList: [],
             detail: {},
             gcStatusRemark: '',
+            scale: 1,
+            rotate: 0,
         };
     },
     mounted:function(){
@@ -95,14 +98,30 @@ export default {
         this.getImage();
     },
     methods:{
+        handleZoom(z){
+            if(z > 0){
+                this.scale = this.scale + 0.2;
+            }else{
+                if(this.scale >= 1.2){
+                    this.scale = this.scale - 0.2;
+                }
+            }
+        },
+        handleRotate(r){
+            if(r > 0){
+                this.rotate = this.rotate + 90;
+            }else{
+                this.rotate = this.rotate - 90;
+            }
+        },
         async getGenealogyDetail(){
             const result = await api.getAxios('data/detail?dataKey='+this.gid);
             if(result.status == 200){
                 this.detail = result.data;
                 this.needFillFields = result.data.needFillFields || [];
                 this.remark = result.data.remark;
-                if(this.remark || this.needFillFields.length){
-                    this.remarkList.push({'gcStatusRemark': '补充字段: '+(this.needFillFields.length ? this.needFillFields.join()+',' : '')+(this.remark ? ''+this.remark+';' : ';')});
+                if(this.remark || this.needFillFields.length || this.detail.needImage){
+                    this.remarkList.push({'gcStatusRemark': (this.detail.needImage ? '补充影像；' : '')+(this.remark || this.needFillFields.length ? '补充说明：'+(this.needFillFields.length ? this.needFillFields.join()+'，' : '')+(this.remark ? ''+this.remark+'；' : '；') : '')});
                 }
                 this.getGCStatusRemarkList();
             }else{
@@ -232,22 +251,25 @@ export default {
 	background-color: #F6FAFD;
 }
 .annex-modal-wrap{
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0,0,0,0.3);
+    // position: fixed;
+    // top: 0;
+    // right: 0;
+    // bottom: 0;
+    // left: 0;
+    // background: rgba(0,0,0,0.3);
+    
+    position: absolute;
     z-index: 100;
     display: flex;
     justify-content: center;
     align-items: center;
-    .annex-modal-box{
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 5px;
-        max-width: 600px;
-    }
+    box-shadow: 0 0 1px 2px #ddd;
+}
+.annex-modal-box{
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    max-width: 600px;
 }
 .annex-modal-title{
     position: relative;
@@ -290,7 +312,7 @@ export default {
     background: #F6FAFD;
     padding: 10px;
     margin: 0 auto;
-    max-height: 300px;
+    height: 300px;
     overflow-y: auto;
     display: flex;
     flex-wrap: wrap;
@@ -322,11 +344,12 @@ export default {
 }
 .preview-images-wrap{
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0,0,0,0.3);
+    // top: 0;
+    // right: 0;
+    // bottom: 0;
+    // left: 0;
+    // background: rgba(0,0,0,0.3);
+    height: 60%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -342,7 +365,7 @@ export default {
         right: 20px;
         font-size: 40px;
         cursor: pointer;
-        color: #fff;
+        color: #f00;
     }
     .left{
         position: absolute;
@@ -352,6 +375,7 @@ export default {
         left: 20px;
         top: 50%;
         transform: translateY(-50%);
+        color: #358acd;
         &.active{
             display: none;
         }
@@ -416,6 +440,22 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.w640{
+    width: 640px;
+}
+.zoom{
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 30px;
+    color: #358acd;
+    width: 160px;
+    cursor: pointer;
 }
 </style>
 

@@ -79,7 +79,8 @@
                             :value="item.value">
                         </el-option>
                     </el-select>
-                    <img class="edit" v-if="role >= 1 && role <= 3 && isEdit" @click="isOpen = 3" title="更新状态" src="../../assets/shoot/leaveMsg.svg" alt="">
+                    <!-- 2023.10.24 baolf 状态更改，权限 总管理员、谱目管理员 -->
+                    <img class="edit" v-if="['9071165200', '9071165255'].indexOf(roleKey) > -1 && isEdit" @click="isOpen = 3" title="更新状态" src="../../assets/shoot/leaveMsg.svg" alt="">
                 </li>
                 <li>
                     <label class="label" for="">谱目编辑</label>
@@ -476,6 +477,7 @@ export default {
             role: state => state.nav.role,
             pathname: state => state.nav.pathname,
             orgAdmin: state => state.nav.orgAdmin,
+            roleKey: state => state.nav.roleKey
         })
     },
     watch:{

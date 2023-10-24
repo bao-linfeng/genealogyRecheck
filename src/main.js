@@ -182,6 +182,8 @@ VXETable.renderer.add('AdaiActionButton', {
         arr.push(<button class="AdaiActionButton hide" onClick={() => events[item.value](params)}>放弃</button>)
       }else if(row.checkConfirm && item.value == 'submit'){
         arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>{row.checkConfirm ? '已确认' : '确认'}</button>)
+      }else if(!row.hasFileOrRemark && item.value == 'annex'){
+        arr.push(<button class="AdaiActionButton disabled" onClick={() => events[item.value](params)}>附件</button>)
       }else{
         if(item.value == 'toExamine'){
           if(row.verifyUserKey){

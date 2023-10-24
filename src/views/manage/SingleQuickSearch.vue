@@ -20,7 +20,42 @@
                 <el-checkbox class="margin10" v-model="haswu">无或空字符堂号</el-checkbox>
             </div>
             <div class="vex-table-box" :class="{h140: count == 3}">
-                <vxe-table
+                <el-table
+                    :data="tableData"
+                    :height="h"
+                    border
+                    style="width: 100%"
+                    @sort-change="sortChangeEvent">
+                    <el-table-column fixed="left" v-for="(item,index) in field_main" :prop="item.fieldName" :label="item.fieldMeans" :key="'main'+index" width="100" align="center"></el-table-column>
+                    <el-table-column v-for="(item,index) in field_branch" :prop="item.fieldName" :label="item.fieldMeans" :key="'branch'+index" width="100" align="center"></el-table-column>
+                    <el-table-column prop="memo" label="备注" width="150" align="center"></el-table-column>
+                    <el-table-column prop="explain" label="说明" width="150" align="center"></el-table-column>
+                    <el-table-column prop="orgName" label="供应商" width="100" align="center"></el-table-column>
+                    <el-table-column prop="condition" label="谱状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="Filetimes" label="档案时间" width="130" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="Filenames" label="档名" width="100" align="center"></el-table-column>
+                    <el-table-column prop="bookId" label="谱书编号" width="100" align="center"></el-table-column>
+                    <el-table-column prop="DGS" label="DGS号码" width="100" align="center"></el-table-column>
+                    <el-table-column prop="genealogyGroupID" label="家谱群组ID" width="100" align="center"></el-table-column>
+                    <el-table-column prop="updateUserName" label="更新人员" width="100" align="center"></el-table-column>
+                    <el-table-column prop="GCOverO" label="编目状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="NoIndexO" label="索引状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="gcStatusO" label="谱书状态" width="100" align="center"></el-table-column>
+                    <el-table-column
+                        fixed="right"
+                        label="操作"
+                        width="150"
+                        align="center">
+                        <template slot-scope="scope">
+                            <button class="AdaiActionButton" @click="getDetail(scope.row)">详情</button>
+                            <button class="AdaiActionButton" v-if="scope.row.imageLink" @click="readBook(scope.row)">FS影像</button>
+                            <button class="AdaiActionButton" v-if="scope.row.imageOriginal == 'pipeline'" @click="readBook(scope.row)">影像</button>
+                            <button class="AdaiActionButton" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && (scope.row.hasFileOrRemark || scope.row.remark || scope.row.needFillFields)" @click="showAnnex(scope.row)">附件</button>
+                            <button class="AdaiActionButton" @click="getLog(scope.row)">记录</button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!-- <vxe-table
                     border
                     resizable
                     stripe
@@ -51,7 +86,7 @@
                     <vxe-table-column field="NoIndexO" title="索引状态" width="100"></vxe-table-column>
                     <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
                     <vxe-table-column title="操作" fixed="right" width="180" :cell-render="{name:'AdaiActionButton',attr:{data: attrData}, events: {'detail': getDetail, 'readBook': readBook, 'log': getLog}}"></vxe-table-column>
-                </vxe-table>
+                </vxe-table> -->
                 <div class="page-foot">
                     <div class="count-wrap">
                         
@@ -73,6 +108,10 @@
         <EditCatalog v-if="isShow == 2" :read="isRead" :dataKey="id" :vid="''" v-on:close="closeModule" />
         <!-- 详情 -->
         <CatalogView v-if="isShow == 1" :read="isRead" :dataKey="id" :vid="''" v-on:close="closeModule" v-on:save="handleSave" />
+        <!-- 附件 -->
+        <AnnexModal v-if="isShowAnnex" :gid="gid" :row="annexRow" v-on:close-annex="isShowAnnex = false" />
+        <!-- loading -->
+        <Loading v-show="loading" />
     </div>
 </template>
 
@@ -84,10 +123,11 @@ import { mapState, mapActions, mapGetters } from "vuex";
 import LogModule from '../../components/discussed/LogModule.vue';
 import EditCatalog from '../../components/takeCamera/EditCatalog.vue';
 import CatalogView from '../../components/takeCamera/CatalogView.vue';
+import AnnexModal from "../../components/QingTimeGenealogy/AnnexModal.vue";
 export default {
     name: "singleQuickSearch",
     components: {
-        Sidebar, LogModule, EditCatalog, CatalogView, 
+        Sidebar, LogModule, EditCatalog, CatalogView, AnnexModal,
     },
     data: () => {
         return {
@@ -136,6 +176,9 @@ export default {
             field_main: [],
             field_branch: [],
             count: 2,
+            isShowAnnex: false,
+            annexRow: {},
+            gid: '',
         };
     },
     created:function(){
@@ -174,11 +217,18 @@ export default {
         this.getGenealogyDetail();
     },
     methods:{
-        readBook({row}){
+        showAnnex(row){
+            this.annexRow = row;
+            this.gid = row._key;
+            this.isShowAnnex = true;
+        },
+        readBook(row){
             if(row.imageLink){
                 window.open(row.imageLink);
+            }else if(row.imageOriginal == 'pipeline'){
+                window.open('/'+this.pathname+'/cameraImage?device='+row.device+'&vid='+row.volumeKey+'&gid='+row._key+'&genealogyName='+row.genealogyName);
             }else{
-                this.$XModal.message({ message: '暂时无法查看影像', status: 'warning' });
+                this.$XModal.message({ message: '暂无无法查看影像', status: 'warning' });
             }
         },
         fieldRcover(){
@@ -204,11 +254,10 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' });
             }
         },
-        sortChangeEvent({column, property, order, sortBy, sortList, $event}){
-            console.log(property, order, sortBy);
-            this.prop = sortBy;
-            this.order = order;
-
+        sortChangeEvent({column, prop, order}){
+            console.log(column, prop, order);
+            this.prop = prop || '';
+            this.order = order === 'ascending' ? 'asc' : order === 'descending' ? 'desc' : '';
             this.getDataList();
         },
         async getDataList(){
@@ -233,7 +282,7 @@ export default {
                 this.tableData = data.result.list.map((ele) => {
                     ele.claimOrgNameO = ele.claimOrgName + '|' + ele.claimOrganizationNo;
                     ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
-                    ele.FiletimesO = ele.Filetimes ? ADS.getLocalTime(ele.Filetimes) : '';
+                    ele.Filetimes = ele.Filetimes ? ADS.getLocalTime(ele.Filetimes) : '';
 
                     return ele;
                 });
@@ -247,16 +296,12 @@ export default {
             this.page = currentPage;
             this.getDataList();
         },
-        getDetail({row, column}){
+        getDetail(row){
             this.id = row._key;
             this.isShow = 1;
             this.isRead = true;
         },
-        getEdit({row}){
-            this.id = row._key;
-            this.isShow = 2;
-        },
-        getLog({row}){
+        getLog(row){
             this.id = row._key;
             this.isShow = 3;
         },

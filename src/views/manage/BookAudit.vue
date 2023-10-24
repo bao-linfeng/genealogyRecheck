@@ -75,9 +75,9 @@
                         label="操作"
                         width="300"
                         align="center">
-                        <template slot-scope="scope">
+                        <template slot-scope="scope" v-if="scope.row.fileName != '本页小计'">
                             <button v-if="!scope.row.claimUserKey && scope.row.status == '提交审核'" class="AdaiActionButton" @click="claimBatch(scope.row)">认领</button>
-                            <button v-if="(scope.row.claimUserKey == userId && scope.row.status == '提交审核') || scope.row.status != '提交审核'" class="AdaiActionButton" @click="navTo(scope.row)">查看</button>
+                            <button v-if="((scope.row.claimUserKey == userId || (scope.row.claimUserKey && ['9071165200'].indexOf(roleKey) > -1)) && scope.row.status == '提交审核') || scope.row.status != '提交审核'" class="AdaiActionButton" @click="navTo(scope.row)">查看</button>
                             <button class="AdaiActionButton" @click="downloadExcel(scope.row)">Excel(修正)</button>
                             <button class="AdaiActionButton" @click="downloadNaturalExcel(scope.row)">Excel(原始)</button>
                         </template>
@@ -145,7 +145,7 @@ export default {
                 {'label':'全部状态','value':''},
                 // {'label':'已提交未审核','value':'unAudit'},
                 {'label':'提交审核','value':'hasSubmit'},
-                {'label':'打回','value':'needReview'},
+                // {'label':'打回','value':'needReview'},
                 {'label':'审核通过','value':'hasPast'}
             ],
             batchId: '',
@@ -333,12 +333,16 @@ export default {
             this.loading = true
             let data=await api.getAxios('batch?type='+this.type+'&claimUserKey='+this.claimUserKey+'&sortField='+this.sortField+'&sortType='+this.sortType+'&fileName='+this.fileName+'&libListCheck='+this.libListCheck.join()+'&startTime='+this.startTime+'&endTime='+this.endTime+'&batchKey='+this.batchId+'&siteKey='+this.stationKey+'&stage='+this.stage+'&userKey='+this.userId+'&creator='+this.userKey+'&userRole='+this.role+'&page='+this.page+'&limit='+this.pages);
             if(data.status == 200){
-                let excelDataNum = 0, dataNum = 0, hasMarkISGNNum = 0, arr = [];
+                let excelDataNum = 0, dataNum = 0, hasMarkISGNNum = 0, toBeDiscussedNumber = 0,  duplicateNumber = 0, invalidNumber = 0, cancelNumber = 0, arr = [];
                 this.tableData = data.data.map((ele) => {
                     ele.lib = ele.lib+'('+ele.libCode+')';
                     excelDataNum = excelDataNum + ele.excelDataNum;
                     dataNum = dataNum + ele.dataNum;
                     hasMarkISGNNum = hasMarkISGNNum + ele.hasMarkISGNNum;
+                    toBeDiscussedNumber = toBeDiscussedNumber + ele.toBeDiscussedNumber;
+                    duplicateNumber = duplicateNumber + ele.duplicateNumber;
+                    invalidNumber = invalidNumber + ele.invalidNumber;
+                    cancelNumber = cancelNumber + ele.cancelNumber;
 
                     ele.hasSubmitO = ele.hasSubmit == 1 || (ele.repulseTime ? 1 : 0) || ele.hasPass == 1;
                     ele.needReviewO = ele.needReview == 1 && ele.hasPass != 1 && (ele.repulseTime ? 1 : 0);
@@ -348,7 +352,16 @@ export default {
                     return ele;
                 });
                 
-                this.tableData.push({'excelDataNum': excelDataNum, 'dataNum': dataNum, 'hasMarkISGNNum': hasMarkISGNNum, 'fileName': '本页小计'});
+                this.tableData.push({
+                    'excelDataNum': excelDataNum, 
+                    'dataNum': dataNum, 
+                    'hasMarkISGNNum': hasMarkISGNNum, 
+                    'toBeDiscussedNumber': toBeDiscussedNumber, 
+                    'duplicateNumber': duplicateNumber, 
+                    'invalidNumber': invalidNumber,
+                    'cancelNumber': cancelNumber,
+                    'fileName': '本页小计'
+                });
                 this.total = data.total;
                 this.loading = false;
                 
@@ -365,6 +378,7 @@ export default {
             role: state => state.nav.role,
             sumbmitNum: state => state.nav.sumbmitNum,
             baseURL: state => state.nav.baseURL,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{

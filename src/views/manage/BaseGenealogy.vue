@@ -259,7 +259,7 @@ export default {
                     item.gcStatusO = this.catalogStatusO[item.gcStatus] || '';
                     item.NoIndexO = item.NoIndex == 1 ? '不可索引' : '可索引';
                     item.claimTimeO = item.claimTime ? ADS.getLocalTime(item.claimTime, '/', 1) : '';
-                    item.createTimeO = item.createTime ? ADS.getLocalTime(item.createTime, '/', 1) : '';
+                    item.createTime = item.createTime ? ADS.getLocalTime(item.createTime, '/', 1) : '';
                     item.Filetimes = ADS.getLocalTime(item.createTime, '/', 1) || item.Filetimes;
                     item.Filenames = item.Filenames;
                     item.address = (item.prov || '') + ' ' + (item.city || '') + ' ' + (item.district || '');

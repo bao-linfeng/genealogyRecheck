@@ -53,6 +53,9 @@ export default {
         detail: {
             type: Object
         },
+        catalogDetail: {
+            type: Object
+        },
         returnReasonL: {
             type: Number
         }
@@ -168,6 +171,14 @@ export default {
             }
             if(['9138241994'].indexOf(this.roleKey) > -1 && this.takeStatus == 6 && this.operate == 'recheck' && !this.returnReason){
                 return ADS.message('请输入说明！');
+            }
+            // 2023.10.24 baolf 已完结谱目，审核通过的卷册，只有 总管理员可以修改卷册状态
+            if(this.takeStatus == 7 && this.catalogDetail.condition == 'f'){
+                if(['9071165200'].indexOf(this.roleKey) > -1){
+
+                }else{
+                    return ADS.message('您没有权限操作！');
+                }
             }
             this.$confirm('确认'+this.operateO[this.operate]+' '+this.detail.genealogyName+' '+this.detail.volumeNumber+' 的影像吗?', '提示', {
                 confirmButtonText: '确定',

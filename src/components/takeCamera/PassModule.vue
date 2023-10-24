@@ -146,7 +146,7 @@ export default {
         content: '';
         position: absolute;
         bottom: -16px;
-        left: calc(50% + 60px);
+        left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;

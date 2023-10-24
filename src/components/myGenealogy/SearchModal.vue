@@ -189,7 +189,7 @@ export default {
                 migrationAncestor: '',
                 fileName: '',
                 Dupbookid: '',
-                hasImage: 2,
+                hasImage: '',
                 GCOver: '',
                 NoIndex: '',
                 orgKey: [],
@@ -274,7 +274,12 @@ export default {
                 {'label': 'c', 'value': 'c'},
                 {'label': 'fs', 'value': 'other'}
             ],
-            imageList: [{'label':'影像资料','value':2},{'label':'有影像','value':1},{'label':'无影像','value':0}],
+            imageList: [
+                {'label':'影像资料','value': ''},
+                {'label':'Pipeline有影像','value': '1'},
+                {'label':'RMS有影像','value': '3'},
+                {'label':'无影像','value': '0'}
+            ],
             libList: [],
             nolibList: [{'label':'等于','value':1},{'label':'不等于','value':0}],
             orgList: [],

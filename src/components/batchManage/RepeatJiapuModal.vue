@@ -5,41 +5,52 @@
             <span>{{row && row.genealogyName}}  {{row.prov}}{{row.city}}{{row.district}}</span>
         </div>
         <div class="table-wrap" v-if="isDataRepeat" v-show="tabIndex === 0">
-            <vxe-table
-                border
-                class="adai-table"
-                resizable
-                :keep-source="true"
-                ref="xTable6"
+            <el-table
+                :data="dubiousData"
                 :height="h*0.4"
-                :align="'center'"
-                :edit-config="{trigger: 'click', mode: 'row',showStatus: true,activeMethod:activeCellMethod}"
-                @cell-click="cellClickEvent"
-                :data="dubiousData">
-                <vxe-table-column field="rules" title="命中规则与风险" width="140" fixed="left"></vxe-table-column>
-                <vxe-table-column v-for="(item,index) in field_main" :field="item.fieldName" :title="item.fieldMeans" width="100" fixed="left" :key="'main'+index"></vxe-table-column>
-                
-                <vxe-table-column v-for="(item,index) in field_branch" :visible="collapsable" width="100" :key="'branch'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
-                <vxe-table-column title="操作" :width="140" fixed="right" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label': '影像', 'value': 'readBook'}, {'label': '标记', 'value': 'repeatMark'}]},events:{'readBook':readBook, 'repeatMark': repeatMark}}"></vxe-table-column>
-            </vxe-table> 
+                border
+                style="width: 100%">
+                <el-table-column fixed="left" prop="rules" label="命中规则与风险" width="140" align="center"></el-table-column>
+                <el-table-column fixed="left" v-for="(item,index) in field_main" :prop="item.fieldName" :label="item.fieldMeans" :key="'main'+index" width="100" align="center"></el-table-column>
+                <el-table-column v-for="(item,index) in field_branch" :prop="item.fieldName" :label="item.fieldMeans" :key="'branch'+index" width="100" align="center"></el-table-column>
+                <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="150"
+                    align="center">
+                    <template slot-scope="scope">
+                        <button class="AdaiActionButton" v-if="scope.row.imageLink || scope.row.imageOriginal == 'pipeline'" @click="readBook(scope.row)">影像</button>
+                        <button class="AdaiActionButton" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && (scope.row.hasFileOrRemark || scope.row.remark || scope.row.needFillFields)" @click="showAnnex(scope.row)">附件</button>
+                        <button class="AdaiActionButton disabled" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && !scope.row.hasFileOrRemark && !scope.row.remark && !scope.row.needFillFields">影像</button>
+                        <button class="AdaiActionButton" @click="repeatMark(scope.row)">标记</button>
+                    </template>
+                </el-table-column>
+            </el-table>
         </div>
         <div :class="'table-wrap'+ (isF ? '' : ' place-wrap')" v-if="tabIndex === 1">
-            <vxe-table
-                border
-                class="adai-table"
-                resizable
-                ref="xTable7"
+            <el-table
+                :data="nearData"
                 :height="isF ? h*0.4 : h2"
-                :align="'center'"
-                :data="nearData">
-                <vxe-table-column field="distance" title="距离(km)" width="100" fixed="left"></vxe-table-column>
-                <vxe-table-column v-for="(item,index) in field_main" :field="item.fieldName" :title="item.fieldMeans" width="100" :key="'main'+index" fixed="left"></vxe-table-column>
-                <vxe-table-column v-for="(item,index) in field_branch"  width="100" :key="'near'+index" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
-                <vxe-table-column title="阅读影像" fixed="right" :width="80" :cell-render="{name:'AdaiActionButton',attr:{data:[{'label':'阅读','value':'readBook'}]},events:{'readBook':readBook}}"></vxe-table-column>
-            </vxe-table>
+                border
+                style="width: 100%">
+                <el-table-column fixed="left" prop="distance" label="距离(km)" width="100" align="center"></el-table-column>
+                <el-table-column fixed="left" v-for="(item,index) in field_main" :prop="item.fieldName" :label="item.fieldMeans" :key="'main'+index" width="100" align="center"></el-table-column>
+                <el-table-column v-for="(item,index) in field_branch" :prop="item.fieldName" :label="item.fieldMeans" :key="'near'+index" width="100" align="center"></el-table-column>
+                <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="150"
+                    align="center">
+                    <template slot-scope="scope">
+                        <button class="AdaiActionButton" v-if="scope.row.imageLink || scope.row.imageOriginal == 'pipeline'" @click="readBook(scope.row)">影像</button>
+                        <button class="AdaiActionButton" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && (scope.row.hasFileOrRemark || scope.row.remark || scope.row.needFillFields)" @click="showAnnex(scope.row)">附件</button>
+                        <button class="AdaiActionButton disabled" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && !scope.row.hasFileOrRemark && !scope.row.remark && !scope.row.needFillFields">影像</button>
+                    </template>
+                </el-table-column>
+            </el-table>
             <button class="more" @click="getMore" v-if="!isMore">更多</button>
         </div>
-        <div class="single-search" :style="{height: h*0.4+'px'}" v-if="tabIndex === 2">
+        <!-- <div class="single-search" :style="{height: h*0.4+'px'}" v-if="tabIndex === 2">
             <SearchModal :fieldFilters="fieldFilters" v-on:get-genealogy="getGenealogy" />
             <GenealogyTableModal v-if="fieldFilters.length" :isShow="true" :fieldFilters="fieldFilters" :total="total" :list="list" v-on:checkbox-change="checkboxChange" v-on:get-genealogy="getJiapuList" />
             <vxe-pager
@@ -50,23 +61,26 @@
                 :total="total"
                 :layouts="['PrevJump', 'PrevPage', 'JumpNumber','NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
             </vxe-pager>
-        </div>
+        </div> -->
         <Loading v-show="loading" />
         <div class="loading2" v-show="loading2">
-            <span>附近数据在家中</span>
+            <span>附近数据加载中</span>
         </div>
+        <!-- 附件 -->
+        <AnnexModal v-if="isShowAnnex" :gid="gid" :row="annexRow" v-on:close-annex="isShowAnnex = false" />
     </div>
 </template>
 
 <script>
 import SearchModal from "../myGenealogy/SearchModal.vue";
 import GenealogyTableModal from "../myGenealogy/GenealogyTableModal.vue";
+import AnnexModal from "../QingTimeGenealogy/AnnexModal.vue";
 import api from "../../api.js";
 import ADS from "../../ADS.js";
 import { mapState, mapActions, mapGetters } from "vuex";
 export default {
     components: {
-        SearchModal,GenealogyTableModal
+        SearchModal,GenealogyTableModal, AnnexModal,
     },
     name: "RepeatJiapuModal",
     props:{
@@ -126,6 +140,9 @@ export default {
             isDataRepeat: true,
             field_main: [],
             field_branch: [],
+            isShowAnnex: false,
+            annexRow: {},
+            gid: '',
         };
     },
     created:function(){
@@ -168,7 +185,7 @@ export default {
     },
     mounted:function(){
         this.h2 =  window.innerHeight - 40;
-        this.getFieldFilterList();
+        // this.getFieldFilterList();
 
         let nearDataField = [],repeatDetailField = [],repeatDetailFieldO = [];
         this.pumuThead.forEach((ele) => {
@@ -177,28 +194,10 @@ export default {
             }else{
                 nearDataField.push(ele);
             }
-            // if(ele.fieldName === 'genealogyName' 
-            // || ele.fieldName === 'publish' 
-            // || ele.fieldName === 'publishAD' 
-            // || ele.fieldName === 'address' 
-            // || ele.fieldName === 'place' 
-            // || ele.fieldName === 'surname' 
-            // || ele.fieldName === 'authors' 
-            // || ele.fieldName === 'volume' 
-            // || ele.fieldName === 'lostVolume' 
-            // || ele.fieldName === 'hall' 
-            // || ele.fieldName === 'hasVolume'){
-            //     repeatDetailFieldO.push(ele);
-            // }else{
-            //     repeatDetailField.push(ele);
-            // }
         });
 
         // 重复可以数据表头
         repeatDetailField = [
-        // {'fieldName': 'genealogyName', 'fieldMeans': '谱名'},
-        // {'fieldName': 'publish', 'fieldMeans': '出版年'},
-        // {'fieldName': 'place', 'fieldMeans': '谱籍地'},
         {'fieldName': 'surname', 'fieldMeans': '姓氏'},
         {'fieldName': 'authors', 'fieldMeans': '作者'},
         {'fieldName': 'volume', 'fieldMeans': '卷(册)说明'},
@@ -232,6 +231,11 @@ export default {
         this.repeatDetailField = repeatDetailField;
     },
     methods:{
+        showAnnex(row){
+            this.annexRow = row;
+            this.gid = row._key;
+            this.isShowAnnex = true;
+        },
         cellClickEvent({row,column}){
             if(column.property == 'toggle'){
                 this.collapsable = !this.collapsable;
@@ -297,7 +301,7 @@ export default {
             console.log(data);
             this.checkList = data;
         },
-        readBook({row}){// 阅读影像
+        readBook(row){// 阅读影像
             if(row.imageLink){
                 window.open(row.imageLink);
             }else if(row.imageOriginal == 'pipeline'){
@@ -315,7 +319,7 @@ export default {
         changeLoading(flag = true){
             this.$store.dispatch('setPropertyValue',{'property':'loading','value': flag});
         },
-        repeatMark({row}){// 标记重复家谱
+        repeatMark(row){// 标记重复家谱
             this.$confirm('此操作将标记家谱来源, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -422,26 +426,10 @@ export default {
                 }else{
                     nearDataField.push(ele);
                 }
-                // if(ele.fieldName === 'genealogyName' 
-                // || ele.fieldName === 'publish' 
-                // || ele.fieldName === 'publishAD' 
-                // || ele.fieldName === 'address' 
-                // || ele.fieldName === 'place' 
-                // || ele.fieldName === 'surname' 
-                // || ele.fieldName === 'authors' 
-                // || ele.fieldName === 'volume' 
-                // || ele.fieldName === 'lostVolume' 
-                // || ele.fieldName === 'hall' 
-                // || ele.fieldName === 'hasVolume'){
-                //     repeatDetailFieldO.push(ele);
-                // }else{
-                //     repeatDetailField.push(ele);
-                // }
             });
             
             this.nearDataField = nearDataField;
             this.repeatDetailFieldO = repeatDetailFieldO;
-            // this.repeatDetailField = repeatDetailField;
         }
     }
 };
@@ -449,10 +437,6 @@ export default {
 <style scoped lang="scss">
 .section-box{
     position: relative;
-    // position: absolute;
-    // bottom: 0;
-    // left: 0;
-    // height: calc(40% - 10px);
     width: 100%;
 }
 .section-box-tab{
@@ -517,6 +501,9 @@ export default {
     align-items: center;
     background: rgba(0,0,0, 0.3);
     color: #fff;
+}
+.disabled{
+    background-color: #ddd;
 }
 </style>
 
