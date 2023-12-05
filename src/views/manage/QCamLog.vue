@@ -334,13 +334,19 @@ export default {
             }
         },
         async getCameraLogin(){
-            let result = await api.getAxios('v2/camera/device/cameraLogListError?supplyOrgKey='+this.orgKey+'&cameraModel='+this.cameraModel+'&startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1)+'&page='+this.page+'&limit='+this.limit);
+            let result = await api.getAxios('v2/camera/device/cameraLogOnline?orgKey='+this.orgKey+'&startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1));
             if(result.status == 200){
-                this.initChart({
-                    'labels': ['2023/11/22', '2023/11/23' , '2023/11/27', '2023/11/29', '2023/11/30', '2023/12/01' , '2023/12/02'], 
-                    'data': [[1,2,3,4,5,6,7]], 
+                let chartData = {
+                    'labels': [], 
+                    'data': [], 
                     'label': ['上线情况']
+                }, a = [];
+                result.data.forEach((e) => {
+                    chartData.labels.push(e.time);
+                    a.push(e.onlineNumber);
                 });
+                chartData.data.push(a);
+                this.initChart(chartData);
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
