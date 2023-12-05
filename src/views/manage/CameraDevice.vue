@@ -124,6 +124,7 @@ export default {
             if(result.status == 200){
                 this.tableData = result.data.map((ele)=>{
                     ele.createTimeO = ADS.getLocalTime(ele.createTime);
+                    ele.userName = ele.userName ? ele.userName : ele.userName+ele.mobile;
                     return ele;
                 });
             }else{

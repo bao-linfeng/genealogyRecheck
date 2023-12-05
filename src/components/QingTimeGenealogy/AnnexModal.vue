@@ -22,7 +22,8 @@
                 </div>
                 <div class="image_wrap style1">
                     <div class="image_box" v-for="(item,index) in sourceList" :key="'sourceList'+index">
-                        <img @click="previewImages(index)" :src="item.gcFile && item.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? item.gcFile : (baseURL+item.filePath)" alt="影像资料" />
+                        <img @click="previewImages(index)" :src="item.gcFile && item.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? item.gcFile : item.filePath.indexOf('.pdf') > -1 ? require('../../assets/pdf.svg') : (baseURL+item.filePath+'?v='+(item.frequency || 0))" alt="影像资料" />
+                        <img v-if="orgAdmin == 'admin'" class="delete" @click="handleDelete(index, item._key)" src="../../assets/icon/delete.svg" />
                     </div>
                 </div>
                 <div class="remark-wrap">
@@ -42,10 +43,12 @@
                 <i class="left el-icon-arrow-left" :class="{active: currentIndex === 0}" @click="previewImages(currentIndex - 1)"></i>
                 <i class="left right el-icon-arrow-right" :class="{active: currentIndex === sourceList.length - 1}" @click="previewImages(currentIndex + 1)"></i>
                 <div class="zoom">
-                    <img class="icon" @click="handleRotate(1)" title="右旋90°" src="../../assets/shoot/spinR.svg" alt="">
-                    <img class="icon" @click="handleRotate(-1)" title="左旋90°" src="../../assets/shoot/spinL.svg" alt="">
-                    <i class="el-icon-zoom-out" @click="handleZoom(-1)"></i>
-                    <i class="el-icon-zoom-in" @click="handleZoom(1)"></i>
+                    <img class="icon" @click="handleRotate(1)" title="右旋90°" src="../../assets/shoot/rorateRight.svg" alt="">
+                    <img class="icon" @click="handleRotate(-1)" title="左旋90°" src="../../assets/shoot/rorateLeft.svg" alt="">
+                    <img class="icon" @click="handleZoom(-1)" title="缩小" src="../../assets/shoot/zoomI.svg" alt="">
+                    <img class="icon" @click="handleZoom(1)" title="放大" src="../../assets/shoot/zoomU.svg" alt="">
+                    <!-- <i class="el-icon-zoom-out" @click="handleZoom(-1)"></i>
+                    <i class="el-icon-zoom-in" @click="handleZoom(1)"></i> -->
                 </div>
             </div>
         </div>
@@ -108,11 +111,12 @@ export default {
             }
         },
         handleRotate(r){
-            if(r > 0){
-                this.rotate = this.rotate + 90;
-            }else{
-                this.rotate = this.rotate - 90;
-            }
+            // if(r > 0){
+            //     this.rotate = this.rotate + 90;
+            // }else{
+            //     this.rotate = this.rotate - 90;
+            // }
+            this.rorateImage(this.sourceList[this.currentIndex]._key, r > 0 ? 90 : -90);
         },
         async getGenealogyDetail(){
             const result = await api.getAxios('data/detail?dataKey='+this.gid);
@@ -167,8 +171,13 @@ export default {
         previewImages(i){
             console.log(i);
             if(i >= 0 && i <= this.sourceList.length - 1){
+                if(this.sourceList[i].filePath.indexOf('.pdf') > -1){
+                    window.open(this.baseURL+this.sourceList[i].filePath);
+                    return;
+                }
                 this.currentIndex = i;
                 this.simplePath = this.sourceList[i].gcFile && this.sourceList[i].gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? this.sourceList[i].gcFile : (this.baseURL+this.sourceList[i].filePath);
+                this.simplePath = this.simplePath + '?v='+ (this.sourceList[this.currentIndex].frequency || 0);
             }
         },
         close(){
@@ -181,8 +190,22 @@ export default {
             }
         },
         uploadImg: async function(e) {
-            let files = Array.from(e.target.files);
-            this.uploadImage(files);
+            let files = Array.from(e.target.files), isImage = false;
+            // return console.log(files);
+            files.forEach((ele) => {
+                if(ele.name.indexOf('.jpg') > -1 || ele.name.indexOf('.png') > -1 || ele.name.indexOf('.pdf') > -1){
+
+                }else{
+                    isImage = true;
+                }
+            });
+
+            if(isImage){
+                this.$XModal.message({ message: '只能上传.jpg、.png、.pdf!', status: 'warning' });
+            }else{
+                this.uploadImage(files);
+            }
+            e.target.value = '';
         },
         uploadImage(files){
             if(files && files.length){
@@ -200,6 +223,18 @@ export default {
                 this.$XModal.message({ message: result.msg, status: 'warning' })
             }
         },
+        async rorateImage(_key, value){//旋转
+            let data = await api.postAxios('catalog/rotateAttachment', {
+                '_key': _key, 
+                'value': value,
+            });
+            if(data.status == 200){
+                this.sourceList[this.currentIndex].frequency = (this.sourceList[this.currentIndex].frequency || 0) + 1;
+                this.simplePath = this.simplePath + '?v='+ this.sourceList[this.currentIndex].frequency;
+            }else{
+                this.$message({message: '旋转图片失败',type: 'warning'});
+            }
+        },
         linkSource:async function(filePath, originalName, simplePath, files){//文件关联家谱
             let data=await api.postAxios('catalog/file',{'catalogKey':this.gid,'userKey':this.userId,'siteKey':this.stationKey,'filePath':filePath,'fileName':originalName});
             if(data.status == 200){
@@ -213,8 +248,17 @@ export default {
                 this.$message({message: '影像资料关联失败，请重新关联',type: 'warning'});
             }
         },
-        deleteSource:async function(index,fileKey){//删除
-            let data=await api.deleteAxios('catalog/file',{'fileKey':fileKey,'userKey':this.userId,'siteKey':this.stationKey});
+        handleDelete(index,fileKey){
+            this.$confirm('确认要删除该影像吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.deleteSource(index,fileKey);
+            }).catch(() => {});
+        },
+        async deleteSource(index,fileKey){//删除
+            let data = await api.deleteAxios('catalog/file',{'fileKey':fileKey,'userKey':this.userId,'siteKey':this.stationKey});
             if(data.status == 200){
                 this.sourceList.splice(index,1);
             }else{
@@ -455,6 +499,17 @@ export default {
     font-size: 30px;
     color: #358acd;
     width: 160px;
+    cursor: pointer;
+    .icon{
+        height: 30px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+}
+.delete{
+    position: absolute;
+    top: 5px;
+    right: 5px;
     cursor: pointer;
 }
 </style>

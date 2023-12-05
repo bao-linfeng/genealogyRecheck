@@ -215,6 +215,7 @@ function downliadLink(fileName){
     var a = document.createElement('a');
     a.download = fileName;
     a.href = APIURL+fileName;
+    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -380,9 +381,44 @@ const dragablefn = {
 
 };
 
+/**  
+ * 同步下载打包【推荐】 
+ * @param zipName 压缩包文件名  
+ * @param files 文件列表，格式：[{"name":"文件名", "url":"文件下载地址"},……]  
+ */
+function zipFiles(zipName, files) {  
+    let startTime = Date.now();
+    console.log("同步下载打包开始时间：" + startTime);  
+    // 创建压缩文件输出流  
+    const zipFileOutputStream = streamSaver.createWriteStream(zipName);  
+    // 创建下载文件流  
+    const fileIterator = files.values();  
+    const readableZipStream = new ZIP({  
+        async pull(ctrl) {  
+            const fileInfo = fileIterator.next();  
+            if (fileInfo.done) {//迭代终止  
+                ctrl.close();  
+            } else {  
+                const {name, url} = fileInfo.value;  
+                return fetch(url).then(res => {  
+                    ctrl.enqueue({  
+                        name,  
+                        stream: () => res.body  
+                    });  
+                })  
+            }        }    });  
+    if (window.WritableStream && readableZipStream.pipeTo) {  
+        // 开始下载  
+        readableZipStream  
+            .pipeTo(zipFileOutputStream)  
+            .then(() => console.log("同步下载打包结束时间：" + (Date.now() - startTime)/1000));  
+    }  
+}
+
 export default {
     clearCacheTime,throttle,debounce,NumberToChinese,ChineseToNumber,Date2Timestamp,
     downliadLink,message,objectValue2String,params,unzip,zip,compile,uncompile,
     GetRandomNum,getLocalTime,timeago,ModalHelper,logout,
     getQueryVariable, getSurplusDays, dragablefn,
+    zipFiles,
 }

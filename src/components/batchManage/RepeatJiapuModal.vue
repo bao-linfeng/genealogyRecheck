@@ -305,7 +305,8 @@ export default {
             if(row.imageLink){
                 window.open(row.imageLink);
             }else if(row.imageOriginal == 'pipeline'){
-                window.open('/'+this.pathname+'/cameraImage?device='+row.device+'&vid='+row.volumeKey+'&gid='+row._key+'&genealogyName='+row.genealogyName);
+                window.open('/'+this.pathname+'/viewImage?gid='+row._key+'&genealogyName='+row.genealogyName);
+                // window.open('/'+this.pathname+'/cameraImage?device='+row.device+'&vid='+row.volumeKey+'&gid='+row._key+'&genealogyName='+row.genealogyName);
             }else{
                 this.$XModal.message({ message: '暂无无法查看影像', status: 'warning' });
             }

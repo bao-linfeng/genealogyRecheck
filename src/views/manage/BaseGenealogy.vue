@@ -18,10 +18,10 @@
                 <!-- <el-button v-if="this.role >=1 && this.role <= 2"  class="marginLeft20" size="small" type="primary" @click="isEdit = true">编辑的家谱</el-button> -->
                 <!-- 全部完结 -->
                 <!-- || (orgAdmin == 'admin') -->
-                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('all')">全部完结</el-button>
+                <el-button size="small" type="primary" v-if="['9071165200', '9071165268'].indexOf(roleKey) > -1" @click="handleCompleteCatalog('all')">全部完结</el-button>
                 <!-- 批量完结 -->
                 <!-- || (orgAdmin == 'admin') -->
-                <el-button size="small" type="primary" v-if="this.role >=1 && this.role <= 2" @click="handleCompleteCatalog('some')">批量完结</el-button>
+                <el-button size="small" type="primary" v-if="['9071165200', '9071165268'].indexOf(roleKey) > -1" @click="handleCompleteCatalog('some')">批量完结</el-button>
                 <!-- <el-button size="small" type="primary" @click="handleSearchImages">影像统计</el-button> -->
             </div>
             <!-- 家谱table -->
@@ -260,8 +260,8 @@ export default {
                     item.NoIndexO = item.NoIndex == 1 ? '不可索引' : '可索引';
                     item.claimTimeO = item.claimTime ? ADS.getLocalTime(item.claimTime, '/', 1) : '';
                     item.createTime = item.createTime ? ADS.getLocalTime(item.createTime, '/', 1) : '';
-                    item.Filetimes = ADS.getLocalTime(item.createTime, '/', 1) || item.Filetimes;
-                    item.Filenames = item.Filenames;
+                    // item.Filetimes = ADS.getLocalTime(item.createTime, '/', 1) || item.Filetimes;
+                    item.Filetimes = ADS.getLocalTime(item.Filetimes, '/', 1);
                     item.address = (item.prov || '') + ' ' + (item.city || '') + ' ' + (item.district || '');
                     item.hasImageO = item.hasImage == 1 ? '有' : '无';
                     item.libsStr = item.libs.join(',');
@@ -486,6 +486,7 @@ export default {
             catalogStatusO: state => state.nav.catalogStatusO,
             orgAdmin: state => state.nav.orgAdmin,
             orgId: state => state.nav.orgId,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch:{

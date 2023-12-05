@@ -300,6 +300,9 @@ export default {
             this.$router.push('/'+window.localStorage.getItem('pathname')+'/bookAuditList?batchID='+row._key+'&state='+state+'&f='+encodeURIComponent(row.fileName));
         },
         refresh(){// 刷新
+            if(this.fileName){
+                this.stage = '';
+            }
             this.page = 1;
             this.getBatch();
         },

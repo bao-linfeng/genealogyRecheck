@@ -14,7 +14,8 @@
                     <label class="label" for="">{{item.label}}</label>
                     <el-input class="width100 marginR20" :class="{'width200': ['genealogyName', 'place' ,'LocalityModern'].indexOf(item.value) > -1}" v-model="searchObject[item.value]" :placeholder="'请输入'+item.label" clearable></el-input>
                 </div>
-                
+                <el-checkbox class="marginR5" v-model="isKeyWord"></el-checkbox>
+                <el-input class="width200 marginR20" v-model="keyWord" placeholder="请输入一世祖或始迁祖" clearable></el-input>
                 <el-button type="primary" size="medium" @click="getDataList">检索</el-button>
                 <el-button type="primary" size="medium" @click="fieldRcover">字段复原</el-button>
                 <el-checkbox class="margin10" v-model="haswu">无或空字符堂号</el-checkbox>
@@ -154,6 +155,7 @@ export default {
                 {'label': '一世祖', 'value': 'firstAncestor', 'check': false},
                 {'label': '卷数', 'value': 'volume', 'check': false},
                 {'label': '出版年', 'value': 'publish', 'check': false},
+                // {'label': '一世祖或始迁祖', 'value': 'keyWord', 'check': false},
             ],
             searchObject: {
 
@@ -179,6 +181,8 @@ export default {
             isShowAnnex: false,
             annexRow: {},
             gid: '',
+            keyWord: '',
+            isKeyWord: false,
         };
     },
     created:function(){
@@ -271,6 +275,7 @@ export default {
             this.loading = true;
             let data = await api.postAxios('catalog/singleGCQuickQuery',{
                 'searchObject': searchObject,
+                'keyWord': this.isKeyWord ? this.keyWord : '',
                 'targetGCKey': this.id,
                 'prop': this.prop,
                 'order': this.order,

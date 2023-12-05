@@ -28,7 +28,7 @@
                 <div class="img-wrap style1" :class="{active: needFillFields.length}">
                     <div class="img-box" v-for="(item, index) in imageList" :key="index" @click="openURL(item)">
                         <img class="image" v-if="item.fileName.indexOf('.pdf') > -1 || item.fileName.indexOf('.doc') > -1 || item.fileName.indexOf('.docx') > -1" :src="require('../../assets/'+(item.fileName.indexOf('.pdf') > -1 ? 'pdf' : 'word')+'.svg')" alt="">
-                        <img v-else class="image" @click="previewImages(index)" :src="item.gcFile && item.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? item.gcFile : (baseURL+item.filePath)" alt="" />
+                        <img v-else class="image" @click="previewImages(index)" :src="item.gcFile && item.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1 ? item.gcFile : (baseURL+item.filePath+'?v='+(item.frequency || 0))" alt="" />
                         <i class="el-icon-delete" v-if="role < 1 || role > 3" @click.stop="deleteSource(index, item)"></i>
                         <p class="name">{{item.fileName}}</p>
                     </div>
@@ -74,10 +74,12 @@
                 </div>
                 <i class="close el-icon-close" @click="closePreview"></i>
                 <div class="zoom">
-                    <img class="icon" @click="handleRotate(1)" title="右旋90°" src="../../assets/shoot/spinR.svg" alt="">
-                    <img class="icon" @click="handleRotate(-1)" title="左旋90°" src="../../assets/shoot/spinL.svg" alt="">
-                    <i class="el-icon-zoom-out" @click="handleZoom(-1)"></i>
-                    <i class="el-icon-zoom-in" @click="handleZoom(1)"></i>
+                    <img class="icon" @click="handleRotate(1)" title="右旋90°" src="../../assets/shoot/rorateRight.svg" alt="">
+                    <img class="icon" @click="handleRotate(-1)" title="左旋90°" src="../../assets/shoot/rorateLeft.svg" alt="">
+                    <img class="icon" @click="handleZoom(-1)" title="缩小" src="../../assets/shoot/zoomI.svg" alt="">
+                    <img class="icon" @click="handleZoom(1)" title="放大" src="../../assets/shoot/zoomU.svg" alt="">
+                    <!-- <i class="el-icon-zoom-out" @click="handleZoom(-1)"></i>
+                    <i class="el-icon-zoom-in" @click="handleZoom(1)"></i> -->
                 </div>
             </div>
         </div>
@@ -151,11 +153,12 @@ export default {
             }
         },
         handleRotate(r){
-            if(r > 0){
-                this.rotate = this.rotate + 90;
-            }else{
-                this.rotate = this.rotate - 90;
-            }
+            // if(r > 0){
+            //     this.rotate = this.rotate + 90;
+            // }else{
+            //     this.rotate = this.rotate - 90;
+            // }
+            this.rorateImage(this.imageList[this.currentIndex]._key, r > 0 ? 90 : -90);
         },
         openURL(data){
             if(data.gcFile && data.gcFile.indexOf('https://cdn-icare.qingtime.cn') > -1){
@@ -260,17 +263,20 @@ export default {
         previewImages(i){
             this.currentIndex = i;
             this.simplePath = this.imageList[i].filePath;
+            this.simplePath = this.simplePath + '?v='+ (this.imageList[this.currentIndex].frequency || 0);
         },
         prevImage(){
             if(this.currentIndex >= 1){
                 this.currentIndex = this.currentIndex - 1;
                 this.simplePath = this.imageList[this.currentIndex].filePath;
+                this.simplePath = this.simplePath + '?v='+ (this.imageList[this.currentIndex].frequency || 0);
             }
         },
         nextImage(){
             if(this.currentIndex <= this.imageList.length - 2){
                 this.currentIndex = this.currentIndex + 1;
                 this.simplePath = this.imageList[this.currentIndex].filePath;
+                this.simplePath = this.simplePath + '?v='+ (this.imageList[this.currentIndex].frequency || 0);
                 console.log(this.currentIndex, this.imageList);
             }
         },
@@ -300,6 +306,18 @@ export default {
                 // this.$XModal.message({ message: '图片删除成功', status: 'success' });
             }else{
                 this.$XModal.message({ message: result.msg, status: 'warning' });
+            }
+        },
+        async rorateImage(_key, value){//旋转
+            let data = await api.postAxios('catalog/rotateAttachment', {
+                '_key': _key, 
+                'value': value,
+            });
+            if(data.status == 200){
+                this.imageList[this.currentIndex].frequency = (this.imageList[this.currentIndex].frequency || 0) + 1;
+                this.simplePath = this.simplePath + '?v='+ this.imageList[this.currentIndex].frequency;
+            }else{
+                this.$message({message: '旋转图片失败',type: 'warning'});
             }
         },
         async linkSource(filePath, originalName, simplePath, files){//文件关联家谱
@@ -526,7 +544,7 @@ export default {
         position: absolute;
         top: 20px;
         right: 20px;
-        font-size: 40px;
+        font-size: 20px;
         cursor: pointer;
         color: #f00;
     }
@@ -576,6 +594,11 @@ export default {
     color: #358acd;
     width: 160px;
     cursor: pointer;
+    .icon{
+        height: 30px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
 }
 </style>
 

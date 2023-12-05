@@ -155,7 +155,6 @@ export default {
         this.h = window.innerHeight - 60 - 54 - 50;
         this.type = ADS.getQueryVariable('type') ? decodeURIComponent(ADS.getQueryVariable('type')) : '';
         this.fileName = ADS.getQueryVariable('fileName') ? decodeURIComponent(ADS.getQueryVariable('fileName')) : '';
-        // this.libListCheck = ADS.getQueryVariable('libListCheck') ? ADS.getQueryVariable('libListCheck').split(',') : '';
         this.startTime = ADS.getQueryVariable('startTime');
         this.endTime = ADS.getQueryVariable('endTime');
         this.stage = ADS.getQueryVariable('stage');
@@ -163,7 +162,6 @@ export default {
     },
     mounted:function(){
         this.getDataType();
-        // this.getUserList();
         this.getLibList();
         this.getBatchList(); 
         if(this.role <= 3  && this.role >=1){
@@ -203,12 +201,12 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        getOrgList:async function(){
+        async getOrgList(){
             let data = await api.getAxios('org?siteKey='+this.stationKey+'&name=');
             if(data.status == 200){
-                let orgList = [{'label':'全部','value':''}];
+                let orgList = [{'label': '全部', 'value': ''}];
                 data.data.map((item)=>{
-                    orgList.push({'label': item.name,'value': item._key});
+                    orgList.push({'label': item.name, 'value': item._key});
                 });
                 this.orgList = orgList;
             }else{
@@ -263,17 +261,10 @@ export default {
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
-            // if(row.hasPast == 1){
-                
-            // }else{
-            //     this.$XModal.message({ message: '审核通过后才可下载', status: 'warning' })
-            // }
         },
         downloadNaturalExcel({row}){
             console.log(row);
             if(row.uploadOriginalFileName){
-                console.log('https://view.officeapps.live.com/op/view.aspx?src='+this.baseURL+'catalogFile/'+row.uploadOriginalFileName);
-                // window.open(this.baseURL+'catalogFile/'+row.uploadOriginalFileName);
                 window.open('https://view.officeapps.live.com/op/view.aspx?src='+this.baseURL+'catalogFile/'+row.uploadOriginalFileName);
             }else{
                 ADS.message('暂无原始Excel!');

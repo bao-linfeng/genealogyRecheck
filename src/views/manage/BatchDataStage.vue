@@ -41,7 +41,7 @@
                     <vxe-table-column v-if="active <= 3" width="100" field="lackFields" title="残缺字段"></vxe-table-column>
                     <vxe-table-column v-if="active <= 3" width="100" field="repeatInBatchArr" title="同批次重复记录"></vxe-table-column>
                     <vxe-table-column v-if="active <= 3" width="100" field="repeatInISGNArr" title="ISGN重复记录"></vxe-table-column>
-                    <vxe-table-column v-if="active >= 2 && active <= 4" fixed="right" field="annex" title="附件上传" width="270" :cell-render="{name:'AdaiActionButton',attr:{data: actionDataArr},events:{'annex':annex, 'editBook': editBook, 'deleteBook': deleteBook, 'singleQuick': singleQuick}}"></vxe-table-column>
+                    <vxe-table-column v-if="active >= 1 && active <= 4" fixed="right" field="annex" title="附件上传" width="270" :cell-render="{name:'AdaiActionButton',attr:{data: actionDataArr},events:{'annex':annex, 'editBook': editBook, 'deleteBook': deleteBook, 'singleQuick': singleQuick}}"></vxe-table-column>
                 </vxe-table>
             </div>
             
@@ -189,7 +189,7 @@ export default {
             f ? this.getDataCheckLog() : null; 
         },
         editBook({row}){// 编辑谱目
-            if(this.active == 2){
+            if(this.active == 2 || this.active == 1){
                 this.gid = row._key;
                 this.isEdit = true;
             }else{

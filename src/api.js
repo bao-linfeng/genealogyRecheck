@@ -172,4 +172,5 @@ export default {
     patchAxios,
     postFetch,
     service,
+    APIURL,
 }

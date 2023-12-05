@@ -553,4 +553,10 @@ table{
 .tooltip-w{
   max-width: 410px !important;
 }
+.el-table th, .el-table tr {
+  background-color: #f5f7fa !important;
+}
+.is-scrolling-none .el-table th, .el-table tr {
+  background-color: #fff !important;
+}
 </style>

@@ -275,10 +275,11 @@ export default {
                 {'label': 'fs', 'value': 'other'}
             ],
             imageList: [
-                {'label':'影像资料','value': ''},
-                {'label':'Pipeline有影像','value': '1'},
-                {'label':'RMS有影像','value': '3'},
-                {'label':'无影像','value': '0'}
+                {'label': '影像资料', 'value': ''},
+                {'label': 'Pipeline有影像', 'value': '1'},
+                {'label': 'RMS有影像', 'value': '3'},
+                {'label': 'Pipeline无影像', 'value': '0'},
+                {'label': 'RMS无影像', 'value': '2'}
             ],
             libList: [],
             nolibList: [{'label':'等于','value':1},{'label':'不等于','value':0}],

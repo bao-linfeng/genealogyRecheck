@@ -66,6 +66,7 @@ import CatalogWorkload from './views/manage/CatalogWorkload.vue';
 import ViewImage from './views/manage/ViewImage.vue';
 import CatalogCheckStatistics from './views/manage/CatalogCheckStatistics.vue';
 import CatalogEditStatistics from './views/manage/CatalogEditStatistics.vue';
+import QCamLog from './views/manage/QCamLog.vue';
 
 
 
@@ -76,6 +77,14 @@ const routes = [
     path: "/404",
     name: "notfound",
     component: NotFound
+  },
+  {
+    path: "/:id/QCamLog",
+    name: "QCamLog",
+    meta: {
+      requireAuth: true,
+    },
+    component: QCamLog
   },
   {
     path: "/:id/CatalogEditStatistics",
