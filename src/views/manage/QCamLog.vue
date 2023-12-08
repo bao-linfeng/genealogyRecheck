@@ -352,7 +352,8 @@ export default {
             }
         },
         handleDownload(row){
-            ADS.downliadLink(row.simplePath+'?response-content-type=application%2Foctet-stream');
+            ADS.zipFiles('拍机日志-'+Date.now()+'.zip', [{'name': row.originalName, 'url': api.APIURL+row.simplePath}]);
+            // ADS.downliadLink(row.simplePath+'?response-content-type=application%2Foctet-stream');
         },
     },
     computed: {

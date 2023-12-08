@@ -18,10 +18,10 @@
                 <!-- <el-button v-if="this.role >=1 && this.role <= 2"  class="marginLeft20" size="small" type="primary" @click="isEdit = true">编辑的家谱</el-button> -->
                 <!-- 全部完结 -->
                 <!-- || (orgAdmin == 'admin') -->
-                <el-button size="small" type="primary" v-if="['9071165200', '9071165268'].indexOf(roleKey) > -1" @click="handleCompleteCatalog('all')">全部完结</el-button>
+                <el-button size="small" type="primary" v-if="['9071165200', '9071165268', '9138241997'].indexOf(roleKey) > -1" @click="handleCompleteCatalog('all')">全部完结</el-button>
                 <!-- 批量完结 -->
                 <!-- || (orgAdmin == 'admin') -->
-                <el-button size="small" type="primary" v-if="['9071165200', '9071165268'].indexOf(roleKey) > -1" @click="handleCompleteCatalog('some')">批量完结</el-button>
+                <el-button size="small" type="primary" v-if="['9071165200', '9071165268', '9138241997'].indexOf(roleKey) > -1" @click="handleCompleteCatalog('some')">批量完结</el-button>
                 <!-- <el-button size="small" type="primary" @click="handleSearchImages">影像统计</el-button> -->
             </div>
             <!-- 家谱table -->
