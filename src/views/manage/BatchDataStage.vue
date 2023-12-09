@@ -466,11 +466,12 @@ export default {
                 }
             }else{
                 if(row.suggIn == '否') {
-                    if(row.repeatRisk >= 90){
-                        return 'row-red'
-                    }else{
-                        return 'row-orange'
-                    }
+                    return 'row-red'
+                    // if(row.repeatRisk >= 90){
+                    //     return 'row-red'
+                    // }else{
+                    //     return 'row-orange'
+                    // }
                 }
             }
         },
