@@ -68,9 +68,9 @@
                     <el-table-column prop="duplicateNumber" label="重复数" width="100" align="center"></el-table-column>
                     <el-table-column prop="invalidNumber" label="无效数" width="100" align="center"></el-table-column>
                     <el-table-column prop="cancelNumber" label="作废数" width="100" align="center"></el-table-column>
-                    <el-table-column prop="lib" label="来源" width="100" align="center" sortable="custom"></el-table-column>
+                    <el-table-column prop="lib" label="来源" width="130" align="center" sortable="custom"></el-table-column>
                     <el-table-column prop="checkUserName" label="审核人" width="100" align="center"></el-table-column>
-                    <el-table-column prop="createTime" label="导入时间" width="160" align="center" sortable="custom"></el-table-column>
+                    <el-table-column v-if="role >= 1 && role <= 3" prop="batchSubmitTime" label="提交时间" width="160" align="center" sortable="custom"></el-table-column>
                     <el-table-column
                         label="操作"
                         width="300"
@@ -280,7 +280,7 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        getDataType:async function(){
+        async getDataType(){
             let data=await api.getAxios('dataType');
             if(data.status == 200){
                 let dataType = [{'label':'全部','value':''}];
@@ -351,6 +351,7 @@ export default {
                     ele.needReviewO = ele.needReview == 1 && ele.hasPass != 1 && (ele.repulseTime ? 1 : 0);
                     ele.status = ele.hasPast ? '审核通过' : ele.needReviewO ? '打回' : ele.hasSubmitO ? '提交审核' : '待提交';
                     ele.createTime = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
+                    ele.batchSubmitTime = ele.batchSubmitTime ? ADS.getLocalTime(ele.batchSubmitTime) : '';
 
                     return ele;
                 });
