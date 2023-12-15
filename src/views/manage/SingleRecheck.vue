@@ -106,6 +106,7 @@
                     <el-table-column prop="verifyTime" label="审核时间" width="120" align="center" sortable="custom"></el-table-column>
                     <el-table-column prop="condition" label="状态" width="120" align="center"></el-table-column>
                     <el-table-column prop="isBillO" label="已开发票" width="120" align="center"></el-table-column>
+                    <el-table-column prop="indexAssignO" label="索引分配" width="120" align="center"></el-table-column>
                     <!-- <el-table-column prop="isDuplicateO" label="标记重复" width="120" align="center"></el-table-column> -->
                     <el-table-column
                         fixed="right"
@@ -381,6 +382,7 @@ export default {
                     ele.verifyTime = ele.verifyTime ? ADS.getLocalTime(ele.verifyTime) : '';
                     ele.isBillO = ele.isBill ? '是' : '否';
                     ele.isDuplicateO = ele.isDuplicate ? '是' : '否';
+                    ele.indexAssignO = ele.indexAssign ? '已分配' : '未分配';
 
                     return ele;
                 });

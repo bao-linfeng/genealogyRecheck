@@ -38,6 +38,7 @@
                     <el-table-column prop="GCOverO" label="编目状态" width="100" align="center"></el-table-column>
                     <el-table-column prop="NoIndexO" label="索引状态" width="100" align="center"></el-table-column>
                     <el-table-column prop="gcStatusO" label="谱书状态" width="100" align="center"></el-table-column>
+                    <el-table-column prop="indexAssignO" label="索引分配" width="120" align="center"></el-table-column>
                     <el-table-column
                         fixed="right"
                         label="操作"

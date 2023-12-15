@@ -266,6 +266,7 @@ export default {
                     item.hasImageO = item.hasImage == 1 ? '有' : '无';
                     item.libsStr = item.libs.join(',');
                     item.takeStatus = item.takeStatus == 7 ? '已拍完' : item.takeStatus == 1 ? '已认领' : '未认领';
+                    item.indexAssignO = item.indexAssign ? '已分配' : '未分配';
                 });
                 this.total = data.result.total;
             }else{
