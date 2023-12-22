@@ -111,6 +111,7 @@ export default {
                 {'label': '原稿模糊', 'value': '原稿模糊'},
                 {'label': '原稿破损', 'value': '原稿破损'},
                 {'label': '装订紧密', 'value': '装订紧密'},
+                {'label': '世系缺损', 'value': '世系缺损'},
                 {'label': '其他', 'value': '其他'},
             ],
             imageSourceList: [
