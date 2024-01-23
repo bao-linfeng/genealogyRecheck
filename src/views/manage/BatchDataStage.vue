@@ -62,7 +62,7 @@
             <vxe-button content="保存" @click="saveSuggest"></vxe-button>
         </div>
         <!-- 谱目编辑 -->
-        <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeEdit" />
+        <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :isGCOver="true" :vid="''" v-on:close="closeEdit" />
     </div>
 </template>
 

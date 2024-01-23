@@ -52,7 +52,7 @@
                             <button class="AdaiActionButton" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && (scope.row.hasFileOrRemark || scope.row.remark || scope.row.needFillFields)" @click="showAnnex(scope.row)">附件</button>
                             <button class="AdaiActionButton disabled" v-if="!scope.row.imageLink && scope.row.imageOriginal != 'pipeline' && !scope.row.hasFileOrRemark && !scope.row.remark && !scope.row.needFillFields">影像</button>
                             <button class="AdaiActionButton" @click="lookLog(scope.row)">记录</button>
-                            <button class="AdaiActionButton" v-if="scope.row.condition == 'nf' || scope.row.condition == 'f'" @click="catalogPass(scope.row)">{{scope.row.condition == 'f' ? '反' : ''}}完结</button>
+                            <button class="AdaiActionButton" v-if="(scope.row.condition == 'nf' || scope.row.condition == 'f') && ['9138241997', '9071165200'].indexOf(roleKey) > -1" @click="catalogPass(scope.row)">{{scope.row.condition == 'f' ? '反' : ''}}完结</button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -375,6 +375,7 @@ export default {
             orgAdmin: state => state.nav.orgAdmin,
             catalogStatusO: state => state.nav.catalogStatusO,
             isResize: state => state.nav.isResize,
+            roleKey: state => state.nav.roleKey,
         })
     },
     watch: {

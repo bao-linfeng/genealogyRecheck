@@ -84,14 +84,15 @@
                 </li>
                 <li>
                     <label class="label" for="">谱目编辑</label>
-                    <el-radio-group class="w90" v-model="GCOver" :disabled="(read || isGCOver || detail.GCOver == 1) && role >= 1 && role <= 3">
+                    <!-- && role >= 1 && role <= 3 -->
+                    <el-radio-group class="w90" v-model="GCOver" :disabled="(read || isGCOver || detail.GCOver == 1)">
                         <el-radio :label="'1'">已完结</el-radio>
                         <el-radio :label="''">未完结</el-radio>
                     </el-radio-group>
                 </li>
                 <li class="marginL10">
                     <label class="label" for="">索引</label>
-                    <el-radio-group class="w90" v-model="NoIndex" :disabled="read">
+                    <el-radio-group class="w90" v-model="NoIndex" :disabled="read || isGCOver">
                         <el-radio :label="0">可索引</el-radio>
                         <el-radio :label="1">不可索引</el-radio>
                     </el-radio-group>

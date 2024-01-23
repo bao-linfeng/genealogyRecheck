@@ -110,7 +110,7 @@ export default {
             let result = await api.getAxios('org/member?orgKey='+orgKey);
             if(result.status == 200){
                 this.userList = result.data.map((ele) => {
-                    ele.label = ele.userName+'('+(ele.mobile || ele.email)+')';
+                    ele.label = (ele.userName || '匿名')+'('+(ele.mobile || ele.email)+')';
                     ele.value = ele._key;
                     return ele;
                 });

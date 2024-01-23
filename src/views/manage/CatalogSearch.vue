@@ -299,7 +299,7 @@ export default {
         },
         async downloadExcel(){// 下载检索结果
             this.Loading = true;
-            let data = await api.getAxios('catalog/catalogListFSDownload?gcKey='+this.gcKey+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+this.updateEndTime+'&createStartTime='+this.createStartTime+'&createEndTime='+this.createEndTime+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&limit=5000');
+            let data = await api.getAxios('catalog/catalogListFSDownload?gcKey='+this.gcKey+'&waitComplete='+this.waitComplete+'&updateStartTime='+this.updateStartTime+'&updateEndTime='+(this.updateEndTime ? this.updateEndTime+24*60*60*1000 - 1 : this.updateEndTime)+'&createStartTime='+this.createStartTime+'&createEndTime='+(this.createEndTime ? this.createEndTime+24*60*60*1000 - 1 : this.createEndTime)+'&imgStatus='+this.imgStatus+'&GCOver='+this.GCOver+'&NoIndex='+this.NoIndex+'&sortField='+this.sortField+'&sortType='+this.sortType+'&genealogyName='+this.genealogyName+'&place='+this.place+'&surname='+this.surname+'&condition='+this.condition+'&claimOrgKey='+this.claimOrgKey+'&orgKey='+this.orgKey+'&siteKey='+this.stationKey+'&page='+this.page+'&limit=10000');
             this.Loading = false;
             if(data.status == 200){
                 ADS.downliadLink(data.result);

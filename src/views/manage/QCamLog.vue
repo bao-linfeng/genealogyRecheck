@@ -69,6 +69,7 @@
                     <el-table-column type="selection" width="55" align="center" />
                     <el-table-column prop="time" label="日期" align="center"></el-table-column>
                     <el-table-column prop="supplierOrg" label="供应商" align="center"></el-table-column>
+                    <el-table-column prop="userName" label="拍摄人员" align="center"></el-table-column>
                     <el-table-column prop="cameraModel" label="设备型号" align="center"></el-table-column>
                     <el-table-column prop="device" label="设备序号" align="center"></el-table-column>
 
@@ -93,6 +94,7 @@
                     style="width: 100%">
                     <el-table-column prop="time" label="日期" align="center"></el-table-column>
                     <el-table-column prop="supplierOrg" label="供应商" align="center"></el-table-column>
+                    <el-table-column prop="userName" label="拍摄人员" align="center"></el-table-column>
                     <el-table-column prop="cameraModel" label="设备型号" align="center"></el-table-column>
                     <el-table-column prop="device" label="设备序号" align="center"></el-table-column>
                     <el-table-column prop="cameraLostFocus" label="失焦" align="center"></el-table-column>

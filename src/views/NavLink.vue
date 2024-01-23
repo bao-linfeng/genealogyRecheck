@@ -3,8 +3,10 @@
   <div class="nav">
     <div class="navCenter">
         <div class="navleft">
-            <router-link :to="'/'+pathname"><img src="../assets/nav/logo_nav.svg"></router-link>
-            <a :href="'https://baoku.qingtime.cn/'+pathname" target="_blank">{{stationNames}}</a>
+            <!-- <img src="../assets/nav/logo_nav.svg"> -->
+            <router-link :to="'/'+pathname">{{stationNames}}</router-link>
+            <!-- :href="'https://baoku.qingtime.cn/'+pathname" -->
+            <!-- <p>{{stationNames}}</p> -->
         </div>
         <div class="navRight">
             <ul class="navLink">

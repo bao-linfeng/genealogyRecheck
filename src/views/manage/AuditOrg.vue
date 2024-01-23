@@ -90,6 +90,7 @@ export default {
             let data = await api.getAxios('org/applyJoinOrgList?siteKey='+this.stationKey+'&userKey='+this.userId+'&orgKey='+this.orgKey+'&searchCondition='+this.searchCondition+'&page='+this.page+'&limit='+this.limit);
             if(data.status == 200){
                 this.tableData = data.data.list.map((ele) => {
+                    ele.userName = ele.userName || '匿名';
                     ele.status = '';
                     ele.createTimeO = ele.createTime ? ADS.getLocalTime(ele.createTime) : '';
                     return ele;

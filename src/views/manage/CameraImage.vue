@@ -192,7 +192,7 @@
         <!-- 查看谱目 -->
         <CatalogView v-if="isShow == 4" :read="true" :dataKey="dataKey" :vid="vid" v-on:close="isShow = 0" v-on:save="handleSave" />
         <!-- 谱目编辑 -->
-        <EditCatalog v-if="(isShow == 6)" :read="false" :dataKey="dataKey" :vid="vid" :isGCOver="false" v-on:close="isShow = 0" />
+        <EditCatalog v-if="(isShow == 6)" :read="false" :dataKey="dataKey" :vid="vid" :isGCOver="role >= 1 && role <= 3 ? false : true" v-on:close="isShow = 0" />
         <!-- 影像审核 -->
         <ImagesCheck v-if="isShow == 5" :detail="detail" :catalogDetail="catalogDetail" :returnReasonL="resionList.length" v-on:close="closeCheck" />
         <!-- loading -->
