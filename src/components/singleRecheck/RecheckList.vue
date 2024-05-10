@@ -11,14 +11,14 @@
                     :height="h"
                     border
                     style="width: 100%">
-                    <el-table-column prop="rules" label="命中规则" align="center"></el-table-column>
+                    <el-table-column prop="rules" label="命中规则" width="150" align="center"></el-table-column>
                     <el-table-column prop="repeatOSBN" label="谱ID" width="100" align="center"></el-table-column>
                     <el-table-column prop="genealogyName" label="谱名" align="center"></el-table-column>
                     <el-table-column prop="surname" label="姓氏" width="100" align="center"></el-table-column>
                     <el-table-column prop="publish" label="出版年" width="100" align="center"></el-table-column>
                     <el-table-column prop="hall" label="堂号" width="100" align="center"></el-table-column>
                     <el-table-column prop="authors" label="作者" width="100" align="center"></el-table-column>
-                    <el-table-column prop="place" label="谱籍地(现代)" align="center"></el-table-column>
+                    <el-table-column prop="place" label="谱籍地(现代)" width="150" align="center"></el-table-column>
                     <el-table-column prop="volume" label="卷册说明" align="center"></el-table-column>
                     <el-table-column prop="lostVolume" label="缺卷说明" align="center"></el-table-column>
                     <el-table-column prop="condition" label="状态" width="100" align="center"></el-table-column>
@@ -27,6 +27,7 @@
                     <el-table-column prop="bookId" label="谱书编号" width="100" align="center"></el-table-column>
                     <el-table-column prop="DGS" label="DGS号码" width="100" align="center"></el-table-column>
                     <el-table-column prop="genealogyGroupID" label="家谱群组ID" width="100" align="center"></el-table-column>
+                    <el-table-column prop="indexAssign" label="索引分配" width="120" align="center"></el-table-column>
                     <el-table-column
                         fixed="right"
                         label="操作"

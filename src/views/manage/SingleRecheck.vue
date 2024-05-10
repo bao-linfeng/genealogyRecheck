@@ -44,7 +44,7 @@
                     </el-option>
                 </el-select>
                 
-                <el-button type="primary" size="mini" @click="getDataList">检索</el-button>
+                <el-button type="primary" size="mini" @click="handleSearch">检索</el-button>
                 <el-button v-if="roleType == 'host' && ['9071165200'].indexOf(roleKey) > -1" type="primary" size="mini" @click="billDuplicateGCVolumeDownload">下载</el-button>
                 <el-checkbox class="marginL10" size="mini" v-model="isShowSearch">展开</el-checkbox>
             </div>
@@ -106,7 +106,7 @@
                     <el-table-column prop="verifyTime" label="审核时间" width="120" align="center" sortable="custom"></el-table-column>
                     <el-table-column prop="condition" label="状态" width="120" align="center"></el-table-column>
                     <el-table-column prop="isBillO" label="已开发票" width="120" align="center"></el-table-column>
-                    <el-table-column prop="indexAssignO" label="索引分配" width="120" align="center"></el-table-column>
+                    <el-table-column prop="indexAssign" label="索引分配" width="120" align="center"></el-table-column>
                     <!-- <el-table-column prop="isDuplicateO" label="标记重复" width="120" align="center"></el-table-column> -->
                     <el-table-column
                         fixed="right"
@@ -249,6 +249,10 @@ export default {
         this.getDataList();
     },
     methods:{
+        handleSearch(){
+            this.page = 1;
+            this.getDataList();
+        },
         handleMark(row){
             this.$confirm('是否要把 '+row.genealogyName+' 谱目设置为重复谱，会影响已开发票?', '提示', {
                 confirmButtonText: '是',

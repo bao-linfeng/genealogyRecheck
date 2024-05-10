@@ -354,7 +354,7 @@ export default {
 
             // 堂号 不可空白，如無堂號請填“無”
             if(new RegExp(/[,.\/;'\\\[\]~!@#\$%\^&\*_\+\-\=<>\?\:\"\|\{\}\"\'\`]|[，。、；‘、【】~！@#￥%……&*——+\-=《》？：“|{}·]/g).test(this.parameter['hall']) && this.parameter['hall']){
-                return this.$XModal.message({ message: '谱名 不可以有其他標點符號，除了 () 拆字可用（）', status: 'warning' });
+                return this.$XModal.message({ message: '堂号 不可以有其他標點符號，除了 () 拆字可用（）', status: 'warning' });
             }
 
             this.parameter['hall'] = this.parameter['hall'].replace(/（/g, '(').replace(/）/g, ')');

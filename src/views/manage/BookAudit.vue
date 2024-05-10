@@ -392,7 +392,7 @@ export default {
         'time': function(nv, ov){
             if(nv){
                 this.startTime = new Date(nv[0]).getTime();
-                this.endTime = new Date(nv[1]).getTime();
+                this.endTime = new Date(nv[1]).getTime() + 24*60*60*1000 - 1;
             }else{
                 this.startTime = '';
                 this.endTime = '';

@@ -4,9 +4,9 @@
     <div class="navCenter">
         <div class="navleft">
             <!-- <img src="../assets/nav/logo_nav.svg"> -->
-            <router-link :to="'/'+pathname">{{stationNames}}</router-link>
+            <!-- <router-link :to="'/'+pathname">{{stationNames}}</router-link> -->
             <!-- :href="'https://baoku.qingtime.cn/'+pathname" -->
-            <!-- <p>{{stationNames}}</p> -->
+            <p>{{stationNames}}</p>
         </div>
         <div class="navRight">
             <ul class="navLink">
@@ -126,6 +126,7 @@ export default {
     width: 100%;
     height: 180px;
     background: url('../assets/search/bg.png') 50% 50% no-repeat;
+    background-size: cover;
 }
 .nav{
     position: relative;

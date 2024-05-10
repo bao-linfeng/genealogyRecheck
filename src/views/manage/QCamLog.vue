@@ -70,12 +70,18 @@
                     <el-table-column prop="time" label="日期" align="center"></el-table-column>
                     <el-table-column prop="supplierOrg" label="供应商" align="center"></el-table-column>
                     <el-table-column prop="userName" label="拍摄人员" align="center"></el-table-column>
-                    <el-table-column prop="cameraModel" label="设备型号" align="center"></el-table-column>
-                    <el-table-column prop="device" label="设备序号" align="center"></el-table-column>
+                    <el-table-column prop="cameraModel" label="登记设备型号" align="center"></el-table-column>
+                    <el-table-column prop="device" label="登记设备序号" align="center"></el-table-column>
+                    <el-table-column prop="cameraModelActual" label="拍摄设备型号" align="center"></el-table-column>
+                    <el-table-column prop="cameraNumberActual" label="拍摄设备序号" align="center"></el-table-column>
 
                     <el-table-column prop="imageCount" label="拍数统计" align="center"></el-table-column>
                     <el-table-column prop="imageDelete" label="删除统计" align="center"></el-table-column>
                     <el-table-column prop="volumePages" label="同步拍数" align="center"></el-table-column>
+
+                    <el-table-column prop="cameraLostFocus" label="失焦" align="center"></el-table-column>
+                    <el-table-column prop="cameraLost" label="相机断开" align="center"></el-table-column>
+                    <el-table-column prop="cameraError" label="拍摄失败" align="center"></el-table-column>
                     <el-table-column
                         label="操作"
                         width="200"
@@ -136,7 +142,7 @@ export default {
             accountTypeO: '1',
             accountTypeList: [
                 {'label': '拍摄情况', 'value': '1'},
-                {'label': '出错率', 'value': '2'},
+                // {'label': '出错率', 'value': '2'},
                 {'label': '上线情况', 'value': '3'},
                 // {'label': '日志下载', 'value': '4'},
             ],
@@ -148,9 +154,9 @@ export default {
             cameraModel: '',
             cameraModelList: [
                 {'label': '全部型号', 'value': ''},
-                {'label': 'NikonD800E', 'value': 'NikonD800E'},
-                {'label': 'NikonD810', 'value': 'NikonD810'},
-                {'label': 'NikonD850', 'value': 'NikonD850'},
+                {'label': 'NikonD800E', 'value': 'D800'},
+                {'label': 'NikonD810', 'value': 'D810'},
+                {'label': 'NikonD850', 'value': 'D850'},
             ],
             loading: false,
             page: 1,
@@ -193,22 +199,71 @@ export default {
             });
             this.downloadList = downloadList;
         },
+        async getCameraLogin(){
+            let result = await api.getAxios('v2/camera/device/cameraLogOnline?orgKey='+this.orgKey+'&startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1));
+            if(result.status == 200){
+                let chartData = {
+                    'labels': [], 
+                    'data': [], 
+                    'label': ['上线情况']
+                }, a = [
+                    {
+                        name: '仰沁',
+                        data: []
+                    },
+                    {
+                        name: '古中山',
+                        data: []
+                    },
+                    {
+                        name: '寻源堂',
+                        data: []
+                    },
+                    {
+                        name: '成蹊',
+                        data: []
+                    },
+                    {
+                        name: '时光科技',
+                        data: []
+                    },
+                    {
+                        name: '良友科苑',
+                        data: []
+                    },
+                    {
+                        name: '馨里有谱',
+                        data: []
+                    },
+                ];
+                
+                result.data.forEach((e) => {
+                    chartData.labels.push(e.time);
+                    a[0].data.push(e[a[0].name]);
+                    a[1].data.push(e[a[1].name]);
+                    a[2].data.push(e[a[2].name]);
+                    a[3].data.push(e[a[3].name]);
+                    a[4].data.push(e[a[4].name]);
+                    a[5].data.push(e[a[5].name]);
+                    a[6].data.push(e[a[6].name]);
+                });
+                chartData.data = a;
+
+                this.initChart(chartData);
+            }else{
+                this.$XModal.message({ message: data.msg, status: 'warning' })
+            }
+        },
         initChart(chartData){
             this.adaiChart ? this.adaiChart.dispose() : null;
             this.adaiChart = null;
 
-            let datasets = [];
-            chartData.label.forEach((ele, i) => {
-                datasets.push({
-                    name: ele,
-                    type: 'line',
-                    label: {
-                        show: true,
-                        position: 'top',
-                        fontSize: 9,
-                    },
-                    data: chartData.data[i]
-                });
+            chartData.data.forEach((ele) => {
+                ele.type = 'bar';
+                ele.stack = 'Ad';
+                ele.emphasis = {
+                    focus: 'series'
+                };
             });
 
             this.adaiChart = echarts.init(this.dom, null, {
@@ -217,16 +272,16 @@ export default {
             });
 
             let option = {
-                // title: {
-                //     text: '拍摄机器上线情况',
-                //     x: 'center'
-                // },
+                title: {
+                    // text: '拍摄机器上线情况',
+                    x: 'center'
+                },
                 tooltip: {
                     trigger: 'axis'
                 },
                 legend: {
-                    data: chartData.label,
-                    y: 30
+                    // data: chartData.label,
+                    // y: 30
                 },
                 grid: {
                     left: '0%',
@@ -252,7 +307,7 @@ export default {
                         }
                     },
                 },
-                series: datasets
+                series: chartData.data
             };
 
             if (option && typeof option === 'object') {
@@ -335,27 +390,8 @@ export default {
                 this.$XModal.message({ message: data.msg, status: 'warning' })
             }
         },
-        async getCameraLogin(){
-            let result = await api.getAxios('v2/camera/device/cameraLogOnline?orgKey='+this.orgKey+'&startTime='+new Date(this.startTime).getTime()+'&endTime='+(new Date(this.endTime).getTime() + 24*60*60*1000 - 1));
-            if(result.status == 200){
-                let chartData = {
-                    'labels': [], 
-                    'data': [], 
-                    'label': ['上线情况']
-                }, a = [];
-                result.data.forEach((e) => {
-                    chartData.labels.push(e.time);
-                    a.push(e.onlineNumber);
-                });
-                chartData.data.push(a);
-                this.initChart(chartData);
-            }else{
-                this.$XModal.message({ message: data.msg, status: 'warning' })
-            }
-        },
         handleDownload(row){
             ADS.zipFiles('拍机日志-'+Date.now()+'.zip', [{'name': row.originalName, 'url': api.APIURL+row.simplePath}]);
-            // ADS.downliadLink(row.simplePath+'?response-content-type=application%2Foctet-stream');
         },
     },
     computed: {

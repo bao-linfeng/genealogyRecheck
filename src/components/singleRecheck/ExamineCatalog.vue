@@ -142,6 +142,22 @@ export default {
             }
         },
         save(){
+            // 审核人员 把索引已分配的谱目 谱状态 f -> d 做二次校验  2025.5.9 9:32 baolf(李兰要求，FS提出)
+            if(this.detail.indexAssign === '已分配' && this.detail.condition === 'f' && this.condition != 'f'){
+                this.$confirm('此谱已分配给索引供应商，请确认是否变更谱状态？', '提示', {
+                    confirmButtonText: '是',
+                    cancelButtonText: '否',
+                    type: 'warning',
+                }).then(() => {
+                    this.handleSave();
+                }).catch((e) => {
+                    console.log(e);
+                });
+            }else{
+                this.handleSave();
+            }
+        },
+        handleSave(){
             if(['9071165200'].indexOf(this.roleKey) > -1){
                 this.verifyToBeDiscussedGC();
             }else{
@@ -153,7 +169,7 @@ export default {
                 }
                 this.isDuplicateGC();
             }
-        },
+        }
     },
     computed: {
         ...mapState({

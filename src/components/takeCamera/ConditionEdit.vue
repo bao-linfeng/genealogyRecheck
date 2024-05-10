@@ -67,7 +67,19 @@ export default {
             if(this.catalog.condition == this.condition){
                 // return ADS.message('相同谱目状态不建议修改！');
             }
-            this.updateCondition();
+            if(this.catalog.indexAssign === '已分配' && this.catalog.condition === 'f' && this.condition != 'f'){
+                this.$confirm('此谱已分配给索引供应商，请确认是否变更谱状态？', '提示', {
+                    confirmButtonText: '是',
+                    cancelButtonText: '否',
+                    type: 'warning',
+                }).then(() => {
+                    this.updateCondition();
+                }).catch((e) => {
+                    console.log(e);
+                });
+            }else{
+                this.updateCondition();
+            }
         },
         async updateCondition(){// 编辑谱目状态
             let data = await api.patchAxios('v3/review/updateCondition',{
