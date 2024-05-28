@@ -152,7 +152,15 @@
             <!-- <div v-show="isShow" class="search-input-modal" v-for="item in 1" :key="'kon'+item"></div> -->
         </div>
         <div class="search-modal-box">
-            <div class="search-input-modal"></div>
+            <el-select v-if="isShow" v-model="parameters.country" placeholder="所属国家" class="w15 marginB10">
+                <el-option
+                    v-for="item in countryList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <div class="search-input-modal" v-else></div>
             <div class="search-button-modal" @click="getGenealogy">
                 <span>搜索</span>
             </div>
@@ -209,6 +217,7 @@ export default {
                 libKey: '',
                 equal: 1,
                 createOrgKey: [],
+                country: '中国',
                 // begYear: '',
                 // endYear: '',
                 // noPublishAD: false,
@@ -289,6 +298,11 @@ export default {
             FileTimes: '',
             publishTime: '',
             isShow: false,
+            countryList: [
+                {label: '国家', value: ''},
+                {label: '中国', value: '中国'},
+                {label: '韩国', value: '韩国'}
+            ],
         };
     },
     created:function(){

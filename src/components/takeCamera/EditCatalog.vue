@@ -82,6 +82,17 @@
                     <!-- 2023.10.24 baolf 状态更改，权限 总管理员、谱目管理员 -->
                     <img class="edit" v-if="['9071165200', '9071165255'].indexOf(roleKey) > -1 && isEdit" @click="isOpen = 3" title="更新状态" src="../../assets/shoot/leaveMsg.svg" alt="">
                 </li>
+                <li class="w100">
+                    <label class="label" for="">所属国家</label>
+                    <el-select class="w80" v-model="parameter['country']" placeholder="所属国家" size="medium">
+                        <el-option
+                            v-for="item in countryList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                </li>
                 <li>
                     <label class="label" for="">谱目编辑</label>
                     <!-- && role >= 1 && role <= 3 -->
@@ -195,6 +206,11 @@ export default {
             ],
             tooltipShow: '',
             isShowlostVolume: false,
+            countryList: [
+                {label: '国家', value: ''},
+                {label: '中国', value: '中国'},
+                {label: '韩国', value: '韩国'}
+            ],
         };
     },
     mounted: function(){
@@ -261,6 +277,7 @@ export default {
                 this.parameter['explain'] = result.data['explain'] || '';
                 this.parameter['memo'] = result.data['memo'] || '';
                 this.parameter['condition'] = result.data['condition'] || '';
+                this.parameter['country'] = result.data['country'] || '中国';
                 this.GCOver = result.data.GCOver ? '1' : '';
                 this.NoIndex = result.data.NoIndex ? 1 : 0;
 
@@ -281,6 +298,7 @@ export default {
             dataObj['lostVolume'] = this.parameter['lostVolume'].replace(/\s+/g, '');
             dataObj['explain'] = this.parameter['explain'] || '';
             dataObj['memo'] = this.parameter['memo'] || '';
+            dataObj['country'] = this.parameter['country'] || '';
             dataObj['GCOver'] = this.GCOver;
             dataObj['NoIndex'] = this.NoIndex ? 1 : 0;
 

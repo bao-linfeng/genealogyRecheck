@@ -122,6 +122,7 @@ export default {
             type: '家谱',
             imageTotal: 0,
             GCOver: '',
+            country: '中国',
         };
     },
     created:function(){
@@ -195,6 +196,7 @@ export default {
                 'order': this.order,
                 'limit': 5000,
                 'GCOver': this.GCOver,
+                'country': this.country,
             });
             this.loading = false;
             if(data.status == 200){
@@ -239,6 +241,7 @@ export default {
             '&keyWordObj='+JSON.stringify(this.keyWordObj)+
             '&prop='+this.prop+
             '&GCOver='+this.GCOver+
+            '&country='+this.country+
             '&order='+this.order+'&page='+this.page+'&limit='+this.limit);
             this.loading = false;
             if(data.status == 200){
@@ -310,9 +313,10 @@ export default {
             this.claimEndTime = data['claimEndTime'] || '';
             this.type = data['type'] || '';
             this.GCOver = data['GCOver'] || '';
+            this.country = data['country'] || '';
 
             for(let key in data){
-                if(key == 'publishStartTime' || key == 'publishEndTime' || key == 'GCOver' || key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'country' || key == 'publishStartTime' || key == 'publishEndTime' || key == 'GCOver' || key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'condition' || key == 'NoIndex' || key == 'isPublish' || key == 'isPlace' || key == 'fileName' || key == 'keyWord' || key == 'startTime' || key == 'endTime' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];
@@ -347,9 +351,10 @@ export default {
             this.claimEndTime = data['claimEndTime'] || '';
             this.type = data['type'] || '';
             this.GCOver = data['GCOver'] || '';
+            this.country = data['country'] || '';
 
             for(let key in data){
-                if(key == 'publishStartTime' || key == 'publishEndTime' || key == 'GCOver' || key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
+                if(key == 'country' || key == 'publishStartTime' || key == 'publishEndTime' || key == 'GCOver' || key == 'type' || key == 'claimStartTime' || key == 'createOrgKey' || key == 'claimEndTime' || key == 'waitComplete' || key == 'gcStatus' || key == 'FileStartTimes' || key == 'FileEndTimes' || key == 'NoIndex' || key == 'libKey' || key == 'equal' || key == 'orgKey' || key == 'begYear' || key == 'endYear' || key == 'noPublishAD'){
 
                 }else{
                     keyWordObj[key] = data[key];

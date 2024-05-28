@@ -17,6 +17,7 @@
             </ul>
             <p class="condition">谱状态说明:f,审核通过且已拍摄;nf,审核通过未拍摄;r,无效谱;d,谱书重复;m,待议谱。</p>
             <div class="table-wrap" v-if="isTable">
+                <!-- :edit-config="{trigger: 'dblclick', mode: 'row',showStatus: true, activeMethod:activeCellMethod}" -->
                 <vxe-table
                     border
                     class="adai-table"
@@ -29,16 +30,18 @@
                     :data="tableData"
                     :row-class-name="rowClassName"
                     @edit-closed="editClosedEvent"
-                    :edit-config="{trigger: 'dblclick', mode: 'row',showStatus: true, activeMethod:activeCellMethod}"
+                    :edit-config="{trigger: 'manual', mode: 'row'}"
+                    
                     @cell-click="cellClickEvent">
                     <vxe-table-column fixed="left" v-if="active == 4" field="canTake" title="审核" width="160" :cell-render="{name:'AdaiTabButton', events:{'click':changeCanTake}}"></vxe-table-column>
                     <!-- <vxe-table-column fixed="left" width="100" field="_key" title="谱ID"></vxe-table-column> -->
-                    <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
+                    <!-- :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}" -->
+                    <vxe-table-column fixed="left" v-for="(item,index) in field_main" :key="'main'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? '' : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     <!-- <vxe-table-column fixed="left" v-if="active == 4" field="annex" title="补充" width="80" :cell-render="{name: 'AdaiActionButton', attr: {data: [{'label': '补充','value':'annexEdit'}, ]}, events: {'annexEdit': annexEdit}}"></vxe-table-column> -->
-                    <vxe-table-column fixed="left" v-if="active == 4" field="needFill" title="补充说明" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
+                    <vxe-table-column v-if="active == 4" field="needFill" title="补充说明" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needFill'},events:{'click':changeStatus}}"></vxe-table-column>
                     <!-- <vxe-table-column fixed="left" v-if="active == 4" width="120" field="needFillFieldsO" title="补充说明"></vxe-table-column> -->
-                    <vxe-table-column fixed="left" v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
-                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? {enabled: false} : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
+                    <vxe-table-column v-if="active == 4" field="needImage" title="补充影像" width="80" :cell-render="{name:'AdaiSwitchButton',attr:{property:'needImage'},events:{'click':changeStatus}}"></vxe-table-column>
+                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" width="100" :field="item.fieldName" :title="item.fieldMeans" :edit-render="item.disabled ? '' : {name: 'input', attrs: {type: 'text'}}"></vxe-table-column>
                     
                     <vxe-table-column fixed="right" field="action" title="操作" width="160" :cell-render="{name:'AdaiActionButton',attr:{data: attrData},events:{'catalogCheck': catalogCheck,'editBook': editBook, 'annex': annex, 'singleQuick': singleQuick, 'submit': handleSubmit}}"></vxe-table-column>
                 </vxe-table>
@@ -58,7 +61,7 @@
         <!-- 批次关联影像、审核时查看 -->
         <UploadImages v-if="isShow" :batchData="{'_key': this.batchId, 'look': 1}" v-on:close="isShow = 0" />
         <!-- 谱目编辑 -->
-        <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeEdit" />
+        <!-- <EditCatalog v-if="isEdit" :read="false" :dataKey="gid" :conditionEdit="true" :vid="''" v-on:close="closeEdit" /> -->
         <!-- 谱目审核 -->
         <ExamineCatalog v-if="isCheck" :detail="detail" v-on:close="closeExamine" />
     </div>
@@ -138,7 +141,7 @@ export default {
         if(this.active == 4){
             this.attrData = [
                 // {'label': '审核', 'value': 'catalogCheck'},
-                // {'label': '编辑', 'value': 'editBook'},
+                {'label': '编辑', 'value': 'editBook'},
                 {'label': '确认', 'value': 'submit'},
                 {'label':'附件','value':'annex'}, 
                 {'label':'快捷查询','value':'singleQuick'}
@@ -239,8 +242,10 @@ export default {
         },
         editBook({row}){// 编辑谱目
             if(this.active == 4){
-                this.gid = row._key;
+                // this.gid = row._key;
                 this.isEdit = true;
+                const $table = this.$refs.xTable;
+                $table.setActiveRow(row);
             }else{
                 ADS.message('该状态不允许编辑！');
             }
@@ -489,11 +494,15 @@ export default {
             this.changeLoading(false);
             if(data.status == 200){
                 // this.getDataCheckLog();
+                this.isEdit = false;
             }else{
                 this.$XModal.message({ message: data.msg, status: 'warning' });
             }
         },
         cellClickEvent({row,column}){
+            if(this.isEdit){
+                return false;
+            }
             if(column.property == 'toggle' || column.property == 'action' || column.property == 'annex'){
                 this.collapsableEvent();
                 return false;
