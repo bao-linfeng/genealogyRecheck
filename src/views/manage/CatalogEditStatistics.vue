@@ -127,7 +127,7 @@ export default {
                 this.userList = userList;
                 this.branch_main = this.field_main = field_main;
 
-                this.userKeyArr = ['1545060676', '1546838797', '1526398266', '1525906946', '24690171211'];
+                this.userKeyArr = ['1525906946', '1546838797', '29766486355', '29766481125'];
 
                 this.getWorkRecordStatisticsNewGCCheck();
             }else{

@@ -159,6 +159,7 @@ export default {
                 {'fieldMeans': '认领时间', 'fieldName': 'claimTime', 'disabled': true},
                 {'fieldMeans': '上传机构', 'fieldName': 'createOrgName', 'disabled': true},
                 {'fieldMeans': '上传时间', 'fieldName': 'createTime', 'disabled': true},
+                {'fieldMeans': '所属国家', 'fieldName': 'country', 'disabled': true},
             ],
             isMore: false,
             parameter: {},
