@@ -56,38 +56,6 @@
                         </template>
                     </el-table-column>
                 </el-table>
-                <!-- <vxe-table
-                    border
-                    resizable
-                    stripe
-                    keep-source
-                    highlight-hover-row
-                    :loading="loading"
-                    ref="xTable"
-                    :height="h"
-                    :scroll-y="{enabled: false}"
-                    :align="'center'"
-                    :data="tableData"
-                    :sort-config="{trigger: 'cell', orders: ['desc', 'asc', 'auto'], remote: true}"
-                    @sort-change="sortChangeEvent"
-                    >
-                    <vxe-table-column v-for="(item,index) in field_main" :key="'main'+index" :width=" item.fieldName == 'surname' ? 60 : 100" :field="item.fieldName" :title="item.fieldMeans" fixed="left"></vxe-table-column>
-                    <vxe-table-column v-for="(item,index) in field_branch" :key="'branch'+index" :width="100" :field="item.fieldName" :title="item.fieldMeans"></vxe-table-column>
-                    <vxe-table-column field="memo" title="备注" width="150" show-overflow="title"></vxe-table-column>
-                    <vxe-table-column field="explain" title="说明" width="150" show-overflow="title"></vxe-table-column>
-                    <vxe-table-column field="orgName" title="供应商" width="100"></vxe-table-column>
-                    <vxe-table-column field="condition" title="谱状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="FiletimesO" title="档案时间" width="100" sort-by="Filetimes" sortable></vxe-table-column>
-                    <vxe-table-column field="Filenames" title="档名" width="100"></vxe-table-column>
-                    <vxe-table-column field="bookId" title="谱书编号" width="100"></vxe-table-column>
-                    <vxe-table-column field="DGS" title="DGS号码" width="100"></vxe-table-column>
-                    <vxe-table-column field="genealogyGroupID" title="家谱群组ID" width="100"></vxe-table-column>
-                    <vxe-table-column field="updateUserName" title="更新人员" width="100"></vxe-table-column>
-                    <vxe-table-column field="GCOverO" title="编目状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="NoIndexO" title="索引状态" width="100"></vxe-table-column>
-                    <vxe-table-column field="gcStatusO" title="谱书状态" width="100"></vxe-table-column>
-                    <vxe-table-column title="操作" fixed="right" width="180" :cell-render="{name:'AdaiActionButton',attr:{data: attrData}, events: {'detail': getDetail, 'readBook': readBook, 'log': getLog}}"></vxe-table-column>
-                </vxe-table> -->
                 <div class="page-foot">
                     <div class="count-wrap">
                         
@@ -188,7 +156,7 @@ export default {
     created:function(){
         this.h = window.innerHeight - 50 - 50 - 50 - 48;
         if(window.innerWidth >= 1215 && window.innerWidth <= 1550){
-            this.h = this.h - 50;
+            this.h = this.h - 40;
             this.count = 3;
         }
     },
@@ -441,6 +409,25 @@ export default {
 }
 .marginR20{
     margin-right: 20px;
+}
+
+@media screen and (max-width: 1400px) and (min-width: 1025px){
+    .wrap{
+        .content{
+            .search-wrap{
+                height: 140px;
+            }
+            .vex-table-box{
+                height: calc(100% - 180px);
+                &.h140{
+                    height: calc(100% - 190px);
+                }
+                &.active{
+                    height: calc(100% - 250px);
+                }
+            }
+        }
+    }
 }
 </style>
 

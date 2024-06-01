@@ -15,7 +15,7 @@
                     
                 </div>
                 <div class="search-right">
-                    <el-select class="width130" v-model="userKeyArr" multiple placeholder="审核人员">
+                    <el-select class="width230" v-model="userKeyArr" multiple placeholder="审核人员">
                         <el-option
                             v-for="item in userList"
                             :key="item.value"
@@ -333,8 +333,9 @@ export default {
         }
     }
 }
-.width130{
-    width: 130px;
+.width230{
+    width: 280px;
+    z-index: 1000;
 }
 .width80{
     width: 80px !important;

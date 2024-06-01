@@ -99,7 +99,7 @@ export default {
             endTime: '',
             field_main: [],
             branch_main: [],
-            userKeyArr: ['1525906946', '1546838797'],
+            userKeyArr: [],
             userList: [],
             loading: false,
         };
@@ -127,7 +127,7 @@ export default {
                 this.userList = userList;
                 this.branch_main = this.field_main = field_main;
 
-                this.userKeyArr = ['1525906946', '1546838797'];
+                this.userKeyArr = ['1525906946', '1546838797', '1545060676'];
 
                 this.getWorkRecordStatisticsNewGCCheck();
             }else{
